@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord, logging, os
 
 TOKEN = os.getenv("TOKEN")
+
 logging.basicConfig(level=logging.INFO)
 
 
