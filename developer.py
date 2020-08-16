@@ -19,6 +19,103 @@ class Dev(commands.Cog):
         # remove `foo`
         return content.strip('` \n')
 
+    async def cog_before_invoke(self, ctx):
+        if ctx.author.id not in self.bot.ADMIN:
+            raise commands.CommandError("Developer-Admin-Error")
+
+    @commands.group()
+    async def admin(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("add <@user> | delete <@user> | list ")
+
+    @admin.command(name="add")
+    async def add_admin(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id in self.bot.database.ADMIN:
+                await ctx.send("このユーザーは既に管理者です.")
+            else:
+                self.bot.ADMIN.append(target.id)
+                await ctx.send(f"<@{target.id}>さんが管理者になりました.")
+        
+
+    @admin.command(name="delete", aliases=["remove"])
+    async def delete_admin(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id not in self.bot.ADMIN:
+                await ctx.send("このユーザーは管理者ではありません.")
+            else:
+                self.bot.ADMIN.remove(target.id)
+                await ctx.send(f"<@{target.id}>さんが管理者から削除されました.")
+        
+
+    @admin.command(name="list")
+    async def list_admin(self, ctx):
+        text = "管理者一覧:"
+        for user in self.bot.ADMIN:
+            text += "\n{0} ({0.id})".format(self.bot.get_user(user))
+        await ctx.send(text)
+        
+
+    @commands.group()
+    async def ban(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("add <@user> | delete <@user> | list ")
+
+    @ban.command(name="add")
+    async def add_ban(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id in self.bot.BAN:
+                await ctx.send("このユーザーはすでにBANされています.")
+            else:
+                self.bot.BAN.append(target.id)
+                await ctx.send(f"<@{target.id}>がBANされました.")
+
+    @ban.command(name="delete", aliases=["remove"])
+    async def delete_ban(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id not in self.bot.BAN:
+                await ctx.send("このユーザーはBANされていません.")
+            else:
+                self.bot.BAN.remove(target.id)
+                await ctx.send(f"<@{target.id}>さんがBANを解除されました.")
+
+    @ban.command(name="list")
+    async def list_ban(self, ctx):
+        text = "BANユーザー一覧:"
+        for user in self.bot.BAN:
+            text += "\n{0} ({0.id})".format(self.bot.get_user(user))
+        await ctx.send(text)
+
+    @commands.group(aliases=["con"])
+    async def contributor(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("add <@user> | delete <@user> | list ")
+
+    @contributor.command(name="add")
+    async def add_con(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id in self.bot.Contributor:
+                await ctx.send("このユーザーはすでに貢献者されています.")
+            else:
+                self.bot.Contributor.append(target.id)
+                await ctx.send(f"<@{target.id}>が貢献者になりました.")
+
+    @contributor.command(name="delete", aliases=["remove"])
+    async def delete_con(self, ctx, *, text):
+        for target in ctx.message.mentions:
+            if target.id not in self.bot.Contributor:
+                await ctx.send("このユーザーは貢献者ではありません.")
+            else:
+                self.bot.Contributor.remove(target.id)
+                await ctx.send(f"<@{target.id}>さんが貢献者ではなくなりました.")
+
+    @contributor.command(name="list")
+    async def list_con(self, ctx):
+        text = "貢献者一覧:"
+        for user in self.bot.Contributor:
+            text += "\n{0} ({0.id})".format(self.bot.get_user(user))
+        await ctx.send(text)
+
     @commands.group(aliases=["sys"])
     async def system(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -69,7 +166,7 @@ class Dev(commands.Cog):
     async def restart(self, ctx):
         music = self.bot.get_cog("Music")
         await music.leave_all()
-        await self.save_database()
+        
         await ctx.send(":closed_lock_with_key:BOTを再起動します.")
         python = sys.executable
         os.execl(python, python, * sys.argv)
@@ -78,7 +175,7 @@ class Dev(commands.Cog):
     async def quit(self, ctx):
         music = self.bot.get_cog("Music")
         await music.leave_all()
-        await self.save_database()
+        
         await ctx.send(":closed_lock_with_key:BOTを停止します.")
         sys.exit()
 
