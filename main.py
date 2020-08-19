@@ -27,7 +27,7 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f"Logged in to {self.user}")
         db_dict: dict
-        with open('database.json'), 'r' as f:
+        with open('database.json', 'r') as f:
             db_dict = json.load(f)
         self.database = db_dict["user"]
         self.ADMIN = db_dict["role"]["ADMIN"]

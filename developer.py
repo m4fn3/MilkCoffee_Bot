@@ -31,12 +31,11 @@ class Dev(commands.Cog):
     @admin.command(name="add")
     async def add_admin(self, ctx, *, text):
         for target in ctx.message.mentions:
-            if target.id in self.bot.database.ADMIN:
+            if target.id in self.bot.ADMIN:
                 await ctx.send("このユーザーは既に管理者です.")
             else:
                 self.bot.ADMIN.append(target.id)
                 await ctx.send(f"<@{target.id}>さんが管理者になりました.")
-        
 
     @admin.command(name="delete", aliases=["remove"])
     async def delete_admin(self, ctx, *, text):
@@ -46,7 +45,6 @@ class Dev(commands.Cog):
             else:
                 self.bot.ADMIN.remove(target.id)
                 await ctx.send(f"<@{target.id}>さんが管理者から削除されました.")
-        
 
     @admin.command(name="list")
     async def list_admin(self, ctx):
@@ -54,7 +52,6 @@ class Dev(commands.Cog):
         for user in self.bot.ADMIN:
             text += "\n{0} ({0.id})".format(self.bot.get_user(user))
         await ctx.send(text)
-        
 
     @commands.group()
     async def ban(self, ctx):
