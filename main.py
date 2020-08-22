@@ -15,7 +15,7 @@ class Bot(commands.Bot):
 
     def __init__(self, command_prefix):
         super().__init__(command_prefix)
-        cogs = ["decoration", "developer"]
+        cogs = ["costume", "developer"]
         for cog in cogs:
             self.load_extension(cog)
         self.database = {}
