@@ -18,6 +18,8 @@ class Bot(commands.Bot):
         cogs = ["costume", "developer"]
         for cog in cogs:
             self.load_extension(cog)
+        with open('error_text.json', 'r', encoding='utf-8') as f:
+            self.error_text = json.load(f)
         self.database = {}
         self.ADMIN = []
         self.BAN = []
@@ -27,7 +29,7 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f"Logged in to {self.user}")
         db_dict: dict
-        with open('database.json', 'r') as f:
+        with open('database.json', 'r', encoding='utf-8') as f:
             db_dict = json.load(f)
         self.database = db_dict["user"]
         self.ADMIN = db_dict["role"]["ADMIN"]
@@ -50,7 +52,7 @@ class Bot(commands.Bot):
                 "maintenance": self.maintenance
             }
         }
-        with open('database.json', 'w') as f:
+        with open('database.json', 'w', encoding='utf-8') as f:
             json.dump(db_dict, f, indent=2)
 
 

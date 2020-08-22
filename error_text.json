@@ -1,0 +1,9 @@
+{
+  "wrong_base_id": "色(白か黒)の番号が間違っています.",
+  "wrong_char_id": "キャラの番号が間違っています.",
+  "wrong_weapon_id": "武器の番号が間違っています.",
+  "wrong_head_id": "頭装飾の番号が間違っています.",
+  "wrong_body_id": "体装飾の番号が間違っています.",
+  "wrong_back_id": "背中装飾の番号が間違っています.",
+  "missing_required_arguments": "引数の数が間違っています."
+}

@@ -9,7 +9,7 @@ class Costume(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
-        with open('emoji_data.json', 'r') as f:
+        with open('./assets/emoji_data.json', 'r') as f:
             self.emoji = json.load(f)
 
     def initialize_user_data(self, user_id: str):
@@ -58,13 +58,13 @@ class Costume(commands.Cog):
         if len(item_list) == 1 and item.isdigit() and len(str(item)) == 11:
             code, result = check_item_id(item)
             if code == 0:
-                return await ctx.send(f"アイテム番号が間違っています.詳細:{result}")
+                return await ctx.send(self.bot.error_text[result])
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_data_to_database(ctx.author.id, parse_item_list_to_code(result))
         else:
             code, result = check_item_list(item_list)
             if code == 0:
-                return await ctx.send(f"アイテム番号が間違っています.詳細:{result}")
+                return await ctx.send(self.bot.error_text[result])
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_data_to_database(ctx.author.id, item)
 
