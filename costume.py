@@ -37,7 +37,6 @@ class Costume(commands.Cog):
         base.paste(back, (0, 0), back)
         base.paste(weapon, (0, 0), weapon)
         base = self.convert_to_bytes(base)
-        canvas_name = self.bot.database[str(ctx.author.id)]["canvas"]
         embed = discord.Embed()
         item_id = parse_item_list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
         text = f"{self.emoji['base'][str(base_id)]} {self.emoji['character'][str(character_id)]} {self.emoji['weapon'][str(weapon_id)]} {self.emoji['head'][str(head_id)]} {self.emoji['body'][str(body_id)]} {self.emoji['back'][str(back_id)]}"#f"装飾コード: {item_id}"
@@ -85,6 +84,32 @@ class Costume(commands.Cog):
         item_code = self.bot.database[str(ctx.author.id)]["canvas"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
+
+    @commands.command()
+    async def save(self, ctx):
+        name: str
+        listed = ctx.message.content.split(" ", 1)
+        used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+        if len(listed) == 1:
+            count = 1
+            while True:
+                if f"無題{count}" not in used_name_list:
+                    name = f"無題{count}"
+                    break
+                count += 1
+        else:
+            if listed[1] in used_name_list:
+                return await ctx.send("この名前は既に使用しています。")
+            name = listed[1]
+        self.bot.database[str(ctx.author.id)]["save"].append(
+            {
+                "name": name,
+                "data": self.bot.database[str(ctx.author.id)]["canvas"]
+            }
+        )
+        await ctx.send(f"保存しました. 名称: '{name}'")
+    # TODO: show関数に保存したものを表示する機能
+    # TODO: 保存した作品一覧を見るコマンド
 
 
 def setup(bot):
