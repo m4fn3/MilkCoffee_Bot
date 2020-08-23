@@ -40,7 +40,7 @@ def check_item_id(item: str) -> (int, Any):
         return 0, "wrong_weapon_id"
     if not 1 <= int(item[5:7]) <= 55:
         return 0, "wrong_head_id"
-    if not 1 <= int(item[7:9]) <= 61:
+    if not 1 <= int(item[7:9]) <= 62:
         return 0, "wrong_body_id"
     if not 1 <= int(item[9:11]) <= 56:
         return 0, "wrong_back_id"
@@ -59,7 +59,7 @@ def check_item_list(item: List[str]) -> (int, Any):
         return 0, "wrong_weapon_id"
     if not (item[3].isdigit() and 1 <= int(item[3]) <= 55):
         return 0, "wrong_head_id"
-    if not (item[4].isdigit() and 1 <= int(item[4]) <= 61):
+    if not (item[4].isdigit() and 1 <= int(item[4]) <= 62):
         return 0, "wrong_body_id"
     if not (item[5].isdigit() and 1 <= int(item[5]) <= 56):
         return 0, "wrong_back_id"

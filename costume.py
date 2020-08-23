@@ -9,8 +9,10 @@ class Costume(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
-        with open('./assets/emoji_data.json', 'r') as f:
+        with open('./assets/emoji_data.json', 'r', encoding="utf-8") as f:
             self.emoji = json.load(f)
+        with open('./assets/name_data.json', 'r', encoding="utf-8") as f:
+            self.name = json.load(f)
 
     def initialize_user_data(self, user_id: str):
         self.bot.database[user_id] = {
@@ -38,16 +40,14 @@ class Costume(commands.Cog):
         canvas_name = self.bot.database[str(ctx.author.id)]["canvas"]
         embed = discord.Embed()
         item_id = parse_item_list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
-        text = f"{self.emoji['base'][str(base_id)]}{self.emoji['character'][str(character_id)]}{self.emoji['weapon'][str(weapon_id)]}{self.emoji['head'][str(head_id)]}{self.emoji['body'][str(body_id)]}{self.emoji['back'][str(back_id)]}"#f"装飾コード: {item_id}"
-        embed.add_field(name="ベース色", value=f"{base_id} {self.emoji['base'][str(base_id)]}")
-        embed.add_field(name="キャラクター", value=f"{character_id} {self.emoji['character'][str(character_id)]}")
-        embed.add_field(name="武器", value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]}")
-        embed.add_field(name="頭装飾", value=f"{head_id} {self.emoji['head'][str(head_id)]}")
-        embed.add_field(name="体装飾", value=f"{body_id} {self.emoji['body'][str(body_id)]}")
-        embed.add_field(name="背中装飾", value=f"{back_id} {self.emoji['back'][str(back_id)]}")
-
-        #embed = discord.Embed(title=f"装飾コード: {item_id}\n{base_id} {self.emoji['base'][str(base_id)]}\n{character_id} {self.emoji['character'][str(character_id)]}\n{weapon_id} {self.emoji['weapon'][str(weapon_id)]}\n{head_id} {self.emoji['head'][str(head_id)]}\n{body_id} {self.emoji['body'][str(body_id)]}\n{back_id} {self.emoji['back'][str(back_id)]}")
-        #embed.set_author(name=f"装飾コード: {item_id}\n{base_id} {self.emoji['base'][str(base_id)]}\n{character_id} {self.emoji['character'][str(character_id)]}\n{weapon_id} {self.emoji['weapon'][str(weapon_id)]}\n{head_id} {self.emoji['head'][str(head_id)]}\n{body_id} {self.emoji['body'][str(body_id)]}\n{back_id} {self.emoji['back'][str(back_id)]}")
+        text = f"{self.emoji['base'][str(base_id)]} {self.emoji['character'][str(character_id)]} {self.emoji['weapon'][str(weapon_id)]} {self.emoji['head'][str(head_id)]} {self.emoji['body'][str(body_id)]} {self.emoji['back'][str(back_id)]}"#f"装飾コード: {item_id}"
+        embed.add_field(name="ベース色", value=f"{base_id} {self.emoji['base'][str(base_id)]} {self.name['base'][str(base_id)]}")
+        embed.add_field(name="キャラクター", value=f"{character_id} {self.emoji['character'][str(character_id)]} {self.name['character'][str(character_id)]}")
+        embed.add_field(name="武器", value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]} {self.name['weapon'][str(weapon_id)]}")
+        embed.add_field(name="頭装飾", value=f"{head_id} {self.emoji['head'][str(head_id)]} {self.name['head'][str(head_id)]}")
+        embed.add_field(name="体装飾", value=f"{body_id} {self.emoji['body'][str(body_id)]} {self.name['body'][str(body_id)]}")
+        embed.add_field(name="背中装飾", value=f"{back_id} {self.emoji['back'][str(back_id)]} {self.name['back'][str(back_id)]}")
+        embed.set_footer(text=f"装飾コード: {item_id}", icon_url="http://zorba.starfree.jp/MilkChoco/icon.png")
         await ctx.send(text, embed=embed, file=discord.File(fp=io.BytesIO(base), filename="result.png"))
         return
 
