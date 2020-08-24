@@ -6,5 +6,6 @@
   "wrong_head_id": "頭装飾の番号が間違っています.",
   "wrong_body_id": "体装飾の番号が間違っています.",
   "wrong_back_id": "背中装飾の番号が間違っています.",
-  "missing_required_arguments": "引数の数が間違っています."
+  "missing_required_arguments": "引数の数が間違っています.",
+  "no_match": "検索結果がありません.もう一度名前を確認してください."
 }

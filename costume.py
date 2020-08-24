@@ -1,7 +1,7 @@
 from discord.ext import commands
 from PIL import Image
 from typing import Any
-import discord, io, json, re, traceback2
+import discord, io, json, re, difflib
 from item_parser import *
 
 
@@ -13,6 +13,8 @@ class Costume(commands.Cog):
             self.emoji = json.load(f)
         with open('./assets/name_data.json', 'r', encoding="utf-8") as f:
             self.name = json.load(f)
+        with open('./assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
+            self.name_re = json.load(f)
 
     def initialize_user_data(self, user_id: str):
         self.bot.database[user_id] = {
@@ -112,50 +114,27 @@ class Costume(commands.Cog):
     # TODO: show関数に保存したものを表示する機能
     # TODO: 保存した作品一覧を見るコマンド
 
-    def find_item(self, pattern, item_name):
-        with open('./assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
-            name_re = json.load(f)
-        import time
-        start_time = time.time()
-        pt = []
-        for i in name_re:
-            for j in name_re[i]:
-                pt.append(name_re[i][j])
-        pattern = "|".join(pt)
-        item_dict = {}
-        # start_time = time.time()
-        # match_obj = re.search(pattern, item_name, re.IGNORECASE)
-        # match_dict = match_obj.groupdict()
-        # item_dict = {k: v for k, v in match_dict.items() if v is not None}
-        # print(item_dict)
-        # print(time.time() - start_time)
-        for i in pt:
-            match_obj = re.search(i, item_name, re.IGNORECASE)
-            #print(i)
-            if match_obj!=None:
-                print(match_obj.group())
-        print("way1:" + str(time.time() - start_time))
-
-        start_time = time.time()
-        for i in name_re:
-            for j in name_re[i]:
-                match_obj = re.search(name_re[i][j], item_name, re.IGNORECASE)
-                if match_obj != None:
-                    print(match_obj.group())
-        print("way2:" + str(time.time() - start_time))
-
-        start_time = time.time()
-        for i in name_re:
-            for j in name_re[i]:
-                match_obj = re.fullmatch(name_re[i][j], item_name, re.IGNORECASE)
-                if match_obj != None:
-                    print(match_obj.group())
-        print("way3:" + str(time.time() - start_time))
-        return item_dict
-
+    def find_item(self, pattern: str, item_name: str, index=False, item_type="") -> (int, Any):
+        if index and item_name.isdigit():
+            pass
+            # TODO:　item_typeをもとに最小、最大を求めて<<処理で判定
+        match_per = -1
+        item_info = []
+        for i in self.name_re:
+            for j in self.name_re[i]:
+                match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
+                if match_obj is not None:
+                    diff_per = difflib.SequenceMatcher(None, self.name[i][j], match_obj.group()).ratio()
+                    if diff_per > match_per:
+                        match_per = diff_per
+                        item_info = [i, j]
+        if match_per == -1:
+            return 0, "no_match"
+        else:
+            return 1, item_info[0], item_info[1]
 
     @commands.command()
-    async def test(self, ctx, text):
+    async def item(self, ctx, text):
         import pprint
         await ctx.send(pprint.pformat(self.find_item("", text)))
 
