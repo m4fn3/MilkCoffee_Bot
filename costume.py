@@ -1,7 +1,7 @@
 from discord.ext import commands
 from PIL import Image
 from typing import Any
-import discord, io, json
+import discord, io, json, re, traceback2
 from item_parser import *
 
 
@@ -108,8 +108,29 @@ class Costume(commands.Cog):
             }
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
+
     # TODO: show関数に保存したものを表示する機能
     # TODO: 保存した作品一覧を見るコマンド
+
+    def find_item(self, pattern, item_name):
+        with open('./assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
+            name_re = json.load(f)
+        pt = []
+        for i in name_re:
+            for j in name_re[i]:
+                pt.append(name_re[i][j])
+        pattern = "|".join(pt)
+        item_dict = {}
+        for match_obj in re.finditer(pattern, item_name):
+            match_dict = match_obj.groupdict()
+            match_clear = {k: v for k, v in match_dict.items() if v is not None}
+            item_dict.update(**item_dict, **match_clear)
+        return item_dict
+
+    @commands.command()
+    async def test(self, ctx, text):
+        import pprint
+        await ctx.send(pprint.pformat(self.find_item("", text)))
 
 
 def setup(bot):
