@@ -115,17 +115,44 @@ class Costume(commands.Cog):
     def find_item(self, pattern, item_name):
         with open('./assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
             name_re = json.load(f)
+        import time
+        start_time = time.time()
         pt = []
         for i in name_re:
             for j in name_re[i]:
                 pt.append(name_re[i][j])
         pattern = "|".join(pt)
         item_dict = {}
-        for match_obj in re.finditer(pattern, item_name):
-            match_dict = match_obj.groupdict()
-            match_clear = {k: v for k, v in match_dict.items() if v is not None}
-            item_dict.update(**item_dict, **match_clear)
+        # start_time = time.time()
+        # match_obj = re.search(pattern, item_name, re.IGNORECASE)
+        # match_dict = match_obj.groupdict()
+        # item_dict = {k: v for k, v in match_dict.items() if v is not None}
+        # print(item_dict)
+        # print(time.time() - start_time)
+        for i in pt:
+            match_obj = re.search(i, item_name, re.IGNORECASE)
+            #print(i)
+            if match_obj!=None:
+                print(match_obj.group())
+        print("way1:" + str(time.time() - start_time))
+
+        start_time = time.time()
+        for i in name_re:
+            for j in name_re[i]:
+                match_obj = re.search(name_re[i][j], item_name, re.IGNORECASE)
+                if match_obj != None:
+                    print(match_obj.group())
+        print("way2:" + str(time.time() - start_time))
+
+        start_time = time.time()
+        for i in name_re:
+            for j in name_re[i]:
+                match_obj = re.fullmatch(name_re[i][j], item_name, re.IGNORECASE)
+                if match_obj != None:
+                    print(match_obj.group())
+        print("way3:" + str(time.time() - start_time))
         return item_dict
+
 
     @commands.command()
     async def test(self, ctx, text):
