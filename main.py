@@ -1,5 +1,5 @@
 from discord.ext import commands, tasks
-import discord, logging, os, json
+import discord, logging, os, json, io
 from os.path import join, dirname
 from dotenv import load_dotenv
 
@@ -29,8 +29,11 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f"Logged in to {self.user}")
         db_dict: dict
-        with open('database.json', 'r', encoding='utf-8') as f:
-            db_dict = json.load(f)
+        database_channel = self.get_channel(744466393356959785)
+        database_msg = await database_channel.fetch_message(database_channel.last_message_id)
+        database_file = database_msg.attachments[0]
+        db_byte = await database_file.read()
+        db_dict = json.loads(db_byte)
         self.database = db_dict["user"]
         self.ADMIN = db_dict["role"]["ADMIN"]
         self.BAN = db_dict["role"]["BAN"]
@@ -52,8 +55,9 @@ class Bot(commands.Bot):
                 "maintenance": self.maintenance
             }
         }
-        with open('database.json', 'w', encoding='utf-8') as f:
-            json.dump(db_dict, f, indent=2)
+        database_channel = self.get_channel(744466393356959785)
+        db_bytes = json.dumps(db_dict, indent=2)
+        await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
 
 
 if __name__ == '__main__':

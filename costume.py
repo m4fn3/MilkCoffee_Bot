@@ -15,6 +15,8 @@ class Costume(commands.Cog):
             self.name = json.load(f)
         with open('./assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
             self.name_re = json.load(f)
+        with open('./assets/item_info.json') as f:
+            self.item_info = json.load(f)
 
     def initialize_user_data(self, user_id: str):
         self.bot.database[user_id] = {
@@ -117,7 +119,7 @@ class Costume(commands.Cog):
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         type_list: list
         if index and item_name.isdigit():
-            if int(list(self.name[item_type].keys())[0]) <= int(item_name) <= (len(self.name[item_type].keys()) -1 + int(list(self.name["character"].keys())[0])):
+            if self.item_info[item_type]["min"] <= int(item_name) <= self.item_info[item_type]["max"]:
                 return 1, [item_type, item_name]
             else:
                 return 0, "wrong_item_index"
@@ -131,18 +133,10 @@ class Costume(commands.Cog):
             for j in self.name_re[i]:
                 match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
-                    print("-----c------")
-                    print(self.name[i][j].lower() + "  " + match_obj.group())
                     diff_per = difflib.SequenceMatcher(None, self.name[i][j].lower(), match_obj.group()).ratio()
-                    print(item_name)
-                    print(diff_per)
-                    print("----------")
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]
-        print("---r-------")
-        print(match_per)
-        print(item_info)
         if match_per == -1:
             return 0, "no_match"
         else:
@@ -153,7 +147,12 @@ class Costume(commands.Cog):
         code, result = self.find_item(text)
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"検出された: {result[0]} {result[1]}")
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
 
 
 def setup(bot):
