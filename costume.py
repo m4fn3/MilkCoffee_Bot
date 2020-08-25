@@ -114,29 +114,46 @@ class Costume(commands.Cog):
     # TODO: show関数に保存したものを表示する機能
     # TODO: 保存した作品一覧を見るコマンド
 
-    def find_item(self, pattern: str, item_name: str, index=False, item_type="") -> (int, Any):
+    def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
+        type_list: list
         if index and item_name.isdigit():
-            pass
-            # TODO:　item_typeをもとに最小、最大を求めて<<処理で判定
+            if int(list(self.name[item_type].keys())[0]) <= int(item_name) <= (len(self.name[item_type].keys()) -1 + int(list(self.name["character"].keys())[0])):
+                return 1, [item_type, item_name]
+            else:
+                return 0, "wrong_item_index"
+        elif index:
+            type_list = [item_type]
+        else:
+            type_list = [type_name for type_name in self.name_re]
         match_per = -1
         item_info = []
-        for i in self.name_re:
+        for i in type_list:
             for j in self.name_re[i]:
                 match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
-                    diff_per = difflib.SequenceMatcher(None, self.name[i][j], match_obj.group()).ratio()
+                    print("-----c------")
+                    print(self.name[i][j].lower() + "  " + match_obj.group())
+                    diff_per = difflib.SequenceMatcher(None, self.name[i][j].lower(), match_obj.group()).ratio()
+                    print(item_name)
+                    print(diff_per)
+                    print("----------")
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]
+        print("---r-------")
+        print(match_per)
+        print(item_info)
         if match_per == -1:
             return 0, "no_match"
         else:
-            return 1, item_info[0], item_info[1]
+            return 1, item_info
 
     @commands.command()
-    async def item(self, ctx, text):
-        import pprint
-        await ctx.send(pprint.pformat(self.find_item("", text)))
+    async def item(self, ctx, *, text):
+        code, result = self.find_item(text)
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"検出された: {result[0]} {result[1]}")
 
 
 def setup(bot):
