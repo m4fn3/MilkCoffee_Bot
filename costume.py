@@ -93,6 +93,8 @@ class Costume(commands.Cog):
     async def save(self, ctx):
         name: str
         listed = ctx.message.content.split(" ", 1)
+        if len(self.bot.database[str(ctx.author.id)]["save"]) == 20:
+            return await ctx.send("保存できるのは20個までです. 不要なものを削除してから保存して下さい!")
         used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
         if len(listed) == 1:
             count = 1
@@ -104,6 +106,8 @@ class Costume(commands.Cog):
         else:
             if listed[1] in used_name_list:
                 return await ctx.send("この名前は既に使用しています。")
+            elif len(listed[1]) < 1 or 20 < len(listed[1]):
+                return await ctx.send("名称は1文字以上20文字以下で指定して下さい.")
             name = listed[1]
         self.bot.database[str(ctx.author.id)]["save"].append(
             {
@@ -113,8 +117,32 @@ class Costume(commands.Cog):
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
 
+    @commands.command()
+    async def list(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            await ctx.send("ページ数は1~4で指定してください!")
+        else:
+            await ctx.send("ページ数は整数で1~4で指定してください!")
+        item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+        embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
+        for index in range(page*5-4, page*5+1):  # 1-5 6-10 11-15 16-20
+            if index > (item_count - 1):
+                break
+            item_id = self.bot.database[str(ctx.author.id)]["save"][index-1]["data"]
+            item_list = parse_item_code_to_list(item_id)
+            text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
+            embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index-1]['name']}", value=text, inline=False)
+        await ctx.send(embed=embed)
+
     # TODO: show関数に保存したものを表示する機能
-    # TODO: 保存した作品一覧を見るコマンド
+    # TODO: 保存したものを読み込むもの load
+    # TODO: 保存したものをさくじょするもの delete/remove
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         type_list: list
