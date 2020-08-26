@@ -235,6 +235,72 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
+    @commands.command(aliases=["add-base", "addbase", "as", "change-color", "change_color", "cc"])
+    async def add_base(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="base")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.command(aliases=["add-weapon", "addweapon", "aw"])
+    async def add_weapon(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="weapon")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.command(aliases=["add-character", "addcharacter", "ac"])
+    async def add_character(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="character")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.command(aliases=["add-head", "addhead", "ah"])
+    async def add_head(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="head")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.command(aliases=["add-body", "addbody", "ad"])
+    async def add_body(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="body")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.command(aliases=["add-back", "addback", "ab"])
+    async def add_back(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="back")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
 
 def setup(bot):
     bot.add_cog(Costume(bot))
