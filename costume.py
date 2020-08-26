@@ -24,6 +24,40 @@ class Costume(commands.Cog):
                 "save": []
             }
 
+    def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
+        type_list: list
+        if index and item_name.isdigit():
+            if self.item_info[item_type]["min"] <= int(item_name) <= self.item_info[item_type]["max"]:
+                return 1, [item_type, item_name]
+            else:
+                return 0, "wrong_item_index"
+        elif index:
+            type_list = [item_type]
+        else:
+            type_list = [type_name for type_name in self.name_re]
+        match_per = -1
+        item_info = []
+        for i in type_list:
+            for j in self.name_re[i]:
+                match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
+                if match_obj is not None:
+                    diff_per = difflib.SequenceMatcher(None, self.name[i][j].lower(), match_obj.group()).ratio()
+                    if diff_per > match_per:
+                        match_per = diff_per
+                        item_info = [i, j]
+        if match_per == -1:
+            return 0, "no_match"
+        else:
+            return 1, item_info
+
+    def convert_to_bytes(self, image: Image) -> bytes:
+        imgByteArr = io.BytesIO()
+        image.save(imgByteArr, format=image.format)
+        return imgByteArr.getvalue()
+
+    def save_canvas_data(self, user_id, data: str) -> None:
+        self.bot.database[str(user_id)]["canvas"] = data
+
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) not in self.bot.database:
             self.initialize_user_data(str(ctx.author.id))
@@ -54,14 +88,6 @@ class Costume(commands.Cog):
         await ctx.send(text, embed=embed, file=discord.File(fp=io.BytesIO(base), filename="result.png"))
         return
 
-    def convert_to_bytes(self, image: Image) -> bytes:
-        imgByteArr = io.BytesIO()
-        image.save(imgByteArr, format=image.format)
-        return imgByteArr.getvalue()
-
-    def save_canvas_data(self, user_id, data: str) -> None:
-        self.bot.database[str(user_id)]["canvas"] = data
-
     @commands.command()
     async def set(self, ctx, *, item):
         item_list = item.split()
@@ -77,11 +103,6 @@ class Costume(commands.Cog):
                 return await ctx.send(self.bot.error_text[result])
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
-
-    @commands.command()
-    async def canvas(self, ctx):
-        for cvs in self.bot.database[str(ctx.author.id)]["canvas"]:
-            pass
 
     @commands.command()
     async def show(self, ctx) -> None:
@@ -160,8 +181,8 @@ class Costume(commands.Cog):
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
 
-    @commands.command()
-    async def list(self, ctx):
+    @commands.command(aliases=["my_list", "my-list", "ml"])
+    async def mylist(self, ctx):
         listed = ctx.message.content.split()
         page: int
         if len(listed) == 1:
@@ -183,7 +204,7 @@ class Costume(commands.Cog):
             embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index-1]['name']}", value=text, inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=["remove", "del", "rm"])
     async def delete(self, ctx, *, index):
         if index.isdigit() and 1 <= int(index) <= 20:
             item_count = len(self.bot.database[str(ctx.author.id)]["save"])
@@ -203,34 +224,8 @@ class Costume(commands.Cog):
             else:
                 await ctx.send("そのような名前の作品はありません.")
 
-    def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
-        type_list: list
-        if index and item_name.isdigit():
-            if self.item_info[item_type]["min"] <= int(item_name) <= self.item_info[item_type]["max"]:
-                return 1, [item_type, item_name]
-            else:
-                return 0, "wrong_item_index"
-        elif index:
-            type_list = [item_type]
-        else:
-            type_list = [type_name for type_name in self.name_re]
-        match_per = -1
-        item_info = []
-        for i in type_list:
-            for j in self.name_re[i]:
-                match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
-                if match_obj is not None:
-                    diff_per = difflib.SequenceMatcher(None, self.name[i][j].lower(), match_obj.group()).ratio()
-                    if diff_per > match_per:
-                        match_per = diff_per
-                        item_info = [i, j]
-        if match_per == -1:
-            return 0, "no_match"
-        else:
-            return 1, item_info
-
-    @commands.command()
-    async def item(self, ctx, *, text):
+    @commands.command(aliases=["add-item", "additem", "ai"])
+    async def add_item(self, ctx, *, text):
         code, result = self.find_item(text)
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
@@ -246,3 +241,4 @@ def setup(bot):
 
 
 # TODO: ランダムで作成する機能を追加
+# TODO: helpコマンド
