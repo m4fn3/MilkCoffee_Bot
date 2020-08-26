@@ -85,9 +85,50 @@ class Costume(commands.Cog):
 
     @commands.command()
     async def show(self, ctx) -> None:
-        item_code = self.bot.database[str(ctx.author.id)]["canvas"]
+        listed = ctx.message.content.split(" ", 1)
+        item_code: str
+        if len(listed) == 1:
+            item_code = self.bot.database[str(ctx.author.id)]["canvas"]
+        else:
+            index = listed[1]
+            item_index: int
+            if index.isdigit() and 1 <= int(index) <= 20:
+                item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+                if 0 <= int(index) <= item_count:
+                    item_index = int(index) - 1
+                else:
+                    return await ctx.send(f"{index}番目に保存された作品はありません.")
+            elif index.isdigit():
+                return await ctx.send("1~20の間で指定してください.")
+            else:
+                used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+                if index in used_name_list:
+                    item_index = used_name_list.index(index)
+                else:
+                    return await ctx.send("そのような名前の作品はありません.")
+            item_code = self.bot.database[str(ctx.author.id)]["save"][item_index]["data"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
+
+    @commands.command()
+    async def load(self, ctx, *, index):
+        item_index: int
+        if index.isdigit() and 1 <= int(index) <= 20:
+            item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+            if 0 <= int(index) <= item_count:
+                item_index = int(index) - 1
+            else:
+                return await ctx.send(f"{index}番目に保存された作品はありません.")
+        elif index.isdigit():
+            return await ctx.send("1~20の間で指定してください.")
+        else:
+            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+            if index in used_name_list:
+                item_index = used_name_list.index(index)
+            else:
+                return await ctx.send("そのような名前の作品はありません.")
+        self.bot.database[str(ctx.author.id)]["canvas"] = self.bot.database[str(ctx.author.id)]["save"][item_index]["data"]
+        await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['save'][item_index]['name']}\"を読み込みました.")
 
     @commands.command()
     async def save(self, ctx):
@@ -104,8 +145,10 @@ class Costume(commands.Cog):
                     break
                 count += 1
         else:
-            if listed[1] in used_name_list:
-                return await ctx.send("この名前は既に使用しています。")
+            if listed[1].isdigit():
+                return await ctx.send("数字のみの名前は使用できません.")
+            elif listed[1] in used_name_list:
+                return await ctx.send("この名前は既に使用しています.")
             elif len(listed[1]) < 1 or 20 < len(listed[1]):
                 return await ctx.send("名称は1文字以上20文字以下で指定して下さい.")
             name = listed[1]
@@ -140,9 +183,25 @@ class Costume(commands.Cog):
             embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index-1]['name']}", value=text, inline=False)
         await ctx.send(embed=embed)
 
-    # TODO: show関数に保存したものを表示する機能
-    # TODO: 保存したものを読み込むもの load
-    # TODO: 保存したものをさくじょするもの delete/remove
+    @commands.command()
+    async def delete(self, ctx, *, index):
+        if index.isdigit() and 1 <= int(index) <= 20:
+            item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+            if 0 <= int(index) <= item_count:
+                old_data = self.bot.database[str(ctx.author.id)]["save"].pop(int(index)-1)
+                await ctx.send(f"{index}番目の{old_data['name']}を削除しました.")
+            else:
+                await ctx.send(f"{index}番目に保存された作品はありません.")
+        elif index.isdigit():
+            await ctx.send("1~20の間で指定してください.")
+        else:
+            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+            if index in used_name_list:
+                item_index = used_name_list.index(index)
+                old_data = self.bot.database[str(ctx.author.id)]["save"].pop(item_index)
+                await ctx.send(f"{item_index + 1}番目の{old_data['name']}を削除しました.")
+            else:
+                await ctx.send("そのような名前の作品はありません.")
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         type_list: list
@@ -180,7 +239,6 @@ class Costume(commands.Cog):
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
-
 
 
 def setup(bot):
