@@ -1,7 +1,7 @@
 from discord.ext import commands
 from PIL import Image
 from typing import Any
-import discord, io, json, re, difflib
+import asyncio, discord, io, json, re, difflib, traceback2
 from item_parser import *
 
 
@@ -58,6 +58,16 @@ class Costume(commands.Cog):
     def save_canvas_data(self, user_id, data: str) -> None:
         self.bot.database[str(user_id)]["canvas"] = data
 
+    def get_list(self, item_type: str, page: int) -> str:
+        item_count = self.item_info[item_type]["max"]
+        text = ""
+        start_index = self.item_info[item_type]["min"] + 10 * (page - 1)
+        for item_index in range(start_index, start_index + 10):
+            if item_index > item_count:
+                break
+            text += f"{item_index} {self.emoji[item_type][str(item_index)]} {self.name[item_type][str(item_index)]}\n"
+        return text
+
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) not in self.bot.database:
             self.initialize_user_data(str(ctx.author.id))
@@ -87,6 +97,35 @@ class Costume(commands.Cog):
         embed.set_footer(text=f"装飾コード: {item_id}", icon_url="http://zorba.starfree.jp/MilkChoco/icon.png")
         await ctx.send(text, embed=embed, file=discord.File(fp=io.BytesIO(base), filename="result.png"))
         return
+
+    async def page_reaction_mover(self, message, author: int, max_page: int, now_page: int) -> (int, Any):
+        new_page: int
+
+        def check(r, u):
+            return r.message.id == message.id and u == author and str(r.emoji) in ["◀️", "▶️"]
+
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=check)
+            if str(reaction.emoji) == "▶️":
+                if now_page == max_page:
+                    new_page = 1
+                else:
+                    new_page = now_page + 1
+            elif str(reaction.emoji) == "◀️":
+                if now_page == 1:
+                    new_page = max_page
+                else:
+                    new_page = now_page - 1
+            else:
+                new_page = now_page
+            return 1, new_page
+        except asyncio.TimeoutError:
+            try:
+                await message.remove_reaction("◀️", self.bot.user)
+                await message.remove_reaction("▶️", self.bot.user)
+            except:
+                print(traceback2.format_exc())
+            return 0, None
 
     @commands.command()
     async def set(self, ctx, *, item):
@@ -312,7 +351,7 @@ class Costume(commands.Cog):
             await ctx.send("list <item|base|char|wp|h|d|b>")
 
     @list.command(name="base", aliases=["s", "bs"])
-    async def base(self, ctx):
+    async def list_base(self, ctx):
         embed = discord.Embed(title="色一覧")
         embed.description = self.get_list("base", 1)
         embed.set_footer(text="1 / 1 ページを表示中")
@@ -322,7 +361,7 @@ class Costume(commands.Cog):
     async def list_weapon(self, ctx):
         listed = ctx.message.content.split()
         page: int
-        if len(listed) == 1:
+        if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
             page = int(listed[1])
@@ -333,13 +372,23 @@ class Costume(commands.Cog):
         embed = discord.Embed(title="武器一覧")
         embed.description = self.get_list("weapon", page)
         embed.set_footer(text=f"{page} / 4 ページを表示中")
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        while True:
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 4, page)
+            if code == 0:
+                break
+            page = new_page
+            embed.description = self.get_list("weapon", page)
+            embed.set_footer(text=f"{page} / 4 ページを表示中")
+            await message.edit(embed=embed)
 
     @list.command(name="character", aliases=["c", "ch", "char"])
     async def list_character(self, ctx):
         listed = ctx.message.content.split()
         page: int
-        if len(listed) == 1:
+        if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 3:
             page = int(listed[1])
@@ -350,13 +399,23 @@ class Costume(commands.Cog):
         embed = discord.Embed(title="キャラ一覧")
         embed.description = self.get_list("character", page)
         embed.set_footer(text=f"{page} / 3 ページを表示中")
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        while True:
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 3, page)
+            if code == 0:
+                break
+            page = new_page
+            embed.description = self.get_list("character", page)
+            embed.set_footer(text=f"{page} / 3 ページを表示中")
+            await message.edit(embed=embed)
 
     @list.command(name="head", aliases=["h", "hd"])
     async def list_head(self, ctx):
         listed = ctx.message.content.split()
         page: int
-        if len(listed) == 1:
+        if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
             page = int(listed[1])
@@ -367,13 +426,23 @@ class Costume(commands.Cog):
         embed = discord.Embed(title="頭装飾一覧")
         embed.description = self.get_list("head", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        while True:
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 6, page)
+            if code == 0:
+                break
+            page = new_page
+            embed.description = self.get_list("head", page)
+            embed.set_footer(text=f"{page} / 6 ページを表示中")
+            await message.edit(embed=embed)
 
     @list.command(name="body", aliases=["d", "bd", "by"])
     async def list_body(self, ctx):
         listed = ctx.message.content.split()
         page: int
-        if len(listed) == 1:
+        if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 7:
             page = int(listed[1])
@@ -381,16 +450,26 @@ class Costume(commands.Cog):
             return await ctx.send("ページ数は1~7で指定してください!")
         else:
             return await ctx.send("ページ数は整数で1~7で指定してください!")
-        embed = discord.Embed(title="頭装飾一覧")
+        embed = discord.Embed(title="体装飾一覧")
         embed.description = self.get_list("body", page)
         embed.set_footer(text=f"{page} / 7 ページを表示中")
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        while True:
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 7, page)
+            if code == 0:
+                break
+            page = new_page
+            embed.description = self.get_list("body", page)
+            embed.set_footer(text=f"{page} / 7 ページを表示中")
+            await message.edit(embed=embed)
 
     @list.command(name="back", aliases=["b", "bc", "bk"])
     async def list_back(self, ctx):
         listed = ctx.message.content.split()
         page: int
-        if len(listed) == 1:
+        if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
             page = int(listed[1])
@@ -398,20 +477,20 @@ class Costume(commands.Cog):
             return await ctx.send("ページ数は1~6で指定してください!")
         else:
             return await ctx.send("ページ数は整数で1~6で指定してください!")
-        embed = discord.Embed(title="頭装飾一覧")
+        embed = discord.Embed(title="背中装飾一覧")
         embed.description = self.get_list("back", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
-        await ctx.send(embed=embed)
-
-    def get_list(self, item_type: str, page: int):
-        item_count = self.item_info[item_type]["max"]
-        text = ""
-        start_index = self.item_info[item_type]["min"] + 10 * (page - 1)
-        for item_index in range(start_index, start_index + 10):
-            if item_index > item_count:
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        while True:
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 6, page)
+            if code == 0:
                 break
-            text += f"{item_index} {self.emoji[item_type][str(item_index)]} {self.name[item_type][str(item_index)]}\n"
-        return text
+            page = new_page
+            embed.description = self.get_list("head", page)
+            embed.set_footer(text=f"{page} / 6 ページを表示中")
+            await message.edit(embed=embed)
 
 
 def setup(bot):
