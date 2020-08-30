@@ -181,8 +181,8 @@ class Costume(commands.Cog):
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
 
-    @commands.command(aliases=["my_list", "my-list", "ml"])
-    async def mylist(self, ctx):
+    @commands.command(aliases=["mylist"])
+    async def my(self, ctx):
         listed = ctx.message.content.split()
         page: int
         if len(listed) == 1:
@@ -224,7 +224,12 @@ class Costume(commands.Cog):
             else:
                 await ctx.send("そのような名前の作品はありません.")
 
-    @commands.command(aliases=["add-item", "additem", "ai"])
+    @commands.group()
+    async def add(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("add <item|base|char|wp|h|d|b>")
+
+    @add.command(name="item", aliases=["i"])
     async def add_item(self, ctx, *, text):
         code, result = self.find_item(text)
         if code == 0:
@@ -235,7 +240,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.command(aliases=["add-base", "addbase", "as", "change-color", "change_color", "cc"])
+    @add.command(name="base", aliases=["s", "bs"])
     async def add_base(self, ctx, *, text):
         code, result = self.find_item(text, index=True, item_type="base")
         if code == 0:
@@ -246,18 +251,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.command(aliases=["add-weapon", "addweapon", "aw"])
-    async def add_weapon(self, ctx, *, text):
-        code, result = self.find_item(text, index=True, item_type="weapon")
-        if code == 0:
-            return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
-        item_list[self.item_info[result[0]]["index"]] = int(result[1])
-        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
-        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
-
-    @commands.command(aliases=["add-character", "addcharacter", "ac"])
+    @add.command(name="character", aliases=["c", "ch", "char"])
     async def add_character(self, ctx, *, text):
         code, result = self.find_item(text, index=True, item_type="character")
         if code == 0:
@@ -268,7 +262,18 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.command(aliases=["add-head", "addhead", "ah"])
+    @add.command(name="weapon", aliases=["w", "wp", "weap"])
+    async def add_weapon(self, ctx, *, text):
+        code, result = self.find_item(text, index=True, item_type="weapon")
+        if code == 0:
+            return await ctx.send(self.bot.error_text[result])
+        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list[self.item_info[result[0]]["index"]] = int(result[1])
+        self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
+        await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @add.command(name="head", aliases=["h", "hd"])
     async def add_head(self, ctx, *, text):
         code, result = self.find_item(text, index=True, item_type="head")
         if code == 0:
@@ -279,7 +284,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.command(aliases=["add-body", "addbody", "ad"])
+    @add.command(name="body", aliases=["d", "bd", "by"])
     async def add_body(self, ctx, *, text):
         code, result = self.find_item(text, index=True, item_type="body")
         if code == 0:
@@ -290,7 +295,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.command(aliases=["add-back", "addback", "ab"])
+    @add.command(name="back", aliases=["b", "bk", "bc"])
     async def add_back(self, ctx, *, text):
         code, result = self.find_item(text, index=True, item_type="back")
         if code == 0:
@@ -300,6 +305,113 @@ class Costume(commands.Cog):
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
+
+    @commands.group()
+    async def list(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("list <item|base|char|wp|h|d|b>")
+
+    @list.command(name="base", aliases=["s", "bs"])
+    async def base(self, ctx):
+        embed = discord.Embed(title="色一覧")
+        embed.description = self.get_list("base", 1)
+        embed.set_footer(text="1 / 1 ページを表示中")
+        await ctx.send(embed=embed)
+
+    @list.command(name="weapon", aliases=["w", "wp", "weap"])
+    async def list_weapon(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            return await ctx.send("ページ数は1~4で指定してください!")
+        else:
+            return await ctx.send("ページ数は整数で1~4で指定してください!")
+        embed = discord.Embed(title="武器一覧")
+        embed.description = self.get_list("weapon", page)
+        embed.set_footer(text=f"{page} / 4 ページを表示中")
+        await ctx.send(embed=embed)
+
+    @list.command(name="character", aliases=["c", "ch", "char"])
+    async def list_character(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 3:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            return await ctx.send("ページ数は1~3で指定してください!")
+        else:
+            return await ctx.send("ページ数は整数で1~3で指定してください!")
+        embed = discord.Embed(title="キャラ一覧")
+        embed.description = self.get_list("character", page)
+        embed.set_footer(text=f"{page} / 3 ページを表示中")
+        await ctx.send(embed=embed)
+
+    @list.command(name="head", aliases=["h", "hd"])
+    async def list_head(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            return await ctx.send("ページ数は1~6で指定してください!")
+        else:
+            return await ctx.send("ページ数は整数で1~6で指定してください!")
+        embed = discord.Embed(title="頭装飾一覧")
+        embed.description = self.get_list("head", page)
+        embed.set_footer(text=f"{page} / 6 ページを表示中")
+        await ctx.send(embed=embed)
+
+    @list.command(name="body", aliases=["d", "bd", "by"])
+    async def list_body(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 7:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            return await ctx.send("ページ数は1~7で指定してください!")
+        else:
+            return await ctx.send("ページ数は整数で1~7で指定してください!")
+        embed = discord.Embed(title="頭装飾一覧")
+        embed.description = self.get_list("body", page)
+        embed.set_footer(text=f"{page} / 7 ページを表示中")
+        await ctx.send(embed=embed)
+
+    @list.command(name="back", aliases=["b", "bc", "bk"])
+    async def list_back(self, ctx):
+        listed = ctx.message.content.split()
+        page: int
+        if len(listed) == 1:
+            page = 1
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
+            page = int(listed[1])
+        elif listed[1].isdigit():
+            return await ctx.send("ページ数は1~6で指定してください!")
+        else:
+            return await ctx.send("ページ数は整数で1~6で指定してください!")
+        embed = discord.Embed(title="頭装飾一覧")
+        embed.description = self.get_list("back", page)
+        embed.set_footer(text=f"{page} / 6 ページを表示中")
+        await ctx.send(embed=embed)
+
+    def get_list(self, item_type: str, page: int):
+        item_count = self.item_info[item_type]["max"]
+        text = ""
+        start_index = self.item_info[item_type]["min"] + 10 * (page - 1)
+        for item_index in range(start_index, start_index + 10):
+            if item_index > item_count:
+                break
+            text += f"{item_index} {self.emoji[item_type][str(item_index)]} {self.name[item_type][str(item_index)]}\n"
+        return text
 
 
 def setup(bot):
