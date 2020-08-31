@@ -9,28 +9,9 @@ class Help(commands.HelpCommand):
         self.command_attrs["description"] = "コマンド一覧を表示します"
         self.command_attrs["help"] = "BOTのヘルプコマンドです"
 
-    async def create_category_tree(self, category, enclosure):
-        content = ""
-        command_list = category.walk_commands()
-        for cmd in await self.filter_commands(command_list, sort=True):
-            if cmd.root_parent:
-                # cmd.root_parent は「根」なので、根からの距離に応じてインデントを増やす
-                index = cmd.parents.index(cmd.root_parent)
-                indent = "\t" * (index + 1)
-                if indent:
-                    content += f"{indent}- {cmd.name} / {cmd.description}\n"
-                else:
-                    # インデントが入らない、つまり木の中で最も浅く表示されるのでprefixを付加
-                    content += f"{self.context.prefix}{cmd.name} / {cmd.description}\n"
-            else:
-                # 親を持たないコマンドなので、木の中で最も浅く表示する。prefixを付加
-                content += f"{self.context.prefix}{cmd.name} / {cmd.description}\n"
-
-        return content
-
     async def send_bot_help(self, mapping):
-        # ページを作成してリアクション付き表示
-
+        # TODO: リアクションページ移動つきCogヘルプ表示コマンド
+        # TODO: ? に [] () | "種類" の意味を説明する
         embed = discord.Embed(title="helpコマンド", color=0x00ff00)
         if self.context.bot.description:
             # もしBOTに description 属性が定義されているなら、それも埋め込みに追加する
@@ -85,10 +66,9 @@ class Help(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     def command_not_found(self, string):
-        return f"{string} というコマンドは存在しません。コマンド名を再確認してください。"
+        return f"`{string}` というコマンドは存在しません。コマンド名を再確認してください。"
 
-    def subcommand_not_found(self, command, string):
-        if isinstance(command, commands.Group) and len(command.all_commands) > 0:
-            # もし、そのコマンドにサブコマンドが存在しているなら
-            return f"{command.qualified_name} に {string} というサブコマンドは登録されていません。`{self.context.prefix}help {command.qualified_name}` で使い方を確認してください。"
-        return f"{command.qualified_name} にサブコマンドは登録されていません。`{self.context.prefix}help {command.qualified_name}` で使い方を確認してください。"
+    def subcommand_not_found(self, cmd, string):
+        if isinstance(cmd, commands.Group) and len(cmd.all_commands) > 0:
+            return f"`{cmd.qualified_name}` に `{string}` というサブコマンドは登録されていません。`{self.context.prefix}help {cmd.qualified_name}` で使い方を確認してください。"
+        return f"`{cmd.qualified_name}` にサブコマンドは登録されていません。`{self.context.prefix}help {cmd.qualified_name}` で使い方を確認してください。"
