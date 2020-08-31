@@ -1,5 +1,5 @@
 from discord.ext import commands, tasks
-import discord, logging, os, json, io
+import discord, logging, os, json, io, time
 from os.path import join, dirname
 from dotenv import load_dotenv
 
@@ -25,6 +25,7 @@ class Bot(commands.Bot):
         self.BAN = []
         self.Contributor = []
         self.maintenance = True
+        self.uptime = time.time()
 
     async def on_ready(self):
         print(f"Logged in to {self.user}")

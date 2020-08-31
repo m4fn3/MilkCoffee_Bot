@@ -1,6 +1,6 @@
 from discord.ext import commands
 from contextlib import redirect_stdout
-import asyncio, datetime, discord, io, os, psutil, subprocess, sys, textwrap, time, traceback2
+import asyncio, datetime, discord, io, os, subprocess, sys, textwrap, time, traceback2
 
 
 # class
@@ -9,6 +9,12 @@ class Dev(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         self._last_result = None
+        try:
+        	import psutil
+        except :
+        	self.psutil = False
+        else:
+        	self.psutil = True
 
     def cleanup_code(self, content):
         """Automatically removes code blocks from the code."""
@@ -217,13 +223,14 @@ class Dev(commands.Cog):
         h, m = divmod(m, 60)
         d = td.days
         uptime = f"{d}d {h}h {m}m {s}s"
-        cpu_per = psutil.cpu_percent()
-        mem_total = psutil.virtual_memory().total / 10**9
-        mem_used = psutil.virtual_memory().used / 10**9
-        mem_per = psutil.virtual_memory().percent
-        swap_total = psutil.swap_memory().total / 10**9
-        swap_used = psutil.swap_memory().used / 10**9
-        swap_per = psutil.swap_memory().percent
+        if self.psutil:
+            cpu_per = psutil.cpu_percent()
+            mem_total = psutil.virtual_memory().total / 10**9
+            mem_used = psutil.virtual_memory().used / 10**9
+            mem_per = psutil.virtual_memory().percent
+            swap_total = psutil.swap_memory().total / 10**9
+            swap_used = psutil.swap_memory().used / 10**9
+            swap_per = psutil.swap_memory().percent
         guilds = len(self.bot.guilds)
         users = len(self.bot.users)
         vcs = len(self.bot.voice_clients)
@@ -236,7 +243,8 @@ class Dev(commands.Cog):
                 voice_channels += 1
         latency = self.bot.latency
         embed = discord.Embed(title="Process")
-        embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
+        if self.psutil:
+          embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
         embed.add_field(name="Discord", value=f"```yaml\nServers:{guilds}\nTextChannels:{text_channels}\nVoiceChannels:{voice_channels}\nUsers:{users}\nConnectedVC:{vcs}```", inline=False)
         embed.add_field(name="Run", value=f"```yaml\nUptime: {uptime}\nLatency: {latency:.2f}[s]\n```")
         await ctx.send(embed=embed)
