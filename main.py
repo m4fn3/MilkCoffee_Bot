@@ -3,6 +3,8 @@ import discord, logging, os, json, io, time
 from os.path import join, dirname
 from dotenv import load_dotenv
 
+from help import Help
+
 load_dotenv(verbose=True)
 load_dotenv(join(dirname(__file__), '.env'))
 
@@ -13,8 +15,8 @@ logging.basicConfig(level=logging.INFO)
 
 class Bot(commands.Bot):
 
-    def __init__(self, command_prefix):
-        super().__init__(command_prefix)
+    def __init__(self, command_prefix, help_command):
+        super().__init__(command_prefix, help_command)
         cogs = ["costume", "developer"]
         for cog in cogs:
             self.load_extension(cog)
@@ -62,5 +64,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix="m!")
+    bot = Bot(command_prefix="m!", help_command=Help())
     bot.run(TOKEN)

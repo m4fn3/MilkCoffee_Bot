@@ -1,20 +1,26 @@
 from discord.ext import commands
 from contextlib import redirect_stdout
 import asyncio, datetime, discord, io, os, subprocess, sys, textwrap, time, traceback2
+try:
+    import psutil
+except:
+    psutil_available = False
+else:
+    psutil_available = True
 
 
 # class
-class Dev(commands.Cog):
-
+class Dev(commands.Cog, command_attrs=dict(hidden=True)):
+    """BOTのシステムを管理します。(ADMIN以上の権限が必要です)"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         self._last_result = None
         try:
-        	import psutil
-        except :
-        	self.psutil = False
+            import psutil
+        except:
+            self.psutil = False
         else:
-        	self.psutil = True
+            self.psutil = True
 
     def cleanup_code(self, content):
         """Automatically removes code blocks from the code."""
@@ -223,7 +229,7 @@ class Dev(commands.Cog):
         h, m = divmod(m, 60)
         d = td.days
         uptime = f"{d}d {h}h {m}m {s}s"
-        if self.psutil:
+        if psutil_available:
             cpu_per = psutil.cpu_percent()
             mem_total = psutil.virtual_memory().total / 10**9
             mem_used = psutil.virtual_memory().used / 10**9
