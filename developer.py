@@ -10,7 +10,7 @@ else:
 
 
 # class
-class Dev(commands.Cog, command_attrs=dict(hidden=True)):
+class Developer(commands.Cog, command_attrs=dict(hidden=True)):
     """BOTのシステムを管理します。(ADMIN以上の権限が必要です)"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
@@ -132,7 +132,7 @@ class Dev(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["rl"])
     async def reload(self, ctx, text):
-        if text in self.info["COG"]:
+        if text in self.bot_cogs:
             try:
                 self.bot.reload_extension(text)
             except:
@@ -144,7 +144,7 @@ class Dev(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["l"])
     async def load(self, ctx, text):
-        if text in self.info["COG"]:
+        if text in self.bot_cogs:
             try:
                 self.bot.load_extension(text)
             except:
@@ -156,7 +156,7 @@ class Dev(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["u"])
     async def unload(self, ctx, text):
-        if text in self.info["COG"]:
+        if text in self.bot_cogs:
             try:
                 self.bot.unload_extension(text)
             except:
@@ -249,8 +249,8 @@ class Dev(commands.Cog, command_attrs=dict(hidden=True)):
                 voice_channels += 1
         latency = self.bot.latency
         embed = discord.Embed(title="Process")
-        if self.psutil:
-          embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
+        if psutil_available:
+            embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
         embed.add_field(name="Discord", value=f"```yaml\nServers:{guilds}\nTextChannels:{text_channels}\nVoiceChannels:{voice_channels}\nUsers:{users}\nConnectedVC:{vcs}```", inline=False)
         embed.add_field(name="Run", value=f"```yaml\nUptime: {uptime}\nLatency: {latency:.2f}[s]\n```")
         await ctx.send(embed=embed)
@@ -287,4 +287,4 @@ class Dev(commands.Cog, command_attrs=dict(hidden=True)):
 
 
 def setup(bot):
-    bot.add_cog(Dev(bot))
+    bot.add_cog(Developer(bot))

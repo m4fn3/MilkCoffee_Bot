@@ -17,8 +17,8 @@ class Bot(commands.Bot):
 
     def __init__(self, command_prefix, help_command):
         super().__init__(command_prefix, help_command)
-        cogs = ["costume", "developer"]
-        for cog in cogs:
+        self.bot_cogs = ["costume", "developer", "global_chat", "info"]
+        for cog in self.bot_cogs:
             self.load_extension(cog)
         with open('error_text.json', 'r', encoding='utf-8') as f:
             self.error_text = json.load(f)
@@ -28,6 +28,11 @@ class Bot(commands.Bot):
         self.Contributor = []
         self.maintenance = True
         self.uptime = time.time()
+        self.datas = {
+            "server": "https://discord.gg/RbzSSrw",
+            "invite": "https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot",
+            "author": "mafu#7582"
+        }
 
     async def on_ready(self):
         print(f"Logged in to {self.user}")

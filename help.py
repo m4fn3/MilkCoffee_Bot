@@ -1,4 +1,4 @@
-import discord
+import asyncio, discord
 from discord.ext import commands
 
 
@@ -10,27 +10,59 @@ class Help(commands.HelpCommand):
         self.command_attrs["help"] = "BOTのヘルプコマンドです"
 
     async def send_bot_help(self, mapping):
-        # TODO: リアクションページ移動つきCogヘルプ表示コマンド
-        # TODO: ? に [] () | "種類" の意味を説明する
-        embed = discord.Embed(title="helpコマンド", color=0x00ff00)
-        if self.context.bot.description:
-            # もしBOTに description 属性が定義されているなら、それも埋め込みに追加する
-            embed.description = self.context.bot.description
-        for cog in mapping:
-            if cog:
-                cog_name = cog.qualified_name
-            else:
-                # mappingのキーはNoneになる可能性もある
-                # もしキーがNoneなら、自身のno_category属性を参照する
-                cog_name = self.no_category
 
-            command_list = await self.filter_commands(mapping[cog], sort=True)
-            content = ""
-            for cmd in command_list:
-                content += f"`{self.context.prefix}{cmd.name}`\n {cmd.description}\n"
-            embed.add_field(name=cog_name, value=content, inline=False)
+        cogs = ["Costume", "GlobalChat", "Information"]
+        page = 1
 
-        await self.get_destination().send(embed=embed)
+        cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
+        cmds = cog.get_commands()
+        embed = discord.Embed(title=cog.qualified_name)
+        embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
+        for cmd in await self.filter_commands(cmds, sort=True):
+            embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+        message = await self.get_destination().send(embed=embed)
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+        await message.add_reaction("❔")
+
+        def check(r, u):
+            return r.message.id == message.id and u == self.context.author and str(r.emoji) in ["◀️", "▶️", "❔"]
+
+        while True:
+            try:
+                reaction, user = await self.context.bot.wait_for("reaction_add", timeout=60, check=check)
+                if str(reaction.emoji) == "▶️":
+                    if page == len(cogs):
+                        page = 1
+                    else:
+                        page += 1
+                elif str(reaction.emoji) == "◀️":
+                    if page == 1:
+                        page = len(cogs)
+                    else:
+                        page -= 1
+                elif str(reaction.emoji) == "❔":
+                    embed = discord.Embed(title="コマンド説明の見方")
+                    embed.description = f"ヘルプコマンドへようこそ。\nメッセージ下にあるリアクションを押してページ移動できます！\nまた `{self.context.prefix}help [コマンド名]` でコマンドに関するさらに詳しい説明を確認できます。\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
+                    embed.add_field(name="[引数]", value="__**必須**__の引数です。")
+                    embed.add_field(name="(引数)", value="__**オプション**__の引数です。")
+                    embed.add_field(name="[A|B]", value="AまたはBのいずれかを指定できます。")
+                    embed.add_field(name="'種類'", value="base(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾) のいずれかを指定してください。(例: base)")
+                    await message.edit(embed=embed)
+                    continue
+
+                cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
+                cmds = cog.get_commands()
+                embed = discord.Embed(title=cog.qualified_name)
+                embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
+                for cmd in await self.filter_commands(cmds, sort=True):
+                    embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+                await message.edit(embed=embed)
+            except asyncio.TimeoutError:
+                await message.remove_reaction("◀️", self.context.bot.user)
+                await message.remove_reaction("▶️", self.context.bot.user)
+                await message.remove_reaction("❔", self.context.bot.user)
+                break
 
     async def send_cog_help(self, cog):
         cmds = cog.get_commands()

@@ -279,7 +279,7 @@ class Costume(commands.Cog):
             else:
                 await ctx.send("そのような名前の作品はありません.")
 
-    @commands.group(usage="add [種類] [番号|名称]", description="アイテムを追加します。\n1つ目の'種類'にはbase(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してください。")
+    @commands.group(usage="add [種類] [番号|名称]", description="アイテムを追加します。\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してください。")
     async def add(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("add <item|base|char|wp|h|d|b>")
@@ -361,7 +361,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示します。\n'種類'にはbase(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾)のいずれかを指定してください。")
+    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示します。")
     async def list(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("list <item|base|char|wp|h|d|b>")
@@ -369,7 +369,7 @@ class Costume(commands.Cog):
     @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示します。")
     async def list_base(self, ctx):
         embed = discord.Embed(title="色一覧")
-        embed.description = self.get_list("base", 1)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("base", 1)
         embed.set_footer(text="1 / 1 ページを表示中")
         await ctx.send(embed=embed)
 
@@ -386,7 +386,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send("ページ数は整数で1~4で指定してください!")
         embed = discord.Embed(title="武器一覧")
-        embed.description = self.get_list("weapon", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("weapon", page)
         embed.set_footer(text=f"{page} / 4 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -396,7 +396,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = self.get_list("weapon", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("weapon", page)
             embed.set_footer(text=f"{page} / 4 ページを表示中")
             await message.edit(embed=embed)
 
@@ -413,7 +413,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send("ページ数は整数で1~3で指定してください!")
         embed = discord.Embed(title="キャラ一覧")
-        embed.description = self.get_list("character", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("character", page)
         embed.set_footer(text=f"{page} / 3 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -423,7 +423,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = self.get_list("character", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("character", page)
             embed.set_footer(text=f"{page} / 3 ページを表示中")
             await message.edit(embed=embed)
 
@@ -440,7 +440,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send("ページ数は整数で1~6で指定してください!")
         embed = discord.Embed(title="頭装飾一覧")
-        embed.description = self.get_list("head", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -450,7 +450,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = self.get_list("head", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
@@ -467,7 +467,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send("ページ数は整数で1~7で指定してください!")
         embed = discord.Embed(title="体装飾一覧")
-        embed.description = self.get_list("body", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("body", page)
         embed.set_footer(text=f"{page} / 7 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -477,7 +477,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = self.get_list("body", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("body", page)
             embed.set_footer(text=f"{page} / 7 ページを表示中")
             await message.edit(embed=embed)
 
@@ -494,7 +494,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send("ページ数は整数で1~6で指定してください!")
         embed = discord.Embed(title="背中装飾一覧")
-        embed.description = self.get_list("back", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("back", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -504,7 +504,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = self.get_list("head", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
