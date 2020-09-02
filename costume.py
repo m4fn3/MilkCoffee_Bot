@@ -763,6 +763,3 @@ class Costume(commands.Cog):
 def setup(bot):
     bot.add_cog(Costume(bot))
 
-
-# TODO: ランダムで作成する機能を追加
-# TODO: helpコマンド

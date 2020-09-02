@@ -9,8 +9,15 @@ class Help(commands.HelpCommand):
         self.command_attrs["description"] = "コマンド一覧を表示します"
         self.command_attrs["help"] = "BOTのヘルプコマンドです"
 
-    async def send_bot_help(self, mapping):
+    async def send_bot_help(self, mapping) -> None:
+        """
+         引数なしでhelpコマンドが実行された時に表示
+        Args:
+            mapping: Cogが辞書形式で含まれるデータ
 
+        Returns:
+            None
+        """
         cogs = ["Costume", "GlobalChat", "Information"]
         page = 1
 
@@ -64,7 +71,15 @@ class Help(commands.HelpCommand):
                 await message.remove_reaction("❔", self.context.bot.user)
                 break
 
-    async def send_cog_help(self, cog):
+    async def send_cog_help(self, cog) -> None:
+        """
+        コグの説明を表示
+        Args:
+            cog: Cog
+
+        Returns:
+            None
+        """
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name)
         embed.description = cog.description
@@ -73,6 +88,14 @@ class Help(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_group_help(self, group):
+        """
+        コマンドグループの説明を表示
+        Args:
+            group: group
+
+        Returns:
+            None
+        """
         embed = discord.Embed(title=f"{self.context.prefix}{group.usage}", color=0x00ff00)
         embed.description = group.description
         if group.aliases:
@@ -84,7 +107,15 @@ class Help(commands.HelpCommand):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"{cmd.description}", inline=False)
         await self.get_destination().send(embed=embed)
 
-    async def send_command_help(self, command):
+    async def send_command_help(self, command) -> None:
+        """
+        コマンドの説明を表示
+        Args:
+            command: Command
+
+        Returns:
+            None
+        """
         embed = discord.Embed(title=f"{self.context.prefix}{command.usage}", color=0x00ff00)
         embed.description = f"```{command.description}```"
         if command.aliases:
@@ -93,7 +124,15 @@ class Help(commands.HelpCommand):
             embed.add_field(name="使用例 :", value=command.help, inline=False)
         await self.get_destination().send(embed=embed)
 
-    async def send_error_message(self, error):
+    async def send_error_message(self, error) -> None:
+        """
+        コマンドが存在しないときに表示
+        Args:
+            error:
+
+        Returns:
+            None
+        """
         embed = discord.Embed(title="ヘルプ表示のエラー", description=error, color=0xff0000)
         await self.get_destination().send(embed=embed)
 
