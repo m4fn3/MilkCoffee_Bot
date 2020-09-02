@@ -234,8 +234,9 @@ class Costume(commands.Cog):
             return await ctx.send("ページ数は整数で1~4で指定してください!")
         item_count = len(self.bot.database[str(ctx.author.id)]["save"])
         embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
+        embed.description = "左の数字が保存番号、その横の名前が保存名称です。"
         for index in range(page*5-4, page*5+1):  # 1-5 6-10 11-15 16-20
-            if index > (item_count - 1):
+            if index > item_count:
                 break
             item_id = self.bot.database[str(ctx.author.id)]["save"][index-1]["data"]
             item_list = parse_item_code_to_list(item_id)
@@ -250,8 +251,9 @@ class Costume(commands.Cog):
                 break
             page = new_page
             embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
+            embed.description = "左の数字が保存番号、その横の名前が保存名称です。"
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
-                if index > (item_count - 1):
+                if index > item_count:
                     break
                 item_id = self.bot.database[str(ctx.author.id)]["save"][index - 1]["data"]
                 item_list = parse_item_code_to_list(item_id)
