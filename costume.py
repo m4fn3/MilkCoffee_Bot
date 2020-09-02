@@ -29,7 +29,7 @@ class Costume(commands.Cog):
             None
         """
         self.bot.database[user_id] = {
-                "canvas": "1O4ZW5",
+                "canvas": "1o4s3k",
                 "save": []
             }
 
@@ -198,7 +198,7 @@ class Costume(commands.Cog):
             await message.remove_reaction("▶️", self.bot.user)
             return 0, None
 
-    @commands.command(usage="set [装飾コード|各装飾の番号]", description="装飾コードまたは各装飾の番号で設定します.")
+    @commands.command(usage="set [装飾コード|各装飾の番号]", description="装飾コードまたは各装飾の番号で設定します.", help="これら二つはともにミルクアサルト初期武器(装飾無し)になります。\n`<prefix>set 1o4s3k` ... 装飾コード1o4s3kで設定\n`<prefix>set 0 1 1 0 0 0` ... 各アイテムの番号で設定\n装飾コードは他の人の装飾を真似する際に便利です。")
     async def set(self, ctx, *, item) -> None:
         """
         装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録
@@ -223,7 +223,7 @@ class Costume(commands.Cog):
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
 
-    @commands.command(usage="show (保存番号|保存名称)", description="現在の装飾を表示します。保存番号を指定した場合は、保存した作品の中から番号にあった作品を表示します。")
+    @commands.command(usage="show (保存番号|保存名称)", description="現在の装飾を表示します。保存番号を指定した場合は、保存した作品の中から番号にあった作品を表示します。", help="`<prefix>show` ... 現在の装飾を表示`\n<prefix>show 1` ... 1番目に保存された装飾を表示\n`<prefix>show 無題1` ... 無題1という名前で保存された装飾を表示")
     async def show(self, ctx) -> None:
         """
         保存番号または保存名称から保存された画像または、作業中の画像を表示
@@ -258,7 +258,7 @@ class Costume(commands.Cog):
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
 
-    @commands.command(usage="load [保存番号|保存名称]", description="保存した作品を番号または名称で指定し、現在の作業場に読み込みます。")
+    @commands.command(usage="load [保存番号|保存名称]", description="保存した作品を番号または名称で指定し、現在の作業場に読み込みます。", help="`<prefix>load 1` ... 1番目に保存された作品を読み込む\n`<prefix>load 無題1` ... 無題1という名前で保存された作品を読み込む")
     async def load(self, ctx, *, index: str) -> None:
         """
         保存された作品を作業場に読み込む
@@ -287,7 +287,7 @@ class Costume(commands.Cog):
         self.bot.database[str(ctx.author.id)]["canvas"] = self.bot.database[str(ctx.author.id)]["save"][item_index]["data"]
         await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['save'][item_index]['name']}\"を読み込みました.")
 
-    @commands.command(usage="save (保存名称)", description="現在の装飾を保存します。保存名称を指定しなかった場合は、'無題1'のようになります。")
+    @commands.command(usage="save (保存名称)", description="現在の装飾を保存します。保存名称を指定しなかった場合は、'無題1'のようになります。", help="`<prefix>save` ... 作品を保存します(名前は自動で無題1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
     async def save(self, ctx) -> None:
         """
         現在の装飾を保存
@@ -325,7 +325,7 @@ class Costume(commands.Cog):
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
 
-    @commands.command(aliases=["mylist"], usage="my (ページ)", description="保存した作品の一覧を表示します。ページを指定しなかった場合は、1ページ目が表示されます。")
+    @commands.command(aliases=["mylist"], usage="my (ページ)", description="保存した作品の一覧を表示します。ページを指定しなかった場合は、1ページ目が表示されます。", help="`<prefix>my` ... 保存した作品集の1ページ目を表示します\n`<prefix>my 2` ... 保存した作品集の2ページ目を表示します")
     async def my(self, ctx) -> None:
         """
         保存した作品を表示
@@ -374,7 +374,7 @@ class Costume(commands.Cog):
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
-    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", description="保存した作品を番号または名称で指定して、削除します。")
+    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", description="保存した作品を番号または名称で指定して、削除します。", help="`<prefix>delete 1` ... 1番目に保存された作品を削除します\n`<prefix>delete 旧作品`... 旧作品という名前の作品を削除します")
     async def delete(self, ctx, *, index) -> None:
         """
         保存した画像を削除
@@ -403,7 +403,7 @@ class Costume(commands.Cog):
             else:
                 await ctx.send("そのような名前の作品はありません.")
 
-    @commands.group(usage="add [種類] [番号|名称]", description="アイテムを追加します。\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してください。")
+    @commands.group(usage="add [種類] [番号|名称]", description="アイテムを追加します。\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してください。", help="`<prefix>add weapon AT` ... ATという名前の武器を追加します\n`<prefix>add head 1` ... 1番の頭装飾を追加します")
     async def add(self, ctx) -> None:
         """
         アイテムを追加
@@ -416,7 +416,7 @@ class Costume(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("add <item|base|char|wp|h|d|b>")
 
-    @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加します。名称を指定して、全種類の中から検索します。")
+    @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加します。名称を指定して、全種類の中から検索します。", help="検索対象が全種類と広いので、思っているものと違うアイテムとマッチする可能性があります。全種類対応なので各種類のアイテム番号は使用できません。\n`<prefix>add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します")
     async def add_item(self, ctx, *, text) -> None:
         """
         全アイテムから条件に合ったアイテムを探索
@@ -436,7 +436,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]", description="白黒を設定します。")
+    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]", description="白黒を設定します。", help="`<prefix>add base 0` ... 0番目の色を設定します(白色)\n`<prefix>add base choco` ... chocoを設定します（黒色)")
     async def add_base(self, ctx, *, text) -> None:
         """
         baseの中から条件に合ったアイテムを探索
@@ -456,7 +456,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]", description="キャラクターを設定します。")
+    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]", description="キャラクターを設定します。", help="`<prefix>add character 2` ... 2番目のキャラクターを設定します\n`<prefix>add character air` ... キャラクターをairに設定します")
     async def add_character(self, ctx, *, text):
         """
         characterの中から条件にあったアイテムを探索
@@ -476,7 +476,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]", description="武器を設定します。")
+    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]", description="武器を設定します。", help="`<prefix>add weapon 3` ... 3番目の武器を設定します\n`<prefix>add weapon spyra` ... spyraを武器に設定します")
     async def add_weapon(self, ctx, *, text) -> None:
         """
         weaponの中から条件にあったアイテムを探索
@@ -496,7 +496,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]", description="頭装飾を設定します。")
+    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]", description="頭装飾を設定します。", help="`<prefix>add head 4` ... 4番目の頭装飾を設定します\n`<prefix>add head M.CHIKEN` ... M.CHIKENという名前の頭装飾を設定します")
     async def add_head(self, ctx, *, text) -> None:
         """
         headの中から条件にあったアイテムを探索
@@ -516,7 +516,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]", description="体装飾を設定します。")
+    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]", description="体装飾を設定します。", help="`<prefix>add body 5`...番目の体装飾を設定します\n`<prefix>add body n.s.suit` ... n.s.suitという名前の体装飾を設定します")
     async def add_body(self, ctx, *, text) -> None:
         """
         bodyの中から条件にあったアイテムを探索
@@ -536,7 +536,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]", description="背中装飾を指定します。")
+    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]", description="背中装飾を指定します。", help="`<prefix>add back 6`...6番目の背中装飾を設定します\n`<prefix>add back B.MOUSE` ... B.MOUSEという名前の背中装飾を設定します")
     async def add_back(self, ctx, *, text) -> None:
         """
         backの中から条件にあったアイテムを探索
@@ -556,7 +556,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示します。")
+    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示します。", help="`<prefix>list character` ... キャラクターのリストを表示します\n`<prefix>list weapon` ... 武器のリストを表示します")
     async def list(self, ctx) -> None:
         """
         アイテム一覧を表示
@@ -569,7 +569,7 @@ class Costume(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("list <item|base|char|wp|h|d|b>")
 
-    @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示します。")
+    @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示します。", help="`<prefix>list base` ... キャラ色のリストを表示します")
     async def list_base(self, ctx) -> None:
         """
         baseのアイテム一覧を検索
@@ -584,7 +584,7 @@ class Costume(commands.Cog):
         embed.set_footer(text="1 / 1 ページを表示中")
         await ctx.send(embed=embed)
 
-    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon", description="武器のリストを表示します。")
+    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon", description="武器のリストを表示します。", help="`<prefix>list character` ...キャラクターのリストを表示します")
     async def list_weapon(self, ctx) -> None:
         """
         weaponのアイテム一覧を検索
@@ -619,7 +619,7 @@ class Costume(commands.Cog):
             embed.set_footer(text=f"{page} / 4 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character", description="キャラクターのリストを表示します。")
+    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character", description="キャラクターのリストを表示します。", help="`<prefix>list weapon` ... 武器のリストを表示します")
     async def list_character(self, ctx):
         """
         characterのアイテム一覧を検索
@@ -654,7 +654,7 @@ class Costume(commands.Cog):
             embed.set_footer(text=f"{page} / 3 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="head", aliases=["h", "hd"], usage="list head", description="頭装飾のリストを表示します。")
+    @list.command(name="head", aliases=["h", "hd"], usage="list head", description="頭装飾のリストを表示します。", help="`<prefix>list head` ... 頭装飾のリストを表示します")
     async def list_head(self, ctx):
         """
         headのアイテム一覧を検索
@@ -689,7 +689,7 @@ class Costume(commands.Cog):
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body", description="体装飾のリストを表示します。")
+    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body", description="体装飾のリストを表示します。", help="`<prefix>list body` ... 体装飾のリストを表示します")
     async def list_body(self, ctx):
         """
         bodyのアイテム一覧を検索
@@ -724,7 +724,7 @@ class Costume(commands.Cog):
             embed.set_footer(text=f"{page} / 7 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back", description="背中装飾のリストを表示します。")
+    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back", description="背中装飾のリストを表示します。", help="`<prefix>list back` ... 背中装飾のリストを表示します")
     async def list_back(self, ctx):
         """
         backのアイテム一覧を検索

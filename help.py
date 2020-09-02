@@ -97,12 +97,13 @@ class Help(commands.HelpCommand):
             None
         """
         embed = discord.Embed(title=f"{self.context.prefix}{group.usage}", color=0x00ff00)
-        embed.description = group.description
+        embed.description = f"```{group.description}```"
         if group.aliases:
             embed.add_field(name="略記(エイリアス) :", value="`" + "`, `".join(group.aliases) + "`", inline=False)
         if group.help:
-            embed.add_field(name="使用例 :", value=group.help, inline=False)
+            embed.add_field(name="使用例 :", value=group.help.replace("<prefix>", self.context.prefix), inline=False)
         cmds = group.walk_commands()
+        embed.add_field(name="サブコマンド :", value=f"{sum(1 for _ in group.walk_commands())}個")
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"{cmd.description}", inline=False)
         await self.get_destination().send(embed=embed)
@@ -121,7 +122,7 @@ class Help(commands.HelpCommand):
         if command.aliases:
             embed.add_field(name="略記(エイリアス) :", value="`" + "`, `".join(command.aliases) + "`", inline=False)
         if command.help:
-            embed.add_field(name="使用例 :", value=command.help, inline=False)
+            embed.add_field(name="使用例 :", value=command.help.replace("<prefix>", self.context.prefix), inline=False)
         await self.get_destination().send(embed=embed)
 
     async def send_error_message(self, error) -> None:
