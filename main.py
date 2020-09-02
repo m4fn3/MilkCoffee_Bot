@@ -12,6 +12,8 @@ TOKEN = os.getenv("TOKEN")
 
 logging.basicConfig(level=logging.INFO)
 
+PREFIX = "m!"
+
 
 class Bot(commands.Bot):
 
@@ -69,5 +71,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix="m!", help_command=Help())
+    bot = Bot(command_prefix=PREFIX, help_command=Help())
     bot.run(TOKEN)

@@ -414,7 +414,7 @@ class Costume(commands.Cog):
             None
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send("add <item|base|char|wp|h|d|b>")
+            await ctx.send("サブコマンドを指定してください。例: `{0}add weapon chris`\n詳しくは `{0}help add`".format(ctx.prefix))
 
     @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加します。名称を指定して、全種類の中から検索します。", help="検索対象が全種類と広いので、思っているものと違うアイテムとマッチする可能性があります。全種類対応なので各種類のアイテム番号は使用できません。\n`<prefix>add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します")
     async def add_item(self, ctx, *, text) -> None:
@@ -567,7 +567,7 @@ class Costume(commands.Cog):
             None
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send("list <item|base|char|wp|h|d|b>")
+            await ctx.send("サブコマンドを指定してください。例: `{0}list weapon`\n詳しくは `{0}help list`".format(ctx.prefix))
 
     @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示します。", help="`<prefix>list base` ... キャラ色のリストを表示します")
     async def list_base(self, ctx) -> None:
