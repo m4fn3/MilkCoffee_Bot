@@ -25,11 +25,13 @@ class Bot(commands.Bot):
         with open('error_text.json', 'r', encoding='utf-8') as f:
             self.error_text = json.load(f)
         self.database = {}
-        self.ADMIN = []
-        self.BAN = []
-        self.MUTE = []
-        self.Contributor = []
+        self.ADMIN = {}
+        self.BAN = {}
+        self.MUTE = {}
+        self.Contributor = {}
         self.global_channels = []
+        self.global_chat_log = {}
+        self.global_chat_day = {}
         self.maintenance = True
         self.uptime = time.time()
         self.datas = {
@@ -37,13 +39,17 @@ class Bot(commands.Bot):
             "invite": "https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot",
             "author": "mafu#7582",
             "notice_channel": 750947806558289960,
-            "appeal_channel": 723170714907312129
+            "appeal_channel": 723170714907312129,
+            "log_channel": 744466739542360064,
+            "global_chat_log_channel": 751025181367205899,
+            "database_channel": 744466393356959785,
+            "global_chat_log_save_channel": 751053982100619275
         }
 
     async def on_ready(self):
         print(f"Logged in to {self.user}")
         db_dict: dict
-        database_channel = self.get_channel(744466393356959785)
+        database_channel = self.get_channel(self.datas["database_channel"])
         database_msg = await database_channel.fetch_message(database_channel.last_message_id)
         database_file = database_msg.attachments[0]
         db_byte = await database_file.read()
@@ -55,8 +61,20 @@ class Bot(commands.Bot):
         self.global_channels = db_dict["global"]["channels"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
+        database_channel = self.get_channel(self.datas["global_chat_log_save_channel"])
+        database_msg = await database_channel.fetch_message(database_channel.last_message_id)
+        database_file = database_msg.attachments[0]
+        db_byte = await database_file.read()
+        db_dict = json.loads(db_byte)
+        print(db_dict)
+        self.global_chat_log = db_dict["log"]
+        self.global_chat_day = db_dict["day"]
+        print(self.global_chat_log)
+        print(self.global_chat_day)
         if not self.save_database.is_running():
             self.save_database.start()
+        if not self.save_global_chat_log.is_running():
+            self.save_global_chat_log.start()
 
     async def on_message(self, message):
         if not self.is_ready():
@@ -88,9 +106,19 @@ class Bot(commands.Bot):
                 "maintenance": self.maintenance
             }
         }
-        database_channel = self.get_channel(744466393356959785)
+        database_channel = self.get_channel(self.datas["database_channel"])
         db_bytes = json.dumps(db_dict, indent=2)
         await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
+
+    @tasks.loop(seconds=60.0)
+    async def save_global_chat_log(self):
+        db_dict = {
+            "day": self.global_chat_day,
+            "log": self.global_chat_log
+        }
+        save_channel = self.get_channel(self.datas["global_chat_log_save_channel"])
+        db_bytes = json.dumps(db_dict, indent=2)
+        await save_channel.send(file=discord.File(io.StringIO(db_bytes), filename="global_chat_log.json"))
 
 
 if __name__ == '__main__':
