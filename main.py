@@ -27,13 +27,17 @@ class Bot(commands.Bot):
         self.database = {}
         self.ADMIN = []
         self.BAN = []
+        self.MUTE = []
         self.Contributor = []
+        self.global_channels = []
         self.maintenance = True
         self.uptime = time.time()
         self.datas = {
             "server": "https://discord.gg/RbzSSrw",
             "invite": "https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot",
-            "author": "mafu#7582"
+            "author": "mafu#7582",
+            "notice_channel": 750947806558289960,
+            "appeal_channel": 723170714907312129
         }
 
     async def on_ready(self):
@@ -47,10 +51,25 @@ class Bot(commands.Bot):
         self.database = db_dict["user"]
         self.ADMIN = db_dict["role"]["ADMIN"]
         self.BAN = db_dict["role"]["BAN"]
+        self.MUTE = db_dict["global"]["MUTE"]
+        self.global_channels = db_dict["global"]["channels"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
         if not self.save_database.is_running():
             self.save_database.start()
+
+    async def on_message(self, message):
+        if not self.is_ready():
+            return
+        elif message.author.bot:
+            return
+        elif message.guild is None:
+            return await message.channel.send(f"このBOTのコマンドは__**サーバー上でのみ**__使用できます。(コマンドによりBOT側からDMを送信する場合があります)\nサポート用サーバー: {self.datas['server']}\nBOTの招待用URL: {self.datas['invite']}")
+        elif message.channel.id in self.global_channels:
+            global_chat_cog = self.get_cog("GlobalChat")
+            await global_chat_cog.on_global_message(message)
+        else:
+            await self.process_commands(message)
 
     @tasks.loop(seconds=30.0)
     async def save_database(self):
@@ -60,6 +79,10 @@ class Bot(commands.Bot):
                 "ADMIN": self.ADMIN,
                 "BAN": self.BAN,
                 "Contributor": self.Contributor
+            },
+            "global": {
+                "channels": self.global_channels,
+                "MUTE": self.MUTE
             },
             "system": {
                 "maintenance": self.maintenance

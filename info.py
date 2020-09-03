@@ -7,6 +7,11 @@ class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
+    async def cog_before_invoke(self, ctx):
+        if ctx.author.id in self.bot.BAN:
+            await ctx.send(f"あなたのアカウントはブロックされています。あなたの電話番号は {ctx.author.id} です。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            raise commands.CommandError("Your Account Banned")
+
     @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示します。")
     async def invite(self, ctx):
         text = f"__**BOTの招待用URL**__:\n{self.bot.datas['invite']}\n" \
@@ -25,6 +30,27 @@ class Information(commands.Cog):
         embed.add_field(name="稼働時間", value=f"{d}日 {h}時間 {m}分 {s}秒", inline=False)
         embed.add_field(name="各種URL", value=f"[BOT招待用URL]({self.bot.datas['invite']}) | [サポート用サーバー]({self.bot.datas['server']})", inline=False)
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測します。")
+    async def ping(self, ctx):
+        before = time.monotonic()
+        message = await ctx.send("Pong")
+        ping = (time.monotonic() - before) * 1000
+        await message.delete()
+        await ctx.send(f"反応速度: `{int(ping)}`[ms]")
+
+    @commands.command(aliases=["notice"], usage="follow (チャンネル)", description="BOTのお知らせチャンネルをフォローします。チャンネルを設定しなかった場合、コマンドぞ実行したチャンネルに設定します。")
+    async def follow(self, ctx):
+        channel_id: int
+        if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
+            target_channel = ctx.message.channel_mentions[0]
+        else:
+            target_channel = ctx.channel
+        if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
+            await self.bot.get_channel(self.bot.datas['notice_channel']).follow(destination=target_channel)
+            await ctx.send(f"{target_channel.mention}で公式サーバーのBOTお知らせ用チャンネルをフォローしました。")
+        else:
+            await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。\n代わりに公式サーバーの<#{self.bot.datas['notice_channel']}>を手動でフォローすることもできます。")
 
 
 def setup(bot):

@@ -19,20 +19,6 @@ class Costume(commands.Cog):
         with open('./assets/item_info.json') as f:
             self.item_info = json.load(f)
 
-    def initialize_user_data(self, user_id: str) -> None:
-        """
-        ユーザーを登録
-        Args:
-            user_id (str): ユーザーID
-
-        Returns:
-            None
-        """
-        self.bot.database[user_id] = {
-                "canvas": "1o4s3k",
-                "save": []
-            }
-
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """
         アイテムをアイテムリストから名前または番号で取得
@@ -94,7 +80,7 @@ class Costume(commands.Cog):
         Returns:
             None
         """
-        self.bot.database[str(user_id)]["canvas"] = data
+        self.bot.database[str(user_id)]["costume"]["canvas"] = data
 
     def get_list(self, item_type: str, page: int) -> str:
         """
@@ -116,8 +102,21 @@ class Costume(commands.Cog):
         return text
 
     async def cog_before_invoke(self, ctx):
-        if str(ctx.author.id) not in self.bot.database:
-            self.initialize_user_data(str(ctx.author.id))
+        if ctx.author.id in self.bot.BAN:
+            await ctx.send(f"あなたのアカウントはブロックされています。あなたの電話番号は {ctx.author.id} です。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            raise commands.CommandError("Your Account Banned")
+        elif str(ctx.author.id) not in self.bot.database:
+            self.bot.database[str(ctx.author.id)] = {
+                "costume": {
+                    "canvas": "1o4s3k",
+                    "save": []
+                }
+            }
+        elif "costume" not in self.bot.database[str(ctx.author.id)]:
+            self.bot.database[str(ctx.author.id)]["costume"] = {
+                "canvas": "1o4s3k",
+                "save": []
+            }
 
     async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
         """
@@ -236,12 +235,12 @@ class Costume(commands.Cog):
         listed = ctx.message.content.split(" ", 1)
         item_code: str
         if len(listed) == 1:
-            item_code = self.bot.database[str(ctx.author.id)]["canvas"]
+            item_code = self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
         else:
             index = listed[1]
             item_index: int
             if index.isdigit() and 1 <= int(index) <= 20:
-                item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+                item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
                 if 0 <= int(index) <= item_count:
                     item_index = int(index) - 1
                 else:
@@ -249,12 +248,12 @@ class Costume(commands.Cog):
             elif index.isdigit():
                 return await ctx.send("1~20の間で指定してください.")
             else:
-                used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+                used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
                 if index in used_name_list:
                     item_index = used_name_list.index(index)
                 else:
                     return await ctx.send("そのような名前の作品はありません.")
-            item_code = self.bot.database[str(ctx.author.id)]["save"][item_index]["data"]
+            item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
 
@@ -271,7 +270,7 @@ class Costume(commands.Cog):
         """
         item_index: int
         if index.isdigit() and 1 <= int(index) <= 20:
-            item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+            item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
             if 0 <= int(index) <= item_count:
                 item_index = int(index) - 1
             else:
@@ -279,13 +278,13 @@ class Costume(commands.Cog):
         elif index.isdigit():
             return await ctx.send("1~20の間で指定してください.")
         else:
-            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
             else:
                 return await ctx.send("そのような名前の作品はありません.")
-        self.bot.database[str(ctx.author.id)]["canvas"] = self.bot.database[str(ctx.author.id)]["save"][item_index]["data"]
-        await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['save'][item_index]['name']}\"を読み込みました.")
+        self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
+        await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']}\"を読み込みました.")
 
     @commands.command(usage="save (保存名称)", description="現在の装飾を保存します。保存名称を指定しなかった場合は、'無題1'のようになります。", help="`<prefix>save` ... 作品を保存します(名前は自動で無題1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
     async def save(self, ctx) -> None:
@@ -299,9 +298,9 @@ class Costume(commands.Cog):
         """
         name: str
         listed = ctx.message.content.split(" ", 1)
-        if len(self.bot.database[str(ctx.author.id)]["save"]) == 20:
+        if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
             return await ctx.send("保存できるのは20個までです. 不要なものを削除してから保存して下さい!")
-        used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+        used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
         if len(listed) == 1:
             count = 1
             while True:
@@ -317,10 +316,10 @@ class Costume(commands.Cog):
             elif len(listed[1]) < 1 or 20 < len(listed[1]):
                 return await ctx.send("名称は1文字以上20文字以下で指定して下さい.")
             name = listed[1]
-        self.bot.database[str(ctx.author.id)]["save"].append(
+        self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
             {
                 "name": name,
-                "data": self.bot.database[str(ctx.author.id)]["canvas"]
+                "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
         await ctx.send(f"保存しました. 名称: '{name}'")
@@ -345,16 +344,16 @@ class Costume(commands.Cog):
             return await ctx.send("ページ数は1~4で指定してください!")
         else:
             return await ctx.send("ページ数は整数で1~4で指定してください!")
-        item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+        item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
         embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
         embed.description = "左の数字が保存番号、その横の名前が保存名称です。その下の英数字6,7桁の文字列が装飾コードです。"
         for index in range(page*5-4, page*5+1):  # 1-5 6-10 11-15 16-20
             if index > item_count:
                 break
-            item_id = self.bot.database[str(ctx.author.id)]["save"][index-1]["data"]
+            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index-1]["data"]
             item_list = parse_item_code_to_list(item_id)
             text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
-            embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index-1]['name']}", value=text, inline=False)
+            embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index-1]['name']}", value=text, inline=False)
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
@@ -368,10 +367,10 @@ class Costume(commands.Cog):
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
                 if index > item_count:
                     break
-                item_id = self.bot.database[str(ctx.author.id)]["save"][index - 1]["data"]
+                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
                 item_list = parse_item_code_to_list(item_id)
                 text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
-                embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['save'][index - 1]['name']}", value=text, inline=False)
+                embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
     @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", description="保存した作品を番号または名称で指定して、削除します。", help="`<prefix>delete 1` ... 1番目に保存された作品を削除します\n`<prefix>delete 旧作品`... 旧作品という名前の作品を削除します")
@@ -386,19 +385,19 @@ class Costume(commands.Cog):
             None
         """
         if index.isdigit() and 1 <= int(index) <= 20:
-            item_count = len(self.bot.database[str(ctx.author.id)]["save"])
+            item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
             if 0 <= int(index) <= item_count:
-                old_data = self.bot.database[str(ctx.author.id)]["save"].pop(int(index)-1)
+                old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(int(index)-1)
                 await ctx.send(f"{index}番目の{old_data['name']}を削除しました.")
             else:
                 await ctx.send(f"{index}番目に保存された作品はありません.")
         elif index.isdigit():
             await ctx.send("1~20の間で指定してください.")
         else:
-            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["save"]]
+            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
-                old_data = self.bot.database[str(ctx.author.id)]["save"].pop(item_index)
+                old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(item_index)
                 await ctx.send(f"{item_index + 1}番目の{old_data['name']}を削除しました.")
             else:
                 await ctx.send("そのような名前の作品はありません.")
@@ -431,7 +430,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -451,7 +450,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -471,7 +470,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -491,7 +490,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -511,7 +510,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -531,7 +530,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
@@ -551,7 +550,7 @@ class Costume(commands.Cog):
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
         await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
-        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["canvas"])
+        item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])

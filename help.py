@@ -8,6 +8,7 @@ class Help(commands.HelpCommand):
         self.no_category = "Help"
         self.command_attrs["description"] = "コマンド一覧を表示します"
         self.command_attrs["help"] = "BOTのヘルプコマンドです"
+        self.footer_message = f"<prefix>help (コマンド名) でさらに詳しいコマンドの説明を確認できます!"
 
     async def send_bot_help(self, mapping) -> None:
         """
@@ -27,6 +28,7 @@ class Help(commands.HelpCommand):
         embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+        embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
         message = await self.get_destination().send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
@@ -57,6 +59,7 @@ class Help(commands.HelpCommand):
                     embed.add_field(name="'種類'", value="base(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾) のいずれかを指定してください。(例: base)", inline=False)
                     embed.add_field(name="'引数'って？", value=f"コマンド(例えば`load`)のあとにつける文字列(loadの場合保存番号または保存名称)のことです。`{self.context.prefix}load 1`というコマンドでは、loadがコマンド名、1が引数です。コマンドによっては引数を二つ以上とるものもあります。", inline=False)
                     embed.add_field(name="'サブコマンド'って？", value=f"コマンド(例えば`add`)のあとにつける文字列(addの場合種類(base/character等))のことです(引数とは別)。`{self.context.prefix}add weapon chris`というコマンドでは、addが親コマンド、weaponがサブコマンド、chrisが引数です。", inline=False)
+                    embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
                     await message.edit(embed=embed)
                     continue
 
@@ -66,6 +69,7 @@ class Help(commands.HelpCommand):
                 embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
                 for cmd in await self.filter_commands(cmds, sort=True):
                     embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+                embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
                 await message.edit(embed=embed)
             except asyncio.TimeoutError:
                 await message.remove_reaction("◀️", self.context.bot.user)
@@ -87,6 +91,7 @@ class Help(commands.HelpCommand):
         embed.description = cog.description
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+        embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
         await self.get_destination().send(embed=embed)
 
     async def send_group_help(self, group):
@@ -108,6 +113,7 @@ class Help(commands.HelpCommand):
         embed.add_field(name="サブコマンド :", value=f"{sum(1 for _ in group.walk_commands())}個")
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"{cmd.description}", inline=False)
+        embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
         await self.get_destination().send(embed=embed)
 
     async def send_command_help(self, command) -> None:
@@ -125,6 +131,7 @@ class Help(commands.HelpCommand):
             embed.add_field(name="略記(エイリアス) :", value="`" + "`, `".join(command.aliases) + "`", inline=False)
         if command.help:
             embed.add_field(name="使用例 :", value=command.help.replace("<prefix>", self.context.prefix), inline=False)
+        embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
         await self.get_destination().send(embed=embed)
 
     async def send_error_message(self, error) -> None:
@@ -137,6 +144,7 @@ class Help(commands.HelpCommand):
             None
         """
         embed = discord.Embed(title="ヘルプ表示のエラー", description=error, color=0xff0000)
+        embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
         await self.get_destination().send(embed=embed)
 
     def command_not_found(self, string):
