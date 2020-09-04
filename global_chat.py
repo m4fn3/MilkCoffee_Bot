@@ -8,7 +8,8 @@ class GlobalChat(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         self.global_chat_log_channel = None
-        self.sending_message = []
+        self.sending_message = {}
+        self.global_chat_message_cache = {}
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -23,14 +24,18 @@ class GlobalChat(commands.Cog):
                 if payload.message_id in self.sending_message:
                     task = self.sending_message[payload.message_id]
                     task.cancel()
-                first = True
-                for msg_data in self.bot.global_chat_log[str(payload.message_id)]["webhooks"]:
-                    if first:
-                        first = False
-                        continue
-                    channel = self.bot.get_channel(msg_data["channel"])
-                    message = await channel.fetch_message(msg_data["message"])
-                    await message.delete()
+                    del self.sending_message[payload.message_id]
+                if payload.message_id in self.global_chat_message_cache:
+                    for msg_obj in self.global_chat_message_cache[payload.message_id]:
+                        await msg_obj.delete()
+                    del self.global_chat_message_cache[payload.message_id]
+                else:
+                    for msg_data in self.bot.global_chat_log[str(payload.message_id)]["webhooks"]:
+                        channel = self.bot.get_channel(msg_data["channel"])
+                        # TODO: message = await channel.fetch_message(msg_data["message"])
+                        # TODO: AttributeError: 'NoneType' object has no attribute 'fetch_message'
+                        message = await channel.fetch_message(msg_data["message"])
+                        await message.delete()
                 msg_data = self.bot.global_chat_log[str(payload.message_id)]
                 embed = discord.Embed(color=0xff0000)
                 embed.set_author(name=msg_data["sender"]["name"], icon_url=msg_data["sender"]["avatar"])
@@ -103,7 +108,7 @@ class GlobalChat(commands.Cog):
         embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
         embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
         msg_obj = await self.global_chat_log_channel.send(embed=embed, files=files)
-        self.bot.global_chat_log[str(message.id)]["webhooks"].append(msg_obj.id)
+        self.global_chat_message_cache[message.id] = []
         for channel_id in self.bot.global_channels:
             if channel_id == message.channel.id:
                 continue
@@ -129,6 +134,7 @@ class GlobalChat(commands.Cog):
                 "channel": msg_obj.channel.id,
                 "message": msg_obj.id
             })
+            self.global_chat_message_cache[message.id].append(msg_obj)
         del self.sending_message[message.id]
 
     async def on_global_message(self, message):
@@ -147,6 +153,7 @@ class GlobalChat(commands.Cog):
             for msg_id in self.bot.global_chat_day[day]:
                 try:
                     del self.bot.global_chat_log[str(msg_id)]
+                    del self.global_chat_message_cache[msg_id]
                 except KeyError:
                     pass
             del self.bot.global_chat_day[day]

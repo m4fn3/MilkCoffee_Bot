@@ -66,11 +66,8 @@ class Bot(commands.Bot):
         database_file = database_msg.attachments[0]
         db_byte = await database_file.read()
         db_dict = json.loads(db_byte)
-        print(db_dict)
         self.global_chat_log = db_dict["log"]
         self.global_chat_day = db_dict["day"]
-        print(self.global_chat_log)
-        print(self.global_chat_day)
         if not self.save_database.is_running():
             self.save_database.start()
         if not self.save_global_chat_log.is_running():
