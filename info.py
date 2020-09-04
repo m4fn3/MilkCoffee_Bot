@@ -9,7 +9,7 @@ class Information(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         if ctx.author.id in self.bot.BAN:
-            await ctx.send(f"あなたのアカウントはブロックされています。あなたの電話番号は {ctx.author.id} です。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
     @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示します。")

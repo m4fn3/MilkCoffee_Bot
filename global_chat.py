@@ -4,9 +4,11 @@ import discord, datetime, traceback2
 
 class GlobalChat(commands.Cog):
     """他のサーバーに居る人と、設定したチャンネルでお話しできます。(現在開発中)"""
+
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         self.global_chat_log_channel = None
+        self.sending_message = []
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -18,6 +20,9 @@ class GlobalChat(commands.Cog):
     async def on_raw_message_delete(self, payload):
         if payload.channel_id in self.bot.global_channels:
             if str(payload.message_id) in self.bot.global_chat_log:
+                if payload.message_id in self.sending_message:
+                    task = self.sending_message[payload.message_id]
+                    task.cancel()
                 first = True
                 for msg_data in self.bot.global_chat_log[str(payload.message_id)]["webhooks"]:
                     if first:
@@ -40,7 +45,7 @@ class GlobalChat(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         if ctx.author.id in self.bot.BAN:
-            await ctx.send(f"あなたのアカウントはブロックされています。あなたの電話番号は {ctx.author.id} です。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
     @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドです。")
@@ -67,11 +72,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。")
 
-    async def on_global_message(self, message):
-        if message.author.id in self.bot.BAN:
-            return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
-        elif message.author.id in self.bot.MUTE:
-            return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+    async def process_message(self, message):
         #  filter text
         day_head = datetime.datetime.now().strftime('%Y%m%d')
         if day_head not in self.bot.global_chat_day:
@@ -128,14 +129,19 @@ class GlobalChat(commands.Cog):
                 "channel": msg_obj.channel.id,
                 "message": msg_obj.id
             })
+        del self.sending_message[message.id]
 
-    @tasks.loop(hours=1)
+    async def on_global_message(self, message):
+        if message.author.id in self.bot.BAN:
+            return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+        elif message.author.id in self.bot.MUTE:
+            return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+        self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
+
+    @tasks.loop(hours=12)
     async def process_chat_log(self):
         day_head = (datetime.datetime.now() - datetime.timedelta(days=6)).strftime('%Y%m%d')
-        print(day_head)
-        print(self.bot.global_chat_day)
         for day in self.bot.global_chat_day:
-            print(day)
             if int(day) >= int(day_head):
                 continue
             for msg_id in self.bot.global_chat_day[day]:
