@@ -27,15 +27,19 @@ class GlobalChat(commands.Cog):
                     del self.sending_message[payload.message_id]
                 if payload.message_id in self.global_chat_message_cache:
                     for msg_obj in self.global_chat_message_cache[payload.message_id]:
-                        await msg_obj.delete()
+                        try:
+                            await msg_obj.delete()
+                        except:
+                            pass
                     del self.global_chat_message_cache[payload.message_id]
                 else:
                     for msg_data in self.bot.global_chat_log[str(payload.message_id)]["webhooks"]:
-                        channel = self.bot.get_channel(msg_data["channel"])
-                        # TODO: message = await channel.fetch_message(msg_data["message"])
-                        # TODO: AttributeError: 'NoneType' object has no attribute 'fetch_message'
-                        message = await channel.fetch_message(msg_data["message"])
-                        await message.delete()
+                        try:
+                            channel = self.bot.get_channel(msg_data["channel"])
+                            message = await channel.fetch_message(msg_data["message"])
+                            await message.delete()
+                        except:
+                            pass
                 msg_data = self.bot.global_chat_log[str(payload.message_id)]
                 embed = discord.Embed(color=0xff0000)
                 embed.set_author(name=msg_data["sender"]["name"], icon_url=msg_data["sender"]["avatar"])
@@ -107,7 +111,7 @@ class GlobalChat(commands.Cog):
         embed.timestamp = message.created_at
         embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
         embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
-        msg_obj = await self.global_chat_log_channel.send(embed=embed, files=files)
+        await self.global_chat_log_channel.send(embed=embed, files=files)
         self.global_chat_message_cache[message.id] = []
         for channel_id in self.bot.global_channels:
             if channel_id == message.channel.id:
@@ -128,7 +132,7 @@ class GlobalChat(commands.Cog):
             for attachment in message.attachments:
                 attached_file = await attachment.to_file()
                 files.append(attached_file)
-            msg_obj = await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar_url, files=files, wait=True)
+            msg_obj = await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar_url, files=files, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
             self.bot.global_chat_log[str(message.id)]["webhooks"].append({
                 "guild": msg_obj.guild.id,
                 "channel": msg_obj.channel.id,
