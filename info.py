@@ -8,7 +8,7 @@ class Information(commands.Cog):
         self.bot = bot  # type: commands.Bot
 
     async def cog_before_invoke(self, ctx):
-        if ctx.author.id in self.bot.BAN:
+        if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 

@@ -110,7 +110,7 @@ class Help(commands.HelpCommand):
         if group.help:
             embed.add_field(name="使用例 :", value=group.help.replace("<prefix>", self.context.prefix), inline=False)
         cmds = group.walk_commands()
-        embed.add_field(name="サブコマンド :", value=f"{sum(1 for _ in group.walk_commands())}個")
+        embed.add_field(name="サブコマンド :", value=f"{sum(1 for _ in await self.filter_commands(group.walk_commands()))}個")
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"{cmd.description}", inline=False)
         embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.prefix))
@@ -154,3 +154,4 @@ class Help(commands.HelpCommand):
         if isinstance(cmd, commands.Group) and len(cmd.all_commands) > 0:
             return f"`{cmd.qualified_name}` に `{string}` というサブコマンドは登録されていません。`{self.context.prefix}help {cmd.qualified_name}` で使い方を確認してください。"
         return f"`{cmd.qualified_name}` にサブコマンドは登録されていません。`{self.context.prefix}help {cmd.qualified_name}` で使い方を確認してください。"
+

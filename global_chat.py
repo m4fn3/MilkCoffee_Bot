@@ -11,6 +11,39 @@ class GlobalChat(commands.Cog):
         self.sending_message = {}
         self.global_chat_message_cache = {}
 
+    async def delete_global_message(self, message_id: int):
+        if str(message_id) in self.bot.global_chat_log:
+            if message_id in self.sending_message:
+                task = self.sending_message[message_id]
+                task.cancel()
+                del self.sending_message[message_id]
+            if message_id in self.global_chat_message_cache:
+                for msg_obj in self.global_chat_message_cache[message_id]:
+                    try:
+                        await msg_obj.delete()
+                    except:
+                        pass
+                del self.global_chat_message_cache[message_id]
+            else:
+                for msg_data in self.bot.global_chat_log[str(message_id)]["webhooks"]:
+                    try:
+                        channel = self.bot.get_channel(msg_data["channel"])
+                        message = await channel.fetch_message(msg_data["message"])
+                        await message.delete()
+                    except:
+                        pass
+            msg_data = self.bot.global_chat_log[str(message_id)]
+            embed = discord.Embed(color=0xff0000)
+            embed.set_author(name=msg_data["sender"]["name"], icon_url=msg_data["sender"]["avatar"])
+            embed.description = msg_data["content"]
+            timestamp = msg_data["timestamp"]
+            embed.timestamp = datetime.datetime.fromtimestamp(timestamp)
+            guild = self.bot.get_guild(msg_data['guild'])
+            embed.add_field(name="詳細情報", value=f"```メッセージID: {message_id}\n送信者情報: {msg_data['sender']['name']} ({msg_data['sender']['id']})\n送信元サーバー: {guild.name} ({guild.id})\n送信元チャンネル: {guild.get_channel(msg_data['channel'])} ({msg_data['channel']})```", inline=False)
+            embed.add_field(name="日時", value=(datetime.datetime.fromtimestamp(timestamp) + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
+            links = [link for link in msg_data['attachment']]
+            await self.global_chat_log_channel.send(content="\n".join(links), embed=embed)
+
     @commands.Cog.listener()
     async def on_ready(self):
         self.global_chat_log_channel = self.bot.get_channel(self.bot.datas["global_chat_log_channel"])
@@ -20,44 +53,14 @@ class GlobalChat(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
         if payload.channel_id in self.bot.global_channels:
-            if str(payload.message_id) in self.bot.global_chat_log:
-                if payload.message_id in self.sending_message:
-                    task = self.sending_message[payload.message_id]
-                    task.cancel()
-                    del self.sending_message[payload.message_id]
-                if payload.message_id in self.global_chat_message_cache:
-                    for msg_obj in self.global_chat_message_cache[payload.message_id]:
-                        try:
-                            await msg_obj.delete()
-                        except:
-                            pass
-                    del self.global_chat_message_cache[payload.message_id]
-                else:
-                    for msg_data in self.bot.global_chat_log[str(payload.message_id)]["webhooks"]:
-                        try:
-                            channel = self.bot.get_channel(msg_data["channel"])
-                            message = await channel.fetch_message(msg_data["message"])
-                            await message.delete()
-                        except:
-                            pass
-                msg_data = self.bot.global_chat_log[str(payload.message_id)]
-                embed = discord.Embed(color=0xff0000)
-                embed.set_author(name=msg_data["sender"]["name"], icon_url=msg_data["sender"]["avatar"])
-                embed.description = msg_data["content"]
-                timestamp = msg_data["timestamp"]
-                embed.timestamp = datetime.datetime.fromtimestamp(timestamp)
-                guild = self.bot.get_guild(msg_data['guild'])
-                embed.add_field(name="詳細情報", value=f"```メッセージID: {payload.message_id}\n送信者情報: {msg_data['sender']['name']} ({msg_data['sender']['id']})\n送信元サーバー: {guild.name} ({guild.id})\n送信元チャンネル: {guild.get_channel(msg_data['channel'])} ({msg_data['channel']})```", inline=False)
-                embed.add_field(name="日時", value=(datetime.datetime.fromtimestamp(timestamp) + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
-                links = [link for link in msg_data['attachment']]
-                await self.global_chat_log_channel.send(content="\n".join(links), embed=embed)
+            await self.delete_global_message(payload.message_id)
 
     async def cog_before_invoke(self, ctx):
-        if ctx.author.id in self.bot.BAN:
+        if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
-    @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドです。")
+    @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドです。\nグローバルチャット設定を操作するためには、BOTが manage_webhook(webhookを管理) の権限を持ち、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があります。")
     async def global_command(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("サブコマンドを指定してください。例: `{0}global join`\n詳しくは `{0}help global`".format(ctx.prefix))
@@ -99,6 +102,75 @@ class GlobalChat(commands.Cog):
                 await ctx.send(f"{target_channel.mention} はフローバルチャットに接続されていません。")
         else:
             await ctx.send(f"チャンネルが指定されていません。詳しい使い方は `{ctx.prefix}help global leave` で確認してください。")
+
+    @global_command.command(name="delete", hidden=True)
+    async def global_delete(self, ctx, message_id):
+        if str(ctx.author.id) not in self.bot.ADMIN:
+            return
+        if message_id.isdigit():
+            await self.delete_global_message(int(message_id))
+            await ctx.send(f"該当メッセージを削除しました。(メッセージID: {message_id})")
+        else:
+            await ctx.send("メッセージIDは数字で指定してください。")
+
+    @global_command.command(name="mute", hidden=True)
+    async def global_mute(self, ctx, user_id, *, reason):
+        if str(ctx.author.id) not in self.bot.ADMIN:
+            return
+        if user_id.isdigit():
+            if user_id in self.bot.MUTE:
+                await ctx.send("このユーザーは既にミュートされています。")
+            else:
+                user: discord.User
+                try:
+                    user = await self.bot.fetch_user(int(user_id))
+                except discord.errors.NotFound:
+                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+                self.bot.MUTE[str(user.id)] = reason
+                await ctx.send(f"該当ユーザーをミュートしました。(ユーザー情報: {str(user)} ({user.id}))")
+                embed = discord.Embed(title=f"{user.name} がミュートされました。", color=0x9370db)
+                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
+
+    @global_command.command(name="unmute", hidden=True)
+    async def global_unmute(self, ctx, user_id, *, reason):
+        if str(ctx.author.id) not in self.bot.ADMIN:
+            return
+        if user_id.isdigit():
+            if user_id not in self.bot.MUTE:
+                await ctx.send("このユーザーはミュートされていません。")
+            else:
+                user: discord.User
+                try:
+                    user = await self.bot.fetch_user(int(user_id))
+                except discord.errors.NotFound:
+                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+                del self.bot.MUTE[str(user.id)]
+                await ctx.send(f"該当ユーザーのミュートを解除しました。(ユーザー情報: {str(user)} ({user.id}))")
+                embed = discord.Embed(title=f"{user.name} がミュート解除されました。", color=0xdeb887)
+                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
+
+    @global_command.command(name="muted", hidden=True)
+    async def global_muted(self, ctx, user_id):
+        if str(ctx.author.id) not in self.bot.ADMIN:
+            return
+        if user_id.isdigit():
+            user: discord.User
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+            if user_id not in self.bot.MUTE:
+                await ctx.send(f"このユーザーはミュートされていません。(ユーザー情報: {str(user)} ({user.id}))")
+            else:
+                await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
 
     async def process_message(self, message):
         #  filter text
@@ -161,9 +233,9 @@ class GlobalChat(commands.Cog):
         del self.sending_message[message.id]
 
     async def on_global_message(self, message):
-        if message.author.id in self.bot.BAN:
+        if str(message.author.id) in self.bot.BAN:
             return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
-        elif message.author.id in self.bot.MUTE:
+        elif str(message.author.id) in self.bot.MUTE:
             return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
 
