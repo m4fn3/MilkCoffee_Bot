@@ -65,36 +65,6 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             text += "\n{0} ({0.id})".format(self.bot.get_user(int(user)))
         await ctx.send(text)
 
-    @commands.group()
-    async def ban(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send("add <@user> | delete <@user> | list ")
-
-    @ban.command(name="add")
-    async def add_ban(self, ctx, *, reason):
-        for target in ctx.message.mentions:
-            if str(target.id) in self.bot.BAN:
-                await ctx.send("このユーザーはすでにBANされています.")
-            else:
-                self.bot.BAN[str(target.id)] = reason.replace(f"<@!{target.id}>", "")
-                await ctx.send(f"<@{target.id}>がBANされました.")
-
-    @ban.command(name="delete", aliases=["remove"])
-    async def delete_ban(self, ctx):
-        for target in ctx.message.mentions:
-            if str(target.id) not in self.bot.BAN:
-                await ctx.send("このユーザーはBANされていません.")
-            else:
-                del self.bot.BAN[str(target.id)]
-                await ctx.send(f"<@{target.id}>さんがBANを解除されました.")
-
-    @ban.command(name="list")
-    async def list_ban(self, ctx):
-        text = "BANユーザー一覧:"
-        for user in self.bot.BAN:
-            text += "\n{0} ({0.id})".format(self.bot.get_user(int(user)))
-        await ctx.send(text)
-
     @commands.group(aliases=["con"])
     async def contributor(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -124,6 +94,59 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         for user in self.bot.Contributor:
             text += "\n{0} ({0.id})".format(self.bot.get_user(int(user)))
         await ctx.send(text)
+
+    @commands.command()
+    async def ban(self, ctx, user_id):
+        if user_id.isdigit():
+            if user_id in self.bot.BAN:
+                await ctx.send("このユーザーはすでにBANされています.")
+            else:
+                user: discord.User
+                try:
+                    user = await self.bot.fetch_user(int(user_id))
+                except discord.errors.NotFound:
+                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+                self.bot.BAN[str(user.id)] = reason
+                await ctx.send(f"該当ユーザーをBANしました。(ユーザー情報: {str(user)} ({user.id}))")
+                embed = discord.Embed(title=f"{user.name} がBANされました。", color=0x9370db)
+                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
+
+    @commands.command()
+    async def unban(self, ctx, user_id, *, reason):
+        if user_id.isdigit():
+            if user_id not in self.bot.BAN:
+                await ctx.send("このユーザーはミBANされていません。")
+            else:
+                user: discord.User
+                try:
+                    user = await self.bot.fetch_user(int(user_id))
+                except discord.errors.NotFound:
+                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+                del self.bot.MUTE[str(user.id)]
+                await ctx.send(f"該当ユーザーのBANを解除しました。(ユーザー情報: {str(user)} ({user.id}))")
+                embed = discord.Embed(title=f"{user.name} がBAN解除されました。", color=0xdeb887)
+                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
+
+    @commands.command(aliases=["baned"])
+    async def banned(self, ctx, user_id, *, reason):
+        if user_id.isdigit():
+            user: discord.User
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+            if user_id not in self.bot.BAN:
+                await ctx.send(f"このユーザーはBANされていません。(ユーザー情報: {str(user)} ({user.id}))")
+            else:
+                await ctx.send(f"このユーザーはBANされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
+        else:
+            await ctx.send("ユーザーIDは数字で指定してください。")
 
     @commands.group(aliases=["sys"])
     async def system(self, ctx):
