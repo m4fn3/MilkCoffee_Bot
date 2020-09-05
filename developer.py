@@ -132,7 +132,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["rl"])
     async def reload(self, ctx, text):
-        if text in self.bot_cogs:
+        if text in self.bot.bot_cogs:
             try:
                 self.bot.reload_extension(text)
             except:
@@ -144,7 +144,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["l"])
     async def load(self, ctx, text):
-        if text in self.bot_cogs:
+        if text in self.bot.bot_cogs:
             try:
                 self.bot.load_extension(text)
             except:
@@ -156,7 +156,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     @system.command(aliases=["u"])
     async def unload(self, ctx, text):
-        if text in self.bot_cogs:
+        if text in self.bot.bot_cogs:
             try:
                 self.bot.unload_extension(text)
             except:

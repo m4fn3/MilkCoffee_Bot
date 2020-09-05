@@ -24,7 +24,7 @@ class Help(commands.HelpCommand):
 
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
-        embed = discord.Embed(title=cog.qualified_name)
+        embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
         embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
@@ -51,7 +51,7 @@ class Help(commands.HelpCommand):
                     else:
                         page -= 1
                 elif str(reaction.emoji) == "❔":
-                    embed = discord.Embed(title="コマンド説明の見方")
+                    embed = discord.Embed(title="コマンド説明の見方", color=0x00ff00)
                     embed.description = f"ヘルプコマンドへようこそ。\nメッセージ下にあるリアクションを押してページ移動できます！\nまた `{self.context.prefix}help [コマンド名]` でコマンドに関するさらに詳しい説明を確認できます。\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})までお越しください！"
                     embed.add_field(name="[引数]", value="__**必須**__の引数です。", inline=False)
                     embed.add_field(name="(引数)", value="__**オプション**__の引数です。", inline=False)
@@ -87,7 +87,7 @@ class Help(commands.HelpCommand):
             None
         """
         cmds = cog.get_commands()
-        embed = discord.Embed(title=cog.qualified_name)
+        embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
         embed.description = cog.description
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.prefix}{cmd.usage}", value=f"```{cmd.description}```", inline=False)

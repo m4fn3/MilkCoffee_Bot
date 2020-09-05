@@ -69,6 +69,8 @@ class GlobalChat(commands.Cog):
             target_channel = ctx.message.channel_mentions[0]
         else:
             target_channel = ctx.channel
+        if not target_channel.permissions_for(ctx.author).manage_channels:
+            return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がありません。\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っている必要があります。\n権限に関しては、サーバーの管理者に依頼してください。")
         if target_channel.id in self.bot.global_channels:
             return await ctx.send(f"{target_channel.mention} は既にグローバルチャットに参加しています。")
         if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
@@ -85,9 +87,11 @@ class GlobalChat(commands.Cog):
             await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。")
 
     @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断します。(グローバルチャットに接続されているチャンネルではコマンドを実行できません)", help="`<prefix>global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
-    async def global_leave(self, ctx, *, channel):
+    async def global_leave(self, ctx):
         if ctx.message.channel_mentions:
             target_channel = ctx.message.channel_mentions[0]
+            if not target_channel.permissions_for(ctx.author).manage_channels:
+                return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がありません。\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っている必要があります。\n権限に関しては、サーバーの管理者に依頼してください。")
             if target_channel.id in self.bot.global_channels:
                 self.bot.global_channels.remove(target_channel.id)
                 await ctx.send(f"{target_channel.mention} をグローバルチャットから切断しました。")
