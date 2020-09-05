@@ -62,7 +62,7 @@ class GlobalChat(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("サブコマンドを指定してください。例: `{0}global join`\n詳しくは `{0}help global`".format(ctx.prefix))
 
-    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続します。チャンネルを指定しなかった場合、コマンドが実行されたチャンネルに設定します。")
+    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続します。チャンネルを指定しなかった場合、コマンドが実行されたチャンネルに設定します。", help="`<prefix>global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`<prefix>global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
     async def global_join(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
@@ -78,8 +78,23 @@ class GlobalChat(commands.Cog):
                 await target_channel.create_webhook(name=f"global_chat_webhook_mafu")
             self.bot.global_channels.append(target_channel.id)
             await ctx.send(f"{target_channel.mention} がグローバルチャットに接続されました!")
+            embed = discord.Embed(title=f"{ctx.channel.name} がグローバルチャットに参加しました。", color=0x2f4f4f)
+            embed.description = f"サーバー情報: {ctx.guild.name} ({ctx.guild.id})\nチャンネル情報: {ctx.channel.name} ({ctx.channel.id})\n設定したユーザー: {str(ctx.author)} ({ctx.author.id})\nメンバー数: {len(ctx.guild.members)}\nサーバー管理者: {str(ctx.guild.owner)} ({ctx.guild.owner.id})"
+            await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
         else:
             await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。")
+
+    @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断します。(グローバルチャットに接続されているチャンネルではコマンドを実行できません)", help="`<prefix>global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
+    async def global_leave(self, ctx, *, channel):
+        if ctx.message.channel_mentions:
+            target_channel = ctx.message.channel_mentions[0]
+            if target_channel.id in self.bot.global_channels:
+                self.bot.global_channels.remove(target_channel.id)
+                await ctx.send(f"{target_channel.mention} をグローバルチャットから切断しました。")
+            else:
+                await ctx.send(f"{target_channel.mention} はフローバルチャットに接続されていません。")
+        else:
+            await ctx.send(f"チャンネルが指定されていません。詳しい使い方は `{ctx.prefix}help global leave` で確認してください。")
 
     async def process_message(self, message):
         #  filter text

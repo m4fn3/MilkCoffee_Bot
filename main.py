@@ -47,6 +47,7 @@ class Bot(commands.Bot):
         }
 
     async def on_ready(self):
+        await self.change_presence(status=discord.Status.dnd, activity=discord.Game("起動中..."))
         print(f"Logged in to {self.user}")
         db_dict: dict
         database_channel = self.get_channel(self.datas["database_channel"])
@@ -72,6 +73,7 @@ class Bot(commands.Bot):
             self.save_database.start()
         if not self.save_global_chat_log.is_running():
             self.save_global_chat_log.start()
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
 
     async def on_message(self, message):
         if not self.is_ready():
@@ -80,11 +82,25 @@ class Bot(commands.Bot):
             return
         elif message.guild is None:
             return await message.channel.send(f"このBOTのコマンドは__**サーバー上でのみ**__使用できます。(コマンドによりBOT側からDMを送信する場合があります)\nサポート用サーバー: {self.datas['server']}\nBOTの招待用URL: {self.datas['invite']}")
+        elif message.content == f"<@!{self.user.id}>":
+            return await message.channel.send(f"このBOTのprefixは `{self.command_prefix}` です!\n`{self.command_prefix}help` で詳しい使い方を確認できます。")
         elif message.channel.id in self.global_channels:
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_global_message(message)
         else:
             await self.process_commands(message)
+
+    async def on_guild_join(self, guild):
+        embed = discord.Embed(title=f"{guild.name} に参加しました。", color=0x00ffff)
+        embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        await self.get_channel(self.datas["log_channel"]).send(embed=embed)
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
+
+    async def on_guild_remove(self, guild):
+        embed = discord.Embed(title=f"{guild.name} を退出しました。", color=0xff1493)
+        embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        await self.get_channel(self.datas["log_channel"]).send(embed=embed)
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
 
     @tasks.loop(seconds=30.0)
     async def save_database(self):
