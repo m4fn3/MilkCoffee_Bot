@@ -11,6 +11,7 @@ class GlobalChat(commands.Cog):
         self.global_chat_log_channel = None
         self.sending_message = {}
         self.global_chat_message_cache = {}
+        self.waiting_vertify = []
 
     async def delete_global_message(self, message_id: int):
         if str(message_id) in self.bot.global_chat_log:
@@ -134,7 +135,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command()
+    @global_command.command()
     async def unmute(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -154,7 +155,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command(name="muted")
+    @global_command.command(name="muted")
     async def is_mute(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
@@ -172,81 +173,97 @@ class GlobalChat(commands.Cog):
             await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
 
     async def process_message(self, message):
-        #  filter text
-        day_head = datetime.datetime.now().strftime('%Y%m%d')
-        if day_head not in self.bot.global_chat_day:
-            self.bot.global_chat_day[day_head] = []
-        self.bot.global_chat_day[day_head].append(message.id)
-        self.bot.global_chat_log[str(message.id)] = {
-            "sender": {
-                "id": message.author.id,
-                "name": message.author.name,
-                "avatar": str(message.author.avatar_url)
-            },
-            "guild": message.guild.id,
-            "channel": message.channel.id,
-            "content": message.content,
-            "attachment": [],
-            "webhooks": [],
-            "timestamp": message.created_at.timestamp()
-        }
-        files = []
-        for attachment in message.attachments:
-            attached_file = await attachment.to_file()
-            files.append(attached_file)
-            self.bot.global_chat_log[str(message.id)]["attachment"].append(attachment.proxy_url)
-        embed = discord.Embed(color=0x0000ff)
-        embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-        embed.description = message.content
-        embed.timestamp = message.created_at
-        embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
-        embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
-        await self.global_chat_log_channel.send(embed=embed, files=files)
-        self.global_chat_message_cache[message.id] = []
-        for channel_id in self.bot.global_channels:
-            if channel_id == message.channel.id:
-                continue
-            target_channel = self.bot.get_channel(channel_id)
-            if target_channel is None:
-                self.bot.global_channels.remove(channel_id)
-                continue
-            elif not target_channel.permissions_for(target_channel.guild.get_member(self.bot.user.id)).manage_webhooks:
-                self.bot.global_channels.remove(channel_id)
-                await target_channel.send(f"グローバルチャットメッセージの転送を試みましたが、`manage_webhooks(webhookの管理)`権限が不足しているため、失敗しました。(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.command_prefix}global join` を実行して、グローバルチャンネルに参加してください。")
-                continue
-            channel_webhooks = await target_channel.webhooks()
-            webhook = discord.utils.get(channel_webhooks, name="global_chat_webhook_mafu")
-            if webhook is None:
-                webhook = await target_channel.create_webhook(name=f"global_chat_webhook_mafu")
+        try:
+            #  filter text
+            day_head = datetime.datetime.now().strftime('%Y%m%d')
+            if day_head not in self.bot.global_chat_day:
+                self.bot.global_chat_day[day_head] = []
+            self.bot.global_chat_day[day_head].append(message.id)
+            self.bot.global_chat_log[str(message.id)] = {
+                "sender": {
+                    "id": message.author.id,
+                    "name": message.author.name,
+                    "avatar": str(message.author.avatar_url)
+                },
+                "guild": message.guild.id,
+                "channel": message.channel.id,
+                "content": message.content,
+                "attachment": [],
+                "webhooks": [],
+                "timestamp": message.created_at.timestamp()
+            }
+
+            has_attachment = False
+            if message.attachments:
+                has_attachment = True
+                attachment_embed = discord.Embed()
+                file_list = []
+                image_inserted = False
+                for attachment in message.attachments:
+                    if attachment.filename.endswith((".png", ".jpg", ".jpeg", ".gif")) and not image_inserted:
+                        attachment_embed.set_image(url=attachment.url)
+                        image_inserted = True
+                    else:
+                        file_list.append(f"[{attachment.filename}]({attachment.url})")
+                attachment_embed.description = "\n".join(file_list)
+                attachment_embed.set_footer(text="添付ファイルです。ファイル名をクリックして中身を確認できます。")
+
+            attachment_links = [attachment.proxy_url for attachment in message.attachments]
+            self.bot.global_chat_log[str(message.id)]["attachment"] = attachment_links
             files = []
             for attachment in message.attachments:
                 attached_file = await attachment.to_file()
                 files.append(attached_file)
-            msg_obj = await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar_url, files=files, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
-            self.bot.global_chat_log[str(message.id)]["webhooks"].append({
-                "guild": msg_obj.guild.id,
-                "channel": msg_obj.channel.id,
-                "message": msg_obj.id
-            })
-            self.global_chat_message_cache[message.id].append(msg_obj)
-        del self.sending_message[message.id]
+            embed = discord.Embed(color=0x0000ff)
+            embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+            embed.description = message.content
+            embed.timestamp = message.created_at
+            embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
+            embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
+            await self.global_chat_log_channel.send(embed=embed, files=files)
+            self.global_chat_message_cache[message.id] = []
+            for channel_id in self.bot.global_channels:
+                if channel_id == message.channel.id:
+                    continue
+                target_channel = self.bot.get_channel(channel_id)
+                if target_channel is None:
+                    self.bot.global_channels.remove(channel_id)
+                    continue
+                elif not target_channel.permissions_for(target_channel.guild.get_member(self.bot.user.id)).manage_webhooks:
+                    self.bot.global_channels.remove(channel_id)
+                    await target_channel.send(f"グローバルチャットメッセージの転送を試みましたが、`manage_webhooks(webhookの管理)`権限が不足しているため、失敗しました。(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.command_prefix}global join` を実行して、グローバルチャンネルに参加してください。")
+                    continue
+                channel_webhooks = await target_channel.webhooks()
+                webhook = discord.utils.get(channel_webhooks, name="global_chat_webhook_mafu")
+                if webhook is None:
+                    webhook = await target_channel.create_webhook(name=f"global_chat_webhook_mafu")
+                if has_attachment:
+                    msg_obj = await webhook.send(message.content, embed=attachment_embed, username=message.author.name, avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+                else:
+                    msg_obj = await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+                self.bot.global_chat_log[str(message.id)]["webhooks"].append({
+                    "guild": msg_obj.guild.id,
+                    "channel": msg_obj.channel.id,
+                    "message": msg_obj.id
+                })
+                self.global_chat_message_cache[message.id].append(msg_obj)
+            del self.sending_message[message.id]
+        except:
+            await message.channel.send(traceback2.format_exc())
 
     async def process_new_user(self, message):
-        try:
-            text = f"""
-BOTをご利用いただきありがとうございます！
+        welcome_text = """
+__最後まで必ずお読みください。__
+{message.author.name}さんが先ほどメッセージを送信された {message.channel.mention} チャンネルは当BOTのグローバルチャットに設定されています。
 
 グローバルチャットの仕組みを理解して、安全にご使用いただくために簡単な説明をさせてください。
-__必ずお読みください。__
-
-{message.author.name}さんが先ほどメッセージを送信された {message.channel.mention} チャンネルは当BOTのグローバルチャットに設定されています。
 
 グローバルチャットとは特定のチャンネルを介して他のサーバーに居る人とお話しできるサービスです！
 
 グローバルチャットに設定されているチャンネルでは、他のサーバーから届いたメッセージは、BOTを介しているため__**BOT**__と表示されますが、中身は__
 **人間**__です。これだけは覚えておいてくださいね！
 
-最後にグローバルチャットでの禁止事項をお伝えします。
+グローバルチャットでの禁止事項:
 > 1. サーバー、サービスを一方的に宣伝する行為。
 > ただし、話の流れで自分が利用している便利なサービス等を他の人にも紹介するなどの場合はこれに及びません。
 > discordサーバーの招待リンクに関しては、__理由を問わず__禁止されています。
@@ -255,24 +272,12 @@ __必ずお読みください。__
 以上の項目を守っていただけない場合、最大でBAN(BOT使用禁止)の処置をとらせていただきます。
 ルールを守って楽しんでくださいね♪
 
-この文章を読んで仕様を理解してくださった方はこのメッセージの下部にあるリアクションを押してください！グローバルチャットで送信する権限を差し上げます～
 また、わからないことがあれば、公式サーバー:　{self.bot.datas['server']}　で質問してください。
-            """
-            msg_obj = await message.author.send(text)
-
-            def check(r, u):
-                return r.message.id == msg_obj.id and str(r.emoji) == "✅" and u.id == message.author.id
-
-            await msg_obj.add_reaction("✅")
-            try:
-                await self.bot.wait_for("reaction_add", timeout=300, check=check)
-            except asyncio.TimeoutError:
-                await message.remove_reaction("✅", self.bot.user)
-                return await message.author.send("5分以内にご回答いただけなかったので、セッションを終了しました。\n再度確認メッセージを表示させるには、グローバルチャットチャンネルで何らかのメッセージを送信してください。")
-            else:
-                await message.author.send("認証が正常に完了しました。")
+        """
+        try:
+            await message.author.send(welcome_text)
         except discord.Forbidden:
-            return await message.channel.send(f"{message.author.mention}\nDMへのメッセージ送信に失敗しました。初回仕様時には安全な環境の構築のため、DMでグローバルチャットシステムの簡単な説明を行います。ご理解とご協力をお願いします。(このメッセージは他のサーバーには転送されません。)")
+            pass  # TODO: 何か送る
         if str(message.author.id) not in self.bot.database:
             self.bot.database[str(message.author.id)] = {
                 "global": {
@@ -288,13 +293,14 @@ __必ずお読みください。__
                 "warning": {}
             }
 
+
     async def on_global_message(self, message):
         if str(message.author.id) in self.bot.BAN:
             return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif str(message.author.id) in self.bot.MUTE:
             return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif (str(message.author.id) not in self.bot.database) or ("global" not in self.bot.database[str(message.author.id)]):
-            return await self.process_new_user(message)
+            await self.process_new_user(message)
         self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
 
     @tasks.loop(hours=12)
