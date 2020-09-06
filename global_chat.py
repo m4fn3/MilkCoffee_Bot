@@ -1,5 +1,6 @@
 from discord.ext import commands, tasks
 import discord, datetime, traceback2
+import asyncio
 
 
 class GlobalChat(commands.Cog):
@@ -230,11 +231,70 @@ class GlobalChat(commands.Cog):
             self.global_chat_message_cache[message.id].append(msg_obj)
         del self.sending_message[message.id]
 
+    async def process_new_user(self, message):
+        try:
+            text = f"""
+BOTをご利用いただきありがとうございます！
+
+グローバルチャットの仕組みを理解して、安全にご使用いただくために簡単な説明をさせてください。
+__必ずお読みください。__
+
+{message.author.name}さんが先ほどメッセージを送信された {message.channel.mention} チャンネルは当BOTのグローバルチャットに設定されています。
+
+グローバルチャットとは特定のチャンネルを介して他のサーバーに居る人とお話しできるサービスです！
+
+グローバルチャットに設定されているチャンネルでは、他のサーバーから届いたメッセージは、BOTを介しているため__**BOT**__と表示されますが、中身は__
+**人間**__です。これだけは覚えておいてくださいね！
+
+最後にグローバルチャットでの禁止事項をお伝えします。
+> 1. サーバー、サービスを一方的に宣伝する行為。
+> ただし、話の流れで自分が利用している便利なサービス等を他の人にも紹介するなどの場合はこれに及びません。
+> discordサーバーの招待リンクに関しては、__理由を問わず__禁止されています。
+> 2. R18コンテンツやグロテスクな表現を含むコンテンツの送信
+> 3. その他BOT管理者が極めて不適切だと判断した行為
+以上の項目を守っていただけない場合、最大でBAN(BOT使用禁止)の処置をとらせていただきます。
+ルールを守って楽しんでくださいね♪
+
+この文章を読んで仕様を理解してくださった方はこのメッセージの下部にあるリアクションを押してください！グローバルチャットで送信する権限を差し上げます～
+また、わからないことがあれば、公式サーバー:　{self.bot.datas['server']}　で質問してください。
+            """
+            msg_obj = await message.author.send(text)
+
+            def check(r, u):
+                return r.message.id == msg_obj.id and str(r.emoji) == "✅" and u.id == message.author.id
+
+            await msg_obj.add_reaction("✅")
+            try:
+                await self.bot.wait_for("reaction_add", timeout=300, check=check)
+            except asyncio.TimeoutError:
+                await message.remove_reaction("✅", self.bot.user)
+                return await message.author.send("5分以内にご回答いただけなかったので、セッションを終了しました。\n再度確認メッセージを表示させるには、グローバルチャットチャンネルで何らかのメッセージを送信してください。")
+            else:
+                await message.author.send("認証が正常に完了しました。")
+        except discord.Forbidden:
+            return await message.channel.send(f"{message.author.mention}\nDMへのメッセージ送信に失敗しました。初回仕様時には安全な環境の構築のため、DMでグローバルチャットシステムの簡単な説明を行います。ご理解とご協力をお願いします。(このメッセージは他のサーバーには転送されません。)")
+        if str(message.author.id) not in self.bot.database:
+            self.bot.database[str(message.author.id)] = {
+                "global": {
+                    "last_word": "",
+                    "last_time": "",
+                    "warning": {}
+                }
+            }
+        elif "global" not in self.bot.database[str(message.author.id)]:
+            self.bot.database[str(message.author.id)]["global"] = {
+                "last_word": "",
+                "last_time": "",
+                "warning": {}
+            }
+
     async def on_global_message(self, message):
         if str(message.author.id) in self.bot.BAN:
             return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif str(message.author.id) in self.bot.MUTE:
             return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+        elif (str(message.author.id) not in self.bot.database) or ("global" not in self.bot.database[str(message.author.id)]):
+            return await self.process_new_user(message)
         self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
 
     @tasks.loop(hours=12)
