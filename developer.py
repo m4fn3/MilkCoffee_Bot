@@ -35,6 +35,12 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         if str(ctx.author.id) not in self.bot.ADMIN:
             raise commands.CommandError("Developer-Admin-Error")
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
+        else:
+            await ctx.send(f"エラーが発生しました:\n{error}")
+
     @commands.command()
     async def admin(self, ctx, user_id, *, reason):
         user: discord.User
