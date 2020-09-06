@@ -35,118 +35,176 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         if str(ctx.author.id) not in self.bot.ADMIN:
             raise commands.CommandError("Developer-Admin-Error")
 
-    @commands.group()
-    async def admin(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send("add <@user> | delete <@user> | list ")
-
-    @admin.command(name="add")
-    async def add_admin(self, ctx, *, reason):
-        for target in ctx.message.mentions:
-            if str(target.id) in self.bot.ADMIN:
-                await ctx.send("このユーザーは既に管理者です.")
-            else:
-                self.bot.ADMIN[str(target.id)] = reason.replace(f"<@!{target.id}>", "")
-                await ctx.send(f"<@{target.id}>さんが管理者になりました.")
-
-    @admin.command(name="delete", aliases=["remove"])
-    async def delete_admin(self, ctx, *, text):
-        for target in ctx.message.mentions:
-            if str(target.id) not in self.bot.ADMIN:
-                await ctx.send("このユーザーは管理者ではありません.")
-            else:
-                del self.bot.ADMIN[str(target.id)]
-                await ctx.send(f"<@{target.id}>さんが管理者から削除されました.")
-
-    @admin.command(name="list")
-    async def list_admin(self, ctx):
-        text = "管理者一覧:"
-        for user in self.bot.ADMIN:
-            text += "\n{0} ({0.id})".format(self.bot.get_user(int(user)))
-        await ctx.send(text)
-
-    @commands.group(aliases=["con"])
-    async def contributor(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send("add <@user> | delete <@user> | list ")
-
-    @contributor.command(name="add")
-    async def add_con(self, ctx, *, reason):
-        for target in ctx.message.mentions:
-            if str(target.id) in self.bot.Contributor:
-                await ctx.send("このユーザーはすでに貢献者されています.")
-            else:
-                self.bot.Contributor[str(target.id)] = reason.replace(f"<@!{target.id}>", "")
-                await ctx.send(f"<@{target.id}>が貢献者になりました.")
-
-    @contributor.command(name="delete", aliases=["remove"])
-    async def delete_con(self, ctx):
-        for target in ctx.message.mentions:
-            if str(target.id) not in self.bot.Contributor:
-                await ctx.send("このユーザーは貢献者ではありません.")
-            else:
-                del self.bot.Contributor[str(target.id)]
-                await ctx.send(f"<@{target.id}>さんが貢献者ではなくなりました.")
-
-    @contributor.command(name="list")
-    async def list_con(self, ctx):
-        text = "貢献者一覧:"
-        for user in self.bot.Contributor:
-            text += "\n{0} ({0.id})".format(self.bot.get_user(int(user)))
-        await ctx.send(text)
-
     @commands.command()
-    async def ban(self, ctx, user_id):
-        if user_id.isdigit():
-            if user_id in self.bot.BAN:
-                await ctx.send("このユーザーはすでにBANされています.")
-            else:
-                user: discord.User
-                try:
-                    user = await self.bot.fetch_user(int(user_id))
-                except discord.errors.NotFound:
-                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-                self.bot.BAN[str(user.id)] = reason
-                await ctx.send(f"該当ユーザーをBANしました。(ユーザー情報: {str(user)} ({user.id}))")
-                embed = discord.Embed(title=f"{user.name} がBANされました。", color=0x9370db)
-                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-        else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
-
-    @commands.command()
-    async def unban(self, ctx, user_id, *, reason):
-        if user_id.isdigit():
-            if user_id not in self.bot.BAN:
-                await ctx.send("このユーザーはミBANされていません。")
-            else:
-                user: discord.User
-                try:
-                    user = await self.bot.fetch_user(int(user_id))
-                except discord.errors.NotFound:
-                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-                del self.bot.MUTE[str(user.id)]
-                await ctx.send(f"該当ユーザーのBANを解除しました。(ユーザー情報: {str(user)} ({user.id}))")
-                embed = discord.Embed(title=f"{user.name} がBAN解除されました。", color=0xdeb887)
-                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-        else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
-
-    @commands.command(aliases=["baned"])
-    async def banned(self, ctx, user_id, *, reason):
-        if user_id.isdigit():
-            user: discord.User
+    async def admin(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
             try:
                 user = await self.bot.fetch_user(int(user_id))
             except discord.errors.NotFound:
                 return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-            if user_id not in self.bot.BAN:
-                await ctx.send(f"このユーザーはBANされていません。(ユーザー情報: {str(user)} ({user.id}))")
-            else:
-                await ctx.send(f"このユーザーはBANされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
         else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.ADMIN:
+            return await ctx.send("このユーザーはすでにADMINです.")
+        self.bot.ADMIN[str(user.id)] = reason
+        await ctx.send(f"該当ユーザーをADMINにしました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がADMINになりました。", color=0xffa500)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command()
+    async def deadmin(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) not in self.bot.ADMIN:
+            await ctx.send("このユーザーはADMINではありません。")
+        del self.bot.ADMIN[str(user.id)]
+        await ctx.send(f"該当ユーザーをADMINから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がADMINから削除されました。", color=0xc71585)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command()
+    async def is_admin(self, ctx, user_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if user_id not in self.bot.ADMIN:
+            await ctx.send(f"このユーザーはADMINではありません。(ユーザー情報: {str(user)} ({user.id}))")
+        else:
+            await ctx.send(f"このユーザーはADMINです。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.ADMIN[user_id]}")
+
+    @commands.command(aliases=["con"])
+    async def contributor(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.Contributor:
+            return await ctx.send("このユーザーはすでにContributorです.")
+        self.bot.Contributor[str(user.id)] = reason
+        await ctx.send(f"該当ユーザーをContributorにしました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がContributorになりました。", color=0xe6e6fa)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command(aliases=["decon"])
+    async def decontributor(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) not in self.bot.Contributor:
+            await ctx.send("このユーザーはContributorではありません。")
+        del self.bot.Contributor[str(user.id)]
+        await ctx.send(f"該当ユーザーをContributorから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がContributorから削除されました。", color=0xffe4e1)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command(aliases=["is_con"])
+    async def is_contributor(self, ctx, user_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if user_id not in self.bot.Contributor:
+            await ctx.send(f"このユーザーはContributorではありません。(ユーザー情報: {str(user)} ({user.id}))")
+        else:
+            await ctx.send(f"このユーザーはContributorです。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.Contributor[user_id]}")
+
+    @commands.command()
+    async def ban(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.BAN:
+            return await ctx.send("このユーザーはすでにBANされています.")
+        self.bot.BAN[str(user.id)] = reason
+        await ctx.send(f"該当ユーザーをBANしました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がBANされました。", color=0xdc143c)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command()
+    async def unban(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) not in self.bot.BAN:
+            await ctx.send("このユーザーはBANされていません。")
+        del self.bot.BAN[str(user.id)]
+        await ctx.send(f"該当ユーザーをBAN解除しました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がBAN解除されました。", color=0x4169e1)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command(aliases=["banned", "baned"])
+    async def is_ban(self, ctx, user_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if user_id not in self.bot.BAN:
+            await ctx.send(f"このユーザーはBANされていません。(ユーザー情報: {str(user)} ({user.id}))")
+        else:
+            await ctx.send(f"このユーザーはBANされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.BAN[user_id]}")
 
     @commands.group(aliases=["sys"])
     async def system(self, ctx):

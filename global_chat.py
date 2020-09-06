@@ -113,64 +113,62 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("メッセージIDは数字で指定してください。")
 
-    @global_command.command(name="mute", hidden=True)
-    async def global_mute(self, ctx, user_id, *, reason):
-        if str(ctx.author.id) not in self.bot.ADMIN:
-            return
-        if user_id.isdigit():
-            if user_id in self.bot.MUTE:
-                await ctx.send("このユーザーは既にミュートされています。")
-            else:
-                user: discord.User
-                try:
-                    user = await self.bot.fetch_user(int(user_id))
-                except discord.errors.NotFound:
-                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-                self.bot.MUTE[str(user.id)] = reason
-                await ctx.send(f"該当ユーザーをミュートしました。(ユーザー情報: {str(user)} ({user.id}))")
-                embed = discord.Embed(title=f"{user.name} がミュートされました。", color=0x9370db)
-                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-        else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
-
-    @global_command.command(name="unmute", hidden=True)
-    async def global_unmute(self, ctx, user_id, *, reason):
-        if str(ctx.author.id) not in self.bot.ADMIN:
-            return
-        if user_id.isdigit():
-            if user_id not in self.bot.MUTE:
-                await ctx.send("このユーザーはミュートされていません。")
-            else:
-                user: discord.User
-                try:
-                    user = await self.bot.fetch_user(int(user_id))
-                except discord.errors.NotFound:
-                    return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-                del self.bot.MUTE[str(user.id)]
-                await ctx.send(f"該当ユーザーのミュートを解除しました。(ユーザー情報: {str(user)} ({user.id}))")
-                embed = discord.Embed(title=f"{user.name} がミュート解除されました。", color=0xdeb887)
-                embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-        else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
-
-    @global_command.command(name="muted", hidden=True)
-    async def global_muted(self, ctx, user_id):
-        if str(ctx.author.id) not in self.bot.ADMIN:
-            return
-        if user_id.isdigit():
-            user: discord.User
+    @global_command.command()
+    async def mute(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
             try:
                 user = await self.bot.fetch_user(int(user_id))
             except discord.errors.NotFound:
                 return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-            if user_id not in self.bot.MUTE:
-                await ctx.send(f"このユーザーはミュートされていません。(ユーザー情報: {str(user)} ({user.id}))")
-            else:
-                await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
         else:
-            await ctx.send("ユーザーIDは数字で指定してください。")
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.MUTE:
+            return await ctx.send("このユーザーはすでにミュートされています.")
+        self.bot.MUTE[str(user.id)] = reason
+        await ctx.send(f"該当ユーザーをミュートしました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がミュートされました。", color=0xdc143c)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command()
+    async def unmute(self, ctx, user_id, *, reason):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) not in self.bot.MUTE:
+            await ctx.send("このユーザーはミュートされていません。")
+        del self.bot.MUTE[str(user.id)]
+        await ctx.send(f"該当ユーザーをミュート解除しました。(ユーザー情報: {str(user)} ({user.id}))")
+        embed = discord.Embed(title=f"{user.name} がミュート解除されました。", color=0x4169e1)
+        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
+        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+
+    @commands.command(name="muted")
+    async def is_mute(self, ctx, user_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if user_id not in self.bot.MUTE:
+            await ctx.send(f"このユーザーはミュートされていません。(ユーザー情報: {str(user)} ({user.id}))")
+        else:
+            await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
 
     async def process_message(self, message):
         #  filter text
