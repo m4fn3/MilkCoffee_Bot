@@ -252,7 +252,7 @@ class GlobalChat(commands.Cog):
             await message.channel.send(traceback2.format_exc())
 
     async def process_new_user(self, message):
-        welcome_text = """
+        welcome_text = f"""
 __最後まで必ずお読みください。__
 {message.author.name}さんが先ほどメッセージを送信された {message.channel.mention} チャンネルは当BOTのグローバルチャットに設定されています。
 
