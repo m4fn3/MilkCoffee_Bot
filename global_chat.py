@@ -63,7 +63,7 @@ class GlobalChat(commands.Cog):
     @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドです。\nグローバルチャット設定を操作するためには、BOTが manage_webhook(webhookを管理) の権限を持ち、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があります。")
     async def global_command(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send("サブコマンドを指定してください。例: `{0}global join`\n詳しくは `{0}help global`".format(ctx.prefix))
+            await ctx.send(f"サブコマンドが不足しています。\n`{ctx.prefix}help global`で使い方を確認できます。")
 
     @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続します。チャンネルを指定しなかった場合、コマンドが実行されたチャンネルに設定します。", help="`<prefix>global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`<prefix>global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
     async def global_join(self, ctx):
