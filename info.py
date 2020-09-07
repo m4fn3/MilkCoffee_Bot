@@ -9,16 +9,16 @@ class Information(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            await ctx.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
-    @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示します。")
+    @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。")
     async def invite(self, ctx):
         text = f"__**BOTの招待用URL**__:\n{self.bot.datas['invite']}\n" \
                f"__**サポート用サーバー(公式サーバー)**__:\n{self.bot.datas['server']}"
         await ctx.send(text)
 
-    @commands.command(aliases=["about"], usage="info", description="BOTに関する情報を表示します。")
+    @commands.command(aliases=["about"], usage="info", description="BOTに関する情報を表示するよ!。")
     async def info(self, ctx):
         td = datetime.timedelta(seconds=int(time.time() - self.bot.uptime))
         m, s = divmod(td.seconds, 60); h, m = divmod(m, 60); d = td.days
@@ -31,7 +31,7 @@ class Information(commands.Cog):
         embed.add_field(name="各種URL", value=f"[BOT招待用URL]({self.bot.datas['invite']}) | [サポート用サーバー]({self.bot.datas['server']})", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測します。")
+    @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測するよ!。")
     async def ping(self, ctx):
         before = time.monotonic()
         message = await ctx.send("Pong")
@@ -39,7 +39,7 @@ class Information(commands.Cog):
         await message.delete()
         await ctx.send(f"反応速度: `{int(ping)}`[ms]")
 
-    @commands.command(aliases=["notice"], usage="follow (チャンネル)", description="BOTのお知らせチャンネルをフォローします。チャンネルを設定しなかった場合、コマンドぞ実行したチャンネルに設定します。")
+    @commands.command(aliases=["notice"], usage="follow (チャンネル)", description="BOTのお知らせチャンネルをフォローできるよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
     async def follow(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合

@@ -4,14 +4,13 @@ import asyncio
 
 
 class GlobalChat(commands.Cog):
-    """他のサーバーに居る人と、設定したチャンネルでお話しできます。(現在開発中)"""
+    """他のサーバーに居る人と、設定したチャンネルでお話しできるよ!"""
 
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         self.global_chat_log_channel = None
         self.sending_message = {}
         self.global_chat_message_cache = {}
-        self.waiting_vertify = []
 
     async def delete_global_message(self, message_id: int):
         if str(message_id) in self.bot.global_chat_log:
@@ -62,12 +61,12 @@ class GlobalChat(commands.Cog):
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
-    @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドです。\nグローバルチャット設定を操作するためには、BOTが manage_webhook(webhookを管理) の権限を持ち、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があります。")
+    @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドだよ!\nグローバルチャット設定をするためには、BOTが manage_webhook(webhookを管理) の権限を持ってて、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があるよ!")
     async def global_command(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send(f"サブコマンドが不足しています。\n`{ctx.prefix}help global`で使い方を確認できます。")
 
-    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続します。チャンネルを指定しなかった場合、コマンドが実行されたチャンネルに設定します。", help="`<prefix>global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`<prefix>global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
+    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続するよ!。チャンネルを指定しなかったら、コマンドが実行されたチャンネルに設定するよ!。", help="`<prefix>global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`<prefix>global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
     async def global_join(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
@@ -75,7 +74,7 @@ class GlobalChat(commands.Cog):
         else:
             target_channel = ctx.channel
         if not target_channel.permissions_for(ctx.author).manage_channels:
-            return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がありません。\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っている必要があります。\n権限に関しては、サーバーの管理者に依頼してください。")
+            return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がないよ!\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っていないとだめだよ!\n権限に関しては、サーバーの管理者に依頼してね!")
         if target_channel.id in self.bot.global_channels:
             return await ctx.send(f"{target_channel.mention} は既にグローバルチャットに参加しています。")
         if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
@@ -84,26 +83,26 @@ class GlobalChat(commands.Cog):
             if webhook is None:
                 await target_channel.create_webhook(name=f"global_chat_webhook_mafu")
             self.bot.global_channels.append(target_channel.id)
-            await ctx.send(f"{target_channel.mention} がグローバルチャットに接続されました!")
+            await ctx.send(f"{target_channel.mention} がグローバルチャットに接続されたよ!")
             embed = discord.Embed(title=f"{ctx.channel.name} がグローバルチャットに参加しました。", color=0x2f4f4f)
             embed.description = f"サーバー情報: {ctx.guild.name} ({ctx.guild.id})\nチャンネル情報: {ctx.channel.name} ({ctx.channel.id})\n設定したユーザー: {str(ctx.author)} ({ctx.author.id})\nメンバー数: {len(ctx.guild.members)}\nサーバー管理者: {str(ctx.guild.owner)} ({ctx.guild.owner.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
         else:
-            await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。")
+            await ctx.send(f"BOTの`manage_webhooks(webhookの管理)`権限が不足しているよ!")
 
-    @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断します。(グローバルチャットに接続されているチャンネルではコマンドを実行できません)", help="`<prefix>global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
+    @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断するよ!。(グローバルチャットに接続されているチャンネルではコマンドは実行できないから気を付けてね)", help="`<prefix>global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
     async def global_leave(self, ctx):
         if ctx.message.channel_mentions:
             target_channel = ctx.message.channel_mentions[0]
             if not target_channel.permissions_for(ctx.author).manage_channels:
-                return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がありません。\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っている必要があります。\n権限に関しては、サーバーの管理者に依頼してください。")
+                return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がないよ!\nセキュリティ対策のため、チャンネルをグローバルチャットから切断するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っていないとだめだよ!\n権限に関しては、サーバーの管理者に依頼してね!")
             if target_channel.id in self.bot.global_channels:
                 self.bot.global_channels.remove(target_channel.id)
-                await ctx.send(f"{target_channel.mention} をグローバルチャットから切断しました。")
+                await ctx.send(f"{target_channel.mention} をグローバルチャットから切断したよ!")
             else:
-                await ctx.send(f"{target_channel.mention} はフローバルチャットに接続されていません。")
+                await ctx.send(f"{target_channel.mention} はフローバルチャットに接続されていないよ!")
         else:
-            await ctx.send(f"チャンネルが指定されていません。詳しい使い方は `{ctx.prefix}help global leave` で確認してください。")
+            await ctx.send(f"チャンネルが指定されていないよ!詳しい使い方は `{ctx.prefix}help global leave` で確認してね!")
 
     @global_command.command(name="delete", hidden=True)
     async def global_delete(self, ctx, message_id):
@@ -206,7 +205,7 @@ class GlobalChat(commands.Cog):
                     else:
                         file_list.append(f"[{attachment.filename}]({attachment.url})")
                 attachment_embed.description = "\n".join(file_list)
-                attachment_embed.set_footer(text="添付ファイルです。ファイル名をクリックして中身を確認できます。")
+                attachment_embed.set_footer(text="添付ファイル一覧だよ!ファイル名をクリックすると中身できるよ!")
 
             attachment_links = [attachment.proxy_url for attachment in message.attachments]
             self.bot.global_chat_log[str(message.id)]["attachment"] = attachment_links
@@ -231,7 +230,7 @@ class GlobalChat(commands.Cog):
                     continue
                 elif not target_channel.permissions_for(target_channel.guild.get_member(self.bot.user.id)).manage_webhooks:
                     self.bot.global_channels.remove(channel_id)
-                    await target_channel.send(f"グローバルチャットメッセージの転送を試みましたが、`manage_webhooks(webhookの管理)`権限が不足しているため、失敗しました。(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.command_prefix}global join` を実行して、グローバルチャンネルに参加してください。")
+                    await target_channel.send(f"グローバルチャットメッセージの転送しようとしたけど、`manage_webhooks(webhookの管理)`権限が不足していて、できなかったよ(´;ω;｀)(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.command_prefix}global join` を実行して、グローバルチャンネルに参加してね!")
                     continue
                 channel_webhooks = await target_channel.webhooks()
                 webhook = discord.utils.get(channel_webhooks, name="global_chat_webhook_mafu")
@@ -252,32 +251,19 @@ class GlobalChat(commands.Cog):
             await message.channel.send(traceback2.format_exc())
 
     async def process_new_user(self, message):
+        embed = discord.Embed(title="グローバルチャットに関するお知らせ!", color=0xff0000)
         welcome_text = f"""
-__最後まで必ずお読みください。__
-{message.author.name}さんが先ほどメッセージを送信された {message.channel.mention} チャンネルは当BOTのグローバルチャットに設定されています。
-
-グローバルチャットの仕組みを理解して、安全にご使用いただくために簡単な説明をさせてください。
-
-グローバルチャットとは特定のチャンネルを介して他のサーバーに居る人とお話しできるサービスです！
-
-グローバルチャットに設定されているチャンネルでは、他のサーバーから届いたメッセージは、BOTを介しているため__**BOT**__と表示されますが、中身は__
-**人間**__です。これだけは覚えておいてくださいね！
-
-グローバルチャットでの禁止事項:
-> 1. サーバー、サービスを一方的に宣伝する行為。
-> ただし、話の流れで自分が利用している便利なサービス等を他の人にも紹介するなどの場合はこれに及びません。
-> discordサーバーの招待リンクに関しては、__理由を問わず__禁止されています。
-> 2. R18コンテンツやグロテスクな表現を含むコンテンツの送信
-> 3. その他BOT管理者が極めて不適切だと判断した行為
-以上の項目を守っていただけない場合、最大でBAN(BOT使用禁止)の処置をとらせていただきます。
-ルールを守って楽しんでくださいね♪
-
-また、わからないことがあれば、公式サーバー:　{self.bot.datas['server']}　で質問してください。
+❔グローバルチャットとは❔他のサーバーの人と特定のチャンネルを介してお話しできちゃうサービスだよ!
+__他のサーバーから届いたメッセージは、webhookという技術を使用しているため、**BOT**と表示されますが、中身は**[人間]**です!!__
+何かわからないことがあれば、[公式サーバー]({self.bot.datas['server']})まで！
         """
+        embed.description = welcome_text
+        embed.set_footer(text=f"最後まで読んでくれてありがとう！説明書読むのってめんどくさいよね💦 by 作成者({self.bot.datas['author']})")
+        await message.channel.send(f"{message.author.mention}さん\nここは{self.bot.user.mention}BOTのグローバルチャットに設定されています!\n__DMに簡単な説明を送ったから必ず目を通しといてね!__")
         try:
-            await message.author.send(welcome_text)
+            await message.author.send(embed=embed)
         except discord.Forbidden:
-            pass  # TODO: 何か送る
+            pass
         if str(message.author.id) not in self.bot.database:
             self.bot.database[str(message.author.id)] = {
                 "global": {
@@ -293,14 +279,13 @@ __最後まで必ずお読みください。__
                 "warning": {}
             }
 
-
     async def on_global_message(self, message):
         if str(message.author.id) in self.bot.BAN:
-            return await message.author.send(f"あなたのアカウントはBANされています。\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            return await message.author.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif str(message.author.id) in self.bot.MUTE:
-            return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません。\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません(´;ω;｀)\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif (str(message.author.id) not in self.bot.database) or ("global" not in self.bot.database[str(message.author.id)]):
-            await self.process_new_user(message)
+            return await self.process_new_user(message)
         self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
 
     @tasks.loop(hours=12)

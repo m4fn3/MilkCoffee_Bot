@@ -6,7 +6,7 @@ from item_parser import *
 
 
 class Costume(commands.Cog):
-    """装飾シミュレータを操作できます。"""
+    """装飾シミュレータを操作できるよ！好みの組合せを探そう！"""
 
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
@@ -103,7 +103,7 @@ class Costume(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
+            await ctx.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
@@ -197,7 +197,7 @@ class Costume(commands.Cog):
             await message.remove_reaction("▶️", self.bot.user)
             return 0, None
 
-    @commands.command(usage="set [装飾コード|各装飾の番号]", description="装飾コードまたは各装飾の番号で設定します.", help="これら二つはともにミルクアサルト初期武器(装飾無し)になります。\n`<prefix>set 1o4s3k` ... 装飾コード1o4s3kで設定\n`<prefix>set 0 1 1 0 0 0` ... 各アイテムの番号で設定\n装飾コードは他の人の装飾を真似する際に便利です。")
+    @commands.command(usage="set [装飾コード|各装飾の番号]", description="装飾コードまたは各装飾の番号で設定できるよ!.", help="この二つのコマンドは両方ミルクアサルト初期武器(装飾無し)になるよ!。\n`<prefix>set 1o4s3k` ... 装飾コード1o4s3kで設定\n`<prefix>set 0 1 1 0 0 0` ... 各アイテムの番号で設定\n装飾コードは他の人の装飾を真似する際に便利だよ!")
     async def set(self, ctx, *, item) -> None:
         """
         装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録
@@ -222,7 +222,7 @@ class Costume(commands.Cog):
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
 
-    @commands.command(usage="show (保存番号|保存名称)", description="現在の装飾を表示します。保存番号を指定した場合は、保存した作品の中から番号にあった作品を表示します。", help="`<prefix>show` ... 現在の装飾を表示`\n<prefix>show 1` ... 1番目に保存された装飾を表示\n`<prefix>show 無題1` ... 無題1という名前で保存された装飾を表示")
+    @commands.command(usage="show (保存番号|保存名称)", brief="現在の装飾を表示できるよ!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!", help="`<prefix>show` ... 現在の装飾を表示`\n<prefix>show 1` ... 1番目に保存された装飾を表示\n`<prefix>show 無題1` ... 無題1という名前で保存された装飾を表示")
     async def show(self, ctx) -> None:
         """
         保存番号または保存名称から保存された画像または、作業中の画像を表示
@@ -244,20 +244,20 @@ class Costume(commands.Cog):
                 if 0 <= int(index) <= item_count:
                     item_index = int(index) - 1
                 else:
-                    return await ctx.send(f"{index}番目に保存された作品はありません.")
+                    return await ctx.send(f"{index}番目に保存された作品はないよ!.")
             elif index.isdigit():
-                return await ctx.send("1~20の間で指定してください.")
+                return await ctx.send("1~20の間で指定してね!.")
             else:
                 used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
                 if index in used_name_list:
                     item_index = used_name_list.index(index)
                 else:
-                    return await ctx.send("そのような名前の作品はありません.")
+                    return await ctx.send("そのような名前の作品はないよ!.")
             item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
 
-    @commands.command(usage="load [保存番号|保存名称]", description="保存した作品を番号または名称で指定し、現在の作業場に読み込みます。", help="`<prefix>load 1` ... 1番目に保存された作品を読み込む\n`<prefix>load 無題1` ... 無題1という名前で保存された作品を読み込む")
+    @commands.command(usage="load [保存番号|保存名称]", brief="保存した作品を作業場に読み込むよ!", description="保存した作品を番号または名称で指定して、現在の作業場に読み込むよ!", help="`<prefix>load 1` ... 1番目に保存された作品を読み込む\n`<prefix>load 無題1` ... 無題1という名前で保存された作品を読み込む")
     async def load(self, ctx, *, index: str) -> None:
         """
         保存された作品を作業場に読み込む
@@ -274,19 +274,19 @@ class Costume(commands.Cog):
             if 0 <= int(index) <= item_count:
                 item_index = int(index) - 1
             else:
-                return await ctx.send(f"{index}番目に保存された作品はありません.")
+                return await ctx.send(f"{index}番目に保存された作品はないよ!.")
         elif index.isdigit():
-            return await ctx.send("1~20の間で指定してください.")
+            return await ctx.send("1~20の間で指定してね!.")
         else:
             used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
             else:
-                return await ctx.send("そのような名前の作品はありません.")
+                return await ctx.send("そのような名前の作品はないよ!")
         self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']}\"を読み込みました.")
 
-    @commands.command(usage="save (保存名称)", description="現在の装飾を保存します。保存名称を指定しなかった場合は、'無題1'のようになります。", help="`<prefix>save` ... 作品を保存します(名前は自動で無題1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
+    @commands.command(usage="save (保存名称)", brief="現在の装飾を保存できるよ!" ,description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'無題1'みたいな名前を自動でつけとくね!", help="`<prefix>save` ... 作品を保存します(名前は自動で無題1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
     async def save(self, ctx) -> None:
         """
         現在の装飾を保存
@@ -299,7 +299,7 @@ class Costume(commands.Cog):
         name: str
         listed = ctx.message.content.split(" ", 1)
         if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
-            return await ctx.send("保存できるのは20個までです. 不要なものを削除してから保存して下さい!")
+            return await ctx.send("保存できるのは20個までだよ! 不要なものを削除してから保存してね!")
         used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
         if len(listed) == 1:
             count = 1
@@ -310,11 +310,11 @@ class Costume(commands.Cog):
                 count += 1
         else:
             if listed[1].isdigit():
-                return await ctx.send("数字のみの名前は使用できません.")
+                return await ctx.send("数字のみの名前は使用できないよ!")
             elif listed[1] in used_name_list:
-                return await ctx.send("この名前は既に使用しています.")
+                return await ctx.send("この名前は既に他の作品についてるよ!.")
             elif len(listed[1]) < 1 or 20 < len(listed[1]):
-                return await ctx.send("名称は1文字以上20文字以下で指定して下さい.")
+                return await ctx.send("名称は1文字以上20文字以下で指定してね!.")
             name = listed[1]
         self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
             {
@@ -322,9 +322,9 @@ class Costume(commands.Cog):
                 "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
-        await ctx.send(f"保存しました. 名称: '{name}'")
+        await ctx.send(f"保存したよ!. 名称: '{name}'")
 
-    @commands.command(aliases=["mylist"], usage="my (ページ)", description="保存した作品の一覧を表示します。ページを指定しなかった場合は、1ページ目が表示されます。", help="`<prefix>my` ... 保存した作品集の1ページ目を表示します\n`<prefix>my 2` ... 保存した作品集の2ページ目を表示します")
+    @commands.command(aliases=["mylist"], usage="my (ページ)", brief="保存した作品の一覧を表示するよ!", description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!", help="`<prefix>my` ... 保存した作品集の1ページ目を表示します\n`<prefix>my 2` ... 保存した作品集の2ページ目を表示します")
     async def my(self, ctx) -> None:
         """
         保存した作品を表示
@@ -341,12 +341,12 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~4で指定してください!")
+            return await ctx.send("ページ数は1~4で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~4で指定してください!")
+            return await ctx.send("ページ数は整数で1~4で指定してね!")
         item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
         embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
-        embed.description = "左の数字が保存番号、その横の名前が保存名称です。その下の英数字6,7桁の文字列が装飾コードです。"
+        embed.description = "左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!"
         for index in range(page*5-4, page*5+1):  # 1-5 6-10 11-15 16-20
             if index > item_count:
                 break
@@ -363,7 +363,7 @@ class Costume(commands.Cog):
                 break
             page = new_page
             embed = discord.Embed(title=f"保存した作品集 ({page} / 4 ページ)")
-            embed.description = "左の数字が保存番号、その横の名前が保存名称です。その下の英数字6,7桁の文字列が装飾コードです。"
+            embed.description = "左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!"
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
                 if index > item_count:
                     break
@@ -373,7 +373,7 @@ class Costume(commands.Cog):
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
-    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", description="保存した作品を番号または名称で指定して、削除します。", help="`<prefix>delete 1` ... 1番目に保存された作品を削除します\n`<prefix>delete 旧作品`... 旧作品という名前の作品を削除します")
+    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", brief="保存した作品を削除するよ!", description="保存した作品を番号または名称で指定して削除するよ!一度削除したらその作品は戻せないから気を付けてね!", help="`<prefix>delete 1` ... 1番目に保存された作品を削除します\n`<prefix>delete 旧作品`... 旧作品という名前の作品を削除します")
     async def delete(self, ctx, *, index) -> None:
         """
         保存した画像を削除
@@ -388,21 +388,21 @@ class Costume(commands.Cog):
             item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
             if 0 <= int(index) <= item_count:
                 old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(int(index)-1)
-                await ctx.send(f"{index}番目の{old_data['name']}を削除しました.")
+                await ctx.send(f"{index}番目の{old_data['name']}を削除したよ!")
             else:
-                await ctx.send(f"{index}番目に保存された作品はありません.")
+                await ctx.send(f"{index}番目に保存された作品はないよ!")
         elif index.isdigit():
-            await ctx.send("1~20の間で指定してください.")
+            await ctx.send("1~20の間で指定してね!")
         else:
             used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
                 old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(item_index)
-                await ctx.send(f"{item_index + 1}番目の{old_data['name']}を削除しました.")
+                await ctx.send(f"{item_index + 1}番目の{old_data['name']}を削除したよ!")
             else:
-                await ctx.send("そのような名前の作品はありません.")
+                await ctx.send("そのような名前の作品はないよ!")
 
-    @commands.group(usage="add [種類] [番号|名称]", description="アイテムを追加します。\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してください。", help="`<prefix>add weapon AT` ... ATという名前の武器を追加します\n`<prefix>add head 1` ... 1番の頭装飾を追加します")
+    @commands.group(usage="add [種類] [番号|名称]", brief="アイテムを追加するよ!", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!", help="`<prefix>add weapon AT` ... ATという名前の武器を追加します\n`<prefix>add head 1` ... 1番の頭装飾を追加します")
     async def add(self, ctx) -> None:
         """
         アイテムを追加
@@ -413,9 +413,9 @@ class Costume(commands.Cog):
             None
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send(f"サブコマンドが不足しています。\n`{ctx.prefix}help add`で使い方を確認できます。")
+            await ctx.send(f"サブコマンドが不足しているよ!\n`{ctx.prefix}help add`で使い方を確認してね!")
 
-    @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加します。名称を指定して、全種類の中から検索します。", help="検索対象が全種類と広いので、思っているものと違うアイテムとマッチする可能性があります。全種類対応なので各種類のアイテム番号は使用できません。\n`<prefix>add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します")
+    @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加できるよ!名前を教えてくれたら、全種類の中から探すからね!", help="検索対象が全種類で広いから、思っているものと違うアイテムとマッチする可能性もあるよ>< また、全種類対応だから各種類のアイテム番号は使えないよ.。\n`<prefix>add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します")
     async def add_item(self, ctx, *, text) -> None:
         """
         全アイテムから条件に合ったアイテムを探索
@@ -429,13 +429,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text)
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]", description="白黒を設定します。", help="`<prefix>add base 0` ... 0番目の色を設定します(白色)\n`<prefix>add base choco` ... chocoを設定します（黒色)")
+    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]", description="白黒を設定できるよ!。", help="`<prefix>add base 0` ... 0番目の色を設定します(白色)\n`<prefix>add base choco` ... chocoを設定します（黒色)")
     async def add_base(self, ctx, *, text) -> None:
         """
         baseの中から条件に合ったアイテムを探索
@@ -449,13 +449,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="base")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]", description="キャラクターを設定します。", help="`<prefix>add character 2` ... 2番目のキャラクターを設定します\n`<prefix>add character air` ... キャラクターをairに設定します")
+    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]", description="キャラクターを設定できるよ!。", help="`<prefix>add character 2` ... 2番目のキャラクターを設定します\n`<prefix>add character air` ... キャラクターをairに設定します")
     async def add_character(self, ctx, *, text):
         """
         characterの中から条件にあったアイテムを探索
@@ -469,13 +469,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="character")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]", description="武器を設定します。", help="`<prefix>add weapon 3` ... 3番目の武器を設定します\n`<prefix>add weapon spyra` ... spyraを武器に設定します")
+    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]", description="武器を設定できるよ!", help="`<prefix>add weapon 3` ... 3番目の武器を設定します\n`<prefix>add weapon spyra` ... spyraを武器に設定します")
     async def add_weapon(self, ctx, *, text) -> None:
         """
         weaponの中から条件にあったアイテムを探索
@@ -489,13 +489,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="weapon")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]", description="頭装飾を設定します。", help="`<prefix>add head 4` ... 4番目の頭装飾を設定します\n`<prefix>add head M.CHIKEN` ... M.CHIKENという名前の頭装飾を設定します")
+    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]", description="頭装飾を設定できるよ!", help="`<prefix>add head 4` ... 4番目の頭装飾を設定します\n`<prefix>add head M.CHIKEN` ... M.CHIKENという名前の頭装飾を設定します")
     async def add_head(self, ctx, *, text) -> None:
         """
         headの中から条件にあったアイテムを探索
@@ -509,13 +509,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="head")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]", description="体装飾を設定します。", help="`<prefix>add body 5`...番目の体装飾を設定します\n`<prefix>add body n.s.suit` ... n.s.suitという名前の体装飾を設定します")
+    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]", description="体装飾を設定できるよ!", help="`<prefix>add body 5`...番目の体装飾を設定します\n`<prefix>add body n.s.suit` ... n.s.suitという名前の体装飾を設定します")
     async def add_body(self, ctx, *, text) -> None:
         """
         bodyの中から条件にあったアイテムを探索
@@ -529,13 +529,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="body")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]", description="背中装飾を指定します。", help="`<prefix>add back 6`...6番目の背中装飾を設定します\n`<prefix>add back B.MOUSE` ... B.MOUSEという名前の背中装飾を設定します")
+    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]", description="背中装飾を指定できるよ!", help="`<prefix>add back 6`...6番目の背中装飾を設定します\n`<prefix>add back B.MOUSE` ... B.MOUSEという名前の背中装飾を設定します")
     async def add_back(self, ctx, *, text) -> None:
         """
         backの中から条件にあったアイテムを探索
@@ -549,13 +549,13 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="back")
         if code == 0:
             return await ctx.send(self.bot.error_text[result])
-        await ctx.send(f"見つかったアイテム: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
+        await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示します。", help="`<prefix>list character` ... キャラクターのリストを表示します\n`<prefix>list weapon` ... 武器のリストを表示します")
+    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示するよ!", help="`<prefix>list character` ... キャラクターのリストを表示します\n`<prefix>list weapon` ... 武器のリストを表示します")
     async def list(self, ctx) -> None:
         """
         アイテム一覧を表示
@@ -566,9 +566,9 @@ class Costume(commands.Cog):
             None
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send(f"サブコマンドが不足しています。\n`{ctx.prefix}help list`で使い方を確認できます。")
+            await ctx.send(f"サブコマンドが不足しているよ!\n`{ctx.prefix}help list`で使い方を確認できます。")
 
-    @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示します。", help="`<prefix>list base` ... キャラ色のリストを表示します")
+    @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示するよ!この場合は白と黒の二つしかないんだけどね💦", help="`<prefix>list base` ... キャラ色のリストを表示します")
     async def list_base(self, ctx) -> None:
         """
         baseのアイテム一覧を検索
@@ -579,11 +579,11 @@ class Costume(commands.Cog):
             None
         """
         embed = discord.Embed(title="色一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("base", 1)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("base", 1)
         embed.set_footer(text="1 / 1 ページを表示中")
         await ctx.send(embed=embed)
 
-    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon", description="武器のリストを表示します。", help="`<prefix>list character` ...キャラクターのリストを表示します")
+    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon", description="武器のリストを表示するよ!", help="`<prefix>list character` ...キャラクターのリストを表示します")
     async def list_weapon(self, ctx) -> None:
         """
         weaponのアイテム一覧を検索
@@ -600,11 +600,11 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~4で指定してください!")
+            return await ctx.send("ページ数は1~4で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~4で指定してください!")
+            return await ctx.send("ページ数は整数で1~4で指定してね!")
         embed = discord.Embed(title="武器一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("weapon", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("weapon", page)
         embed.set_footer(text=f"{page} / 4 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -614,11 +614,11 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("weapon", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("weapon", page)
             embed.set_footer(text=f"{page} / 4 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character", description="キャラクターのリストを表示します。", help="`<prefix>list weapon` ... 武器のリストを表示します")
+    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character", description="キャラクターのリストを表示するよ!", help="`<prefix>list weapon` ... 武器のリストを表示します")
     async def list_character(self, ctx):
         """
         characterのアイテム一覧を検索
@@ -635,11 +635,11 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 3:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~3で指定してください!")
+            return await ctx.send("ページ数は1~3で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~3で指定してください!")
+            return await ctx.send("ページ数は整数で1~3で指定してね!")
         embed = discord.Embed(title="キャラ一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("character", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("character", page)
         embed.set_footer(text=f"{page} / 3 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -649,11 +649,11 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("character", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("character", page)
             embed.set_footer(text=f"{page} / 3 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="head", aliases=["h", "hd"], usage="list head", description="頭装飾のリストを表示します。", help="`<prefix>list head` ... 頭装飾のリストを表示します")
+    @list.command(name="head", aliases=["h", "hd"], usage="list head", description="頭装飾のリストを表示するよ!", help="`<prefix>list head` ... 頭装飾のリストを表示します")
     async def list_head(self, ctx):
         """
         headのアイテム一覧を検索
@@ -670,11 +670,11 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~6で指定してください!")
+            return await ctx.send("ページ数は1~6で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~6で指定してください!")
+            return await ctx.send("ページ数は整数で1~6で指定してね!")
         embed = discord.Embed(title="頭装飾一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("head", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -684,11 +684,11 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("head", page)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body", description="体装飾のリストを表示します。", help="`<prefix>list body` ... 体装飾のリストを表示します")
+    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body", description="体装飾のリストを表示するよ!", help="`<prefix>list body` ... 体装飾のリストを表示します")
     async def list_body(self, ctx):
         """
         bodyのアイテム一覧を検索
@@ -705,11 +705,11 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 7:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~7で指定してください!")
+            return await ctx.send("ページ数は1~7で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~7で指定してください!")
+            return await ctx.send("ページ数は整数で1~7で指定してね!")
         embed = discord.Embed(title="体装飾一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("body", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("body", page)
         embed.set_footer(text=f"{page} / 7 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -719,11 +719,11 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("body", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("body", page)
             embed.set_footer(text=f"{page} / 7 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back", description="背中装飾のリストを表示します。", help="`<prefix>list back` ... 背中装飾のリストを表示します")
+    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back", description="背中装飾のリストを表示するよ!", help="`<prefix>list back` ... 背中装飾のリストを表示します")
     async def list_back(self, ctx):
         """
         backのアイテム一覧を検索
@@ -740,11 +740,11 @@ class Costume(commands.Cog):
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send("ページ数は1~6で指定してください!")
+            return await ctx.send("ページ数は1~6で指定してね!")
         else:
-            return await ctx.send("ページ数は整数で1~6で指定してください!")
+            return await ctx.send("ページ数は整数で1~6で指定してね!")
         embed = discord.Embed(title="背中装飾一覧")
-        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("back", page)
+        embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("back", page)
         embed.set_footer(text=f"{page} / 6 ページを表示中")
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -754,7 +754,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称です。\n" + self.get_list("head", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("head", page)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
