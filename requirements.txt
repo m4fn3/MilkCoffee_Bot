@@ -5,3 +5,5 @@ psutil
 traceback2
 six
 rsa
+pillow
+mecab-python3

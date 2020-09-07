@@ -73,7 +73,7 @@ class Bot(commands.Bot):
             self.save_database.start()
         if not self.save_global_chat_log.is_running():
             self.save_global_chat_log.start()
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_message(self, message):
         if not self.is_ready():
@@ -94,13 +94,13 @@ class Bot(commands.Bot):
         embed = discord.Embed(title=f"{guild.name} に参加しました。", color=0x00ffff)
         embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_guild_remove(self, guild):
         embed = discord.Embed(title=f"{guild.name} を退出しました。", color=0xff1493)
         embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     @tasks.loop(seconds=30.0)
     async def save_database(self):
