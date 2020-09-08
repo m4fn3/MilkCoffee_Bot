@@ -1,6 +1,7 @@
 from discord.ext import commands, tasks
-import discord, datetime, traceback2
+import discord, datetime, traceback2, MeCab
 import asyncio
+from filter.filter import *
 
 
 class GlobalChat(commands.Cog):
@@ -60,6 +61,12 @@ class GlobalChat(commands.Cog):
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
+
+    # async def cog_command_error(self, ctx, error):
+    #     if isinstance(error, commands.errors.MissingRequiredArgument):
+    #         await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
+    #     else:
+    #         await ctx.send(f"エラーが発生しました:\n{error}")
 
     @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドだよ!\nグローバルチャット設定をするためには、BOTが manage_webhook(webhookを管理) の権限を持ってて、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があるよ!")
     async def global_command(self, ctx):
@@ -302,11 +309,23 @@ __他のサーバーから届いたメッセージは、webhookという技術�
                     pass
             del self.bot.global_chat_day[day]
 
+    @commands.command()
+    async def word(self, ctx,  *, text):
+        import time
+        start = time.time()
+        f = Filter(self.bot, self.bot.get_channel(self.bot.datas["links_check_channel"]))
+        res, reason = await f.execute_filter(text, ctx.message)
+        await ctx.send(time.time() - start)
+        if res == 1:
+            await ctx.send("せーふ")
+        elif reason == 0:
+            await ctx.send("ふてきせつなりんくだ")
+        elif reason == 2:
+            await ctx.send("招待リンクおくんなばか")
+        else:
+            await ctx.send("ふてきせつなはつげん")
 
-# TODO: filterの追加
-# TODO: 初回送信時 user-global-chat
-# TODO: レベリング(?)
-
+#TODO: レベリング?名前の横に絵文字追加
 
 def setup(bot):
     bot.add_cog(GlobalChat(bot))

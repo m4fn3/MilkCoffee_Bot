@@ -43,7 +43,8 @@ class Bot(commands.Bot):
             "log_channel": 744466739542360064,
             "global_chat_log_channel": 751025181367205899,
             "database_channel": 744466393356959785,
-            "global_chat_log_save_channel": 751053982100619275
+            "global_chat_log_save_channel": 751053982100619275,
+            "links_check_channel": 752875973044863057
         }
 
     async def on_ready(self):
