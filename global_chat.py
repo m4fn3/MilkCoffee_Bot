@@ -369,7 +369,6 @@ __他のサーバーから届いたメッセージは、webhookという技術�
                 self.bot.database[str(message.author.id)]["global"]["same_post"] = 0
             self.bot.database[str(message.author.id)]["global"]["last_time"] = now
             self.bot.database[str(message.author.id)]["global"]["last_word"] = message.content
-            # TODO: history書き込み - 5,10を超えているか検知 - -管理者によるhistory&ポイント取り消しコマンド
             if res == 1 and not punishment:
                 return 0
             if reason == 0:
@@ -408,7 +407,6 @@ __他のサーバーから届いたメッセージは、webhookという技術�
         except:
             await message.channel.send(traceback2.format_exc())
 
-#TODO: レベリング?名前の横に絵文字追加
 
 def setup(bot):
     bot.add_cog(GlobalChat(bot))
