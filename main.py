@@ -33,11 +33,13 @@ class Bot(commands.Bot):
         self.global_chat_log = {}
         self.global_chat_day = {}
         self.maintenance = True
+        self.invites = []
         self.uptime = time.time()
         self.datas = {
             "server": "https://discord.gg/RbzSSrw",
             "invite": "https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot",
             "author": "mafu#7582",
+            "server_id": 565434676877983772,
             "notice_channel": 750947806558289960,
             "appeal_channel": 723170714907312129,
             "log_channel": 744466739542360064,
@@ -63,6 +65,7 @@ class Bot(commands.Bot):
         self.global_channels = db_dict["global"]["channels"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
+        self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
         database_channel = self.get_channel(self.datas["global_chat_log_save_channel"])
         database_msg = await database_channel.fetch_message(database_channel.last_message_id)
         database_file = database_msg.attachments[0]

@@ -1,6 +1,5 @@
 from discord.ext import commands, tasks
-import discord, datetime, traceback2, MeCab
-import asyncio
+import discord, datetime, traceback2, time
 from filter.filter import *
 
 
@@ -11,14 +10,18 @@ class GlobalChat(commands.Cog):
         self.bot = bot  # type: commands.Bot
         self.global_chat_log_channel = None
         self.sending_message = {}
+        self.filter_obj = Filter(self.bot)
         self.global_chat_message_cache = {}
 
     async def delete_global_message(self, message_id: int):
         if str(message_id) in self.bot.global_chat_log:
             if message_id in self.sending_message:
-                task = self.sending_message[message_id]
-                task.cancel()
-                del self.sending_message[message_id]
+                if self.sending_message[message_id]:
+                    self.sending_message[message_id] = False
+                else:
+                    task = self.sending_message[message_id]
+                    task.cancel()
+                    del self.sending_message[message_id]
             if message_id in self.global_chat_message_cache:
                 for msg_obj in self.global_chat_message_cache[message_id]:
                     try:
@@ -57,16 +60,26 @@ class GlobalChat(commands.Cog):
         if payload.channel_id in self.bot.global_channels:
             await self.delete_global_message(payload.message_id)
 
+    @commands.Cog.listener()
+    async def on_invite_create(self, invite):
+        if invite.guild.id == self.bot.datas["server_id"] and invite.code not in self.bot.invites:
+            self.bot.invites.append(invite.code)
+
+    @commands.Cog.listener()
+    async def on_invite_delete(self, invite):
+        if invite.guild.id == self.bot.datas["server_id"] and invite.code in self.bot.invites:
+            self.bot.invites.remove(invite.code)
+
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
-    # async def cog_command_error(self, ctx, error):
-    #     if isinstance(error, commands.errors.MissingRequiredArgument):
-    #         await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
-    #     else:
-    #         await ctx.send(f"エラーが発生しました:\n{error}")
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
+        else:
+            await ctx.send(f"エラーが発生しました:\n{error}")
 
     @commands.group(name="global", usage="global [サブコマンド]", description="グローバルチャットに関するコマンドだよ!\nグローバルチャット設定をするためには、BOTが manage_webhook(webhookを管理) の権限を持ってて、コマンドの実行者が manage_channel(チャンネルの管理) 権限を持っている必要があるよ!")
     async def global_command(self, ctx):
@@ -180,7 +193,8 @@ class GlobalChat(commands.Cog):
 
     async def process_message(self, message):
         try:
-            #  filter text
+            if await self.filter_message(message) == 1:
+                return
             day_head = datetime.datetime.now().strftime('%Y%m%d')
             if day_head not in self.bot.global_chat_day:
                 self.bot.global_chat_day[day_head] = []
@@ -216,17 +230,15 @@ class GlobalChat(commands.Cog):
 
             attachment_links = [attachment.proxy_url for attachment in message.attachments]
             self.bot.global_chat_log[str(message.id)]["attachment"] = attachment_links
-            files = []
-            for attachment in message.attachments:
-                attached_file = await attachment.to_file()
-                files.append(attached_file)
+
+            files = [await attachment.to_file() for attachment in message.attachments]
             embed = discord.Embed(color=0x0000ff)
             embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
             embed.description = message.content
             embed.timestamp = message.created_at
             embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
             embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
-            await self.global_chat_log_channel.send(embed=embed, files=files)
+
             self.global_chat_message_cache[message.id] = []
             for channel_id in self.bot.global_channels:
                 if channel_id == message.channel.id:
@@ -275,25 +287,48 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             self.bot.database[str(message.author.id)] = {
                 "global": {
                     "last_word": "",
-                    "last_time": "",
-                    "warning": {}
+                    "last_time": 0,
+                    "last_warning": 0,
+                    "fast_post": 0,
+                    "same_post": 0,
+                    "warning": 0,
+                    "history": {}
                 }
             }
         elif "global" not in self.bot.database[str(message.author.id)]:
             self.bot.database[str(message.author.id)]["global"] = {
                 "last_word": "",
-                "last_time": "",
-                "warning": {}
+                "last_time": 0,
+                "last_warning": 0,
+                "fast_post": 0,
+                "same_post": 0,
+                "warning": 0,
+                "history": {}
             }
 
+    async def send_log(self, message):
+        files = [await attachment.to_file() for attachment in message.attachments]
+        embed = discord.Embed(color=0x0000ff)
+        embed.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+        embed.description = message.content
+        embed.timestamp = message.created_at
+        embed.add_field(name="詳細情報", value=f"```メッセージID: {message.id}\n送信者情報: {str(message.author)} ({message.author.id})\n送信元サーバー: {message.guild.name} ({message.guild.id})\n送信元チャンネル: {message.channel.name} ({message.channel.id})```", inline=False)
+        embed.add_field(name="日時", value=(message.created_at + datetime.timedelta(hours=9)).strftime('%Y/%m/%d %H:%M:%S'), inline=False)
+        await self.global_chat_log_channel.send(embed=embed, files=files)
+
     async def on_global_message(self, message):
+        self.sending_message[message.id] = True
         if str(message.author.id) in self.bot.BAN:
             return await message.author.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif str(message.author.id) in self.bot.MUTE:
             return await message.author.send(f"あなたのアカウントはグローバルチャット上でミュートされているため、グローバルチャットを現在ご使用になれません(´;ω;｀)\nミュートに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
         elif (str(message.author.id) not in self.bot.database) or ("global" not in self.bot.database[str(message.author.id)]):
             return await self.process_new_user(message)
-        self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
+        await self.send_log(message)
+        if self.sending_message[message.id]:
+            self.sending_message[message.id] = self.bot.loop.create_task(self.process_message(message))
+        else:
+            del self.sending_message[message.id]
 
     @tasks.loop(hours=12)
     async def process_chat_log(self):
@@ -309,21 +344,69 @@ __他のサーバーから届いたメッセージは、webhookという技術�
                     pass
             del self.bot.global_chat_day[day]
 
-    @commands.command()
-    async def word(self, ctx,  *, text):
-        import time
-        start = time.time()
-        f = Filter(self.bot, self.bot.get_channel(self.bot.datas["links_check_channel"]))
-        res, reason = await f.execute_filter(text, ctx.message)
-        await ctx.send(time.time() - start)
-        if res == 1:
-            await ctx.send("せーふ")
-        elif reason == 0:
-            await ctx.send("ふてきせつなりんくだ")
-        elif reason == 2:
-            await ctx.send("招待リンクおくんなばか")
-        else:
-            await ctx.send("ふてきせつなはつげん")
+    async def filter_message(self, message):
+        try:
+            res, reason = self.filter_obj.execute_filter(message.content, message, self.bot.invites)
+            #  連投検知 - 最後に送った時間から2秒たっていない場合
+            now = message.created_at.timestamp()
+            punishment = {}
+            warning_point = 0
+            if (now - self.bot.database[str(message.author.id)]["global"]["last_time"]) <= 3:
+                self.bot.database[str(message.author.id)]["global"]["fast_post"] += 1
+                if self.bot.database[str(message.author.id)]["global"]["fast_post"] >= 2:
+                    self.bot.database[str(message.author.id)]["global"]["warning"] += 2
+                    punishment["メッセージの連投"] = 2; warning_point += 2
+            elif self.bot.database[str(message.author.id)]["global"]["fast_post"] != 0:
+                self.bot.database[str(message.author.id)]["global"]["fast_post"] = 0
+            #  同じメッセージの連続投稿検知
+            if self.bot.database[str(message.author.id)]["global"]["last_word"] == message.content:
+                self.bot.database[str(message.author.id)]["global"]["same_post"] += 1
+                if self.bot.database[str(message.author.id)]["global"]["same_post"] >= 2:
+                    self.bot.database[str(message.author.id)]["global"]["warning"] += 2
+                    punishment["同一内容の連続送信"] = 2; warning_point += 2
+                    pass  # 同じメッセージ投稿の警告
+            elif self.bot.database[str(message.author.id)]["global"]["same_post"] != 0:
+                self.bot.database[str(message.author.id)]["global"]["same_post"] = 0
+            self.bot.database[str(message.author.id)]["global"]["last_time"] = now
+            self.bot.database[str(message.author.id)]["global"]["last_word"] = message.content
+            # TODO: history書き込み - 5,10を超えているか検知 - -管理者によるhistory&ポイント取り消しコマンド
+            if res == 1 and not punishment:
+                return 0
+            if reason == 0:
+                #  不適切なリンク
+                punishment["不適切なリンク"] = 5; warning_point += 5
+                self.bot.database[str(message.author.id)]["global"]["warning"] += 5
+            elif reason == 1:
+                # フルでNG
+                punishment["不適切な表現"] = 5; warning_point += 5
+                self.bot.database[str(message.author.id)]["global"]["warning"] += 5
+            elif reason == 2:
+                #  招待リンク
+                punishment["招待リンクの送信"] = 5; warning_point += 5
+                self.bot.database[str(message.author.id)]["global"]["warning"] += 5
+            elif res != 1:
+                #  不適切な発言を含む
+                punishment["不適切な内容を含む"] = 3; warning_point += 3
+                self.bot.database[str(message.author.id)]["global"]["warning"] += 3
+            # punishmentの中身をとりだしてログに送信 - historyを書く
+            self.bot.database[str(message.author.id)]["global"]["history"][str(message.id)] = punishment
+            warning_text = ",".join(punishment.keys())
+            await message.channel.send(f"{message.author.mention}さん\n{warning_text}が検出されました。これらの行為はグローバルチャットでは禁止されています。\n繰り返すとミュート等の処置を受けることになりますので十分注意してください。\n尚、この通知が不服である場合(誤検出である等)は、公式サーバー( {self.bot.datas['server']} )の{self.bot.datas['appeal_channel']}にて異議申し立てを行ってください。")
+            embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+            if self.bot.database[str(message.author.id)]["global"]["warning"] >= 10:
+                reason = f"自動ミュート({message.id}) " + warning_text
+                self.bot.MUTE[str(message.author.id)] = reason
+                embed = discord.Embed(title=f"{message.author.name} がミュートされました。", color=0xdc143c)
+                embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {reason}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+                self.bot.database[str(message.author.id)]["global"]["warning"] = 0
+            elif self.bot.database[str(message.author.id)]["global"]["warning"] >= 5:
+                pass  # lock
+            return 1
+        except:
+            await message.channel.send(traceback2.format_exc())
 
 #TODO: レベリング?名前の横に絵文字追加
 
