@@ -390,7 +390,7 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             # punishmentの中身をとりだしてログに送信 - historyを書く
             self.bot.database[str(message.author.id)]["global"]["history"][str(message.id)] = punishment
             warning_text = ",".join(punishment.keys())
-            await message.channel.send(f"{message.author.mention}さん\n{warning_text}が検出されました。これらの行為はグローバルチャットでは禁止されています。\n繰り返すとミュート等の処置を受けることになりますので十分注意してください。\n尚、この通知が不服である場合(誤検出である等)は、公式サーバー( {self.bot.datas['server']} )の <#{self.bot.datas['appeal_channel']}> にて異議申し立てを行ってください。")
+            await message.channel.send(f"{message.author.mention}さん\n{warning_text}が検出されました。これらの行為はグローバルチャットでは禁止されています。\n繰り返すとミュート等の処置を受けることになりますので十分注意してください。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、公式サーバー( {self.bot.datas['server']} )の <#{self.bot.datas['appeal_channel']}> にて異議申し立てを行ってください。")
             embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
             embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
