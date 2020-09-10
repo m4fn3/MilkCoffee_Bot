@@ -77,3 +77,5 @@ def parse_item_code_to_list(item: str) -> list:
     _, result = parse_from_36(item)  # 36進数から10進数に変換
     item = str(result).zfill(11)  # 11桁になるように0埋めする
     return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:7]), int(item[7:9]), int(item[9:11])]
+
+

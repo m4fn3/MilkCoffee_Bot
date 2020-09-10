@@ -1,5 +1,5 @@
 from discord.ext import commands, tasks
-import discord, datetime, traceback2, time
+import discord, datetime, traceback2, time, pprint
 from filter.filter import *
 
 
@@ -143,7 +143,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("メッセージIDは数字で指定してください。")
 
-    @global_command.command()
+    @commands.command()
     async def mute(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -169,7 +169,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @global_command.command()
+    @commands.command()
     async def unmute(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -182,14 +182,14 @@ class GlobalChat(commands.Cog):
         else:
             return await ctx.send("ユーザーIDは数字で指定してください。")
         if str(user.id) not in self.bot.MUTE:
-            await ctx.send("このユーザーはミュートされていません。")
+            return await ctx.send("このユーザーはミュートされていません。")
         del self.bot.MUTE[str(user.id)]
         await ctx.send(f"該当ユーザーをミュート解除しました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がミュート解除されました。", color=0x4169e1)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @global_command.command(name="muted")
+    @commands.command(name="muted")
     async def is_mute(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
@@ -206,7 +206,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
 
-    @global_command.command()
+    @commands.command()
     async def lock(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -232,7 +232,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @global_command.command()
+    @commands.command()
     async def unlock(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -245,14 +245,14 @@ class GlobalChat(commands.Cog):
         else:
             return await ctx.send("ユーザーIDは数字で指定してください。")
         if str(user.id) not in self.bot.LOCK:
-            await ctx.send("このユーザーはロックされていません。")
+            return await ctx.send("このユーザーはロックされていません。")
         del self.bot.LOCK[str(user.id)]
         await ctx.send(f"該当ユーザーをロック解除しました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がロック解除されました。", color=0x4169e1)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @global_command.command(name="locked")
+    @commands.command(name="locked")
     async def is_lock(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
@@ -268,6 +268,112 @@ class GlobalChat(commands.Cog):
             await ctx.send(f"このユーザーはロックされていません。(ユーザー情報: {str(user)} ({user.id}))")
         else:
             await ctx.send(f"このユーザーはロックされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.LOCK[user_id]}")
+
+    @commands.group()
+    async def history(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("m!history <add|del|see>")
+
+    @history.command()
+    async def delete(self, ctx, user_id, warn_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.database and "global" in self.bot.database[str(user.id)]:
+            if warn_id in self.bot.database[str(user.id)]["global"]["history"]:
+                data = self.bot.database[str(user.id)]["global"]["history"].pop(warn_id)
+                for warn in data:
+                    self.bot.database[str(user.id)]["global"]["warning"] -= data[warn]
+                if self.bot.database[str(user.id)]["global"]["warning"] < 0:
+                    self.bot.database[str(user.id)]["global"]["warning"] = 0
+                await ctx.send("正常に削除しました。")
+            else:
+                await ctx.send("そのような警告はありません。")
+        else:
+            await ctx.send("このユーザーはBOTに登録していません。")
+
+    @history.command()
+    async def add(self, ctx, user_id, reason, point):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.database and "global" in self.bot.database[str(user.id)]:
+            if not point.isdigit():
+                return await ctx.send("ポイントは数字で指定してください")
+            self.bot.database[str(user.id)]["global"]["history"][str(ctx.message.id)] = {reason: int(point)}
+            self.bot.database[str(user.id)]["global"]["warning"] += int(point)
+            embed = discord.Embed(title=f"{ctx.author.name} が警告を受けました。", color=0xffff00)
+            embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n合計違反点数: {point}\n現在の合計点数: {self.bot.database[str(user.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+            await self.check_point(ctx.message, reason, True)
+        else:
+            await ctx.send("このユーザーはBOTに登録していません。")
+
+    @history.command()
+    async def see(self, ctx, user_id):
+        user: discord.User
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif user_id.isdigit():
+            try:
+                user = await self.bot.fetch_user(int(user_id))
+            except discord.errors.NotFound:
+                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
+        else:
+            return await ctx.send("ユーザーIDは数字で指定してください。")
+        if str(user.id) in self.bot.database and "global" in self.bot.database[str(user.id)]:
+            history = self.bot.database[str(user.id)]["global"]["history"]
+            await ctx.send(pprint.pformat(history))
+        else:
+            await ctx.send("このユーザーはBOTに登録していません。")
+
+    async def check_point(self, message, reason, dm=True):
+        if self.bot.database[str(message.author.id)]["global"]["warning"] >= 10:
+            embed = discord.Embed(title="重要通知", color=0xdc143c)
+            embed.description = f"あなたは違反行為によりミュートされました。\n理由: {reason}の検出等\nミュートをご自身で解除されることはできません。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
+            if dm:
+                await message.author.send(message.author.mention, embed=embed)
+            else:
+                await message.channel.send(message.author.mention, embed=embed)
+            reason = f"自動ミュート({message.id}) " + reason
+            self.bot.MUTE[str(message.author.id)] = reason
+            embed = discord.Embed(title=f"{message.author.name} がミュートされました。", color=0xdc143c)
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {reason}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+            self.bot.database[str(message.author.id)]["global"]["warning"] = 0
+            return 0
+        elif self.bot.database[str(message.author.id)]["global"]["warning"] >= 5:
+            embed = discord.Embed(title="重要通知", color=0xdc143c)
+            embed.description = f"あなたは違反行為によりロックされました。\n理由: {reason}の検出等\nロックはご自身により解除が可能です。詳しくはDMに送信した詳細を確認してください。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
+            if dm:
+                await message.author.send(message.author.mention, embed=embed)
+            else:
+                await message.channel.send(message.author.mention, embed=embed)
+            embed = discord.Embed(title="重要通知", color=0x228b22)
+            embed.description = f"あなたは違反行為によってロックされましたが、以下の手順で解除することができます:\n> 1.禁止行為の再確認\n> 2.確認後に当BOTとのDMで `unlock` と送信する。\nロック解除後に違反行為を犯した場合は、ミュートされる可能性がありますので十分ご注意ください。(ミュート解除はご自身では行えません)"
+            await message.author.send(embed=embed)
+            reason = f"自動ロック({message.id}) " + reason
+            self.bot.LOCK[str(message.author.id)] = reason
+            embed = discord.Embed(title=f"{message.author.name} がロックされました。", color=0xf4a460)
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {reason}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+            return 0
+        else:
+            return 1
 
     async def process_message(self, message):
         try:
@@ -461,36 +567,17 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             warning_text = ",".join(punishment.keys())
             self.bot.database[str(message.author.id)]["global"]["warning"] += warning_point
             self.bot.database[str(message.author.id)]["global"]["last_warning"] = now
-            embed = discord.Embed(title="重要通知", color=0xdc143c)
-            embed.description = f"{warning_text}が検出されました。これらの行為はグローバルチャット上では禁止されています。\n繰り返すとミュートなどの処置を受けることとなりますので、十分お気を付けください。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
-            await message.channel.send(message.author.mention, embed=embed)
             embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-            if self.bot.database[str(message.author.id)]["global"]["warning"] >= 10:
+            code = await self.check_point(message, warning_text)
+            if code:
                 embed = discord.Embed(title="重要通知", color=0xdc143c)
-                embed.description = f"あなたは違反行為によりミュートされました。\n理由: {warning_text}の検出等\nミュートをご自身で解除されることはできません。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
+                embed.description = f"{warning_text}が検出されました。これらの行為はグローバルチャット上では禁止されています。\n繰り返すとミュートなどの処置を受けることとなりますので、十分お気を付けください。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
                 await message.channel.send(message.author.mention, embed=embed)
-                reason = f"自動ミュート({message.id}) " + warning_text
-                self.bot.MUTE[str(message.author.id)] = reason
-                embed = discord.Embed(title=f"{message.author.name} がミュートされました。", color=0xdc143c)
-                embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {reason}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
-                self.bot.database[str(message.author.id)]["global"]["warning"] = 0
-            elif self.bot.database[str(message.author.id)]["global"]["warning"] >= 5:
-                embed = discord.Embed(title="重要通知", color=0xdc143c)
-                embed.description = f"あなたは違反行為によりロックされました。\n理由: {warning_text}の検出等\nロックはご自身により解除が可能です。詳しくはDMに送信した詳細を確認してください。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
-                await message.channel.send(message.author.mention, embed=embed)
-                await message.author.send(f"あなたは違反行為によってロックされましたが、以下の手順で解除することができます:\n> 1.禁止行為の再確認\n> 2.確認後に当BOTとのDMで `unlock` と送信する。\nロック解除後に違反行為を犯した場合は、ミュートされる可能性がありますので十分ご注意ください。(ミュート解除はご自身では行えません)")
-                reason = f"自動ロック({message.id}) " + warning_text
-                self.bot.LOCK[str(message.author.id)] = reason
-                embed = discord.Embed(title=f"{message.author.name} がロックされました。", color=0xf4a460)
-                embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {reason}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
-                await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             return 1
         except:
             await message.channel.send(traceback2.format_exc())
-
 
 def setup(bot):
     bot.add_cog(GlobalChat(bot))
