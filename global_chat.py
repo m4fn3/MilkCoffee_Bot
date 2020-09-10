@@ -143,7 +143,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("メッセージIDは数字で指定してください。")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def mute(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -169,7 +169,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def unmute(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -189,7 +189,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command(name="muted")
+    @commands.command(name="muted", hidden=True)
     async def is_mute(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
@@ -206,7 +206,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send(f"このユーザーはミュートされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.MUTE[user_id]}")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def lock(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -232,7 +232,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def unlock(self, ctx, user_id, *, reason):
         user: discord.User
         if ctx.message.mentions:
@@ -252,7 +252,7 @@ class GlobalChat(commands.Cog):
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
         await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
 
-    @commands.command(name="locked")
+    @commands.command(name="locked", hidden=True)
     async def is_lock(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
@@ -269,7 +269,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send(f"このユーザーはロックされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.LOCK[user_id]}")
 
-    @commands.group()
+    @commands.group(hidden=True)
     async def history(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("m!history <add|del|see>")
