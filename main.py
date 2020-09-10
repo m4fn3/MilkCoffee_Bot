@@ -28,6 +28,7 @@ class Bot(commands.Bot):
         self.ADMIN = {}
         self.BAN = {}
         self.MUTE = {}
+        self.LOCK = {}
         self.Contributor = {}
         self.global_channels = []
         self.global_chat_log = {}
@@ -62,6 +63,7 @@ class Bot(commands.Bot):
         self.ADMIN = db_dict["role"]["ADMIN"]
         self.BAN = db_dict["role"]["BAN"]
         self.MUTE = db_dict["global"]["MUTE"]
+        self.LOCK = db_dict["global"]["LOCK"]
         self.global_channels = db_dict["global"]["channels"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
@@ -85,7 +87,8 @@ class Bot(commands.Bot):
         elif message.author.bot:
             return
         elif message.guild is None:
-            return await message.channel.send(f"このBOTのコマンドは__**サーバー上でのみ**__使用できます。(コマンドによりBOT側からDMを送信する場合があります)\nサポート用サーバー: {self.datas['server']}\nBOTの招待用URL: {self.datas['invite']}")
+            global_chat_cog = self.get_cog("GlobalChat")
+            await global_chat_cog.on_dm_message(message)
         elif message.content == f"<@!{self.user.id}>":
             return await message.channel.send(f"このBOTのprefixは `{self.command_prefix}` です!\n`{self.command_prefix}help` で詳しい使い方を確認できます。")
         elif message.channel.id in self.global_channels:
@@ -117,7 +120,8 @@ class Bot(commands.Bot):
             },
             "global": {
                 "channels": self.global_channels,
-                "MUTE": self.MUTE
+                "MUTE": self.MUTE,
+                "LOCK": self.LOCK
             },
             "system": {
                 "maintenance": self.maintenance
