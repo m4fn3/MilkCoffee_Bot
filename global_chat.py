@@ -317,7 +317,7 @@ class GlobalChat(commands.Cog):
             self.bot.database[str(user.id)]["global"]["history"][str(ctx.message.id)] = {reason: int(point)}
             self.bot.database[str(user.id)]["global"]["warning"] += int(point)
             embed = discord.Embed(title=f"{ctx.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n合計違反点数: {point}\n現在の合計点数: {self.bot.database[str(user.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n合計違反点数: {point}\n現在の合計点数: {self.bot.database[str(user.id)]['global']['warning']}\n警告番号: {ctx.message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             await self.check_point(ctx.message, reason, True)
         else:

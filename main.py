@@ -35,6 +35,7 @@ class Bot(commands.Bot):
         self.global_chat_day = {}
         self.maintenance = True
         self.invites = []
+        self.GM_update = []
         self.uptime = time.time()
         self.datas = {
             "server": "https://discord.gg/RbzSSrw",
@@ -47,7 +48,8 @@ class Bot(commands.Bot):
             "global_chat_log_channel": 751025181367205899,
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
-            "links_check_channel": 752875973044863057
+            "links_check_channel": 752875973044863057,
+            "GM_updates_channel": 753897253743362068
         }
 
     async def on_ready(self):
@@ -65,6 +67,7 @@ class Bot(commands.Bot):
         self.MUTE = db_dict["global"]["MUTE"]
         self.LOCK = db_dict["global"]["LOCK"]
         self.global_channels = db_dict["global"]["channels"]
+        self.GM_update = db_dict["notify"]["GM_update"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
         self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
@@ -84,6 +87,9 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         if not self.is_ready():
             return
+        elif message.channel.id == self.datas["GM_updates_channel"]:
+            global_chat_cog = self.get_cog("GlobalChat")
+            await global_chat_cog.on_dm_message(message)
         elif message.author.bot:
             return
         elif message.guild is None:
@@ -122,6 +128,9 @@ class Bot(commands.Bot):
                 "channels": self.global_channels,
                 "MUTE": self.MUTE,
                 "LOCK": self.LOCK
+            },
+            "notify": {
+                "GM_updates": self.GM_update
             },
             "system": {
                 "maintenance": self.maintenance

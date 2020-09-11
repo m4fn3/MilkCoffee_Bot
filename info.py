@@ -3,7 +3,7 @@ import discord, datetime, time
 
 
 class Information(commands.Cog):
-    """BOTに関する情報を表示します。"""
+    """色々な情報の設定をするよ!"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
@@ -38,19 +38,6 @@ class Information(commands.Cog):
         ping = (time.monotonic() - before) * 1000
         await message.delete()
         await ctx.send(f"反応速度: `{int(ping)}`[ms]")
-
-    @commands.command(aliases=["notice"], usage="follow (チャンネル)", description="BOTのお知らせチャンネルをフォローできるよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
-    async def follow(self, ctx):
-        channel_id: int
-        if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
-            target_channel = ctx.message.channel_mentions[0]
-        else:
-            target_channel = ctx.channel
-        if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
-            await self.bot.get_channel(self.bot.datas['notice_channel']).follow(destination=target_channel)
-            await ctx.send(f"{target_channel.mention}で公式サーバーのBOTお知らせ用チャンネルをフォローしました。")
-        else:
-            await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。\n代わりに公式サーバーの<#{self.bot.datas['notice_channel']}>を手動でフォローすることもできます。")
 
 
 def setup(bot):
