@@ -19,7 +19,7 @@ class Bot(commands.Bot):
 
     def __init__(self, command_prefix, help_command):
         super().__init__(command_prefix, help_command)
-        self.bot_cogs = ["costume", "developer", "global_chat", "info"]
+        self.bot_cogs = ["costume", "developer", "global_chat", "info", "notify"]
         for cog in self.bot_cogs:
             self.load_extension(cog)
         with open('error_text.json', 'r', encoding='utf-8') as f:
@@ -91,6 +91,8 @@ class Bot(commands.Bot):
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_dm_message(message)
         elif message.author.bot:
+            notify_cog = self.get_cog("Notify")
+            await notify_cog.on_GM_update(message)
             return
         elif message.guild is None:
             global_chat_cog = self.get_cog("GlobalChat")

@@ -6,7 +6,9 @@ class Notify(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
-    # TODO: main.pyからのチャンネルフックに対応してツイートまたはyoutubeの更新を取得
+    async def on_GM_update(self, message):
+        pass
+        # TODO: ツイートまたはyoutubeの更新を取得
 
     @commands.command(usage="follow (チャンネル)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
     async def follow(self, ctx):
