@@ -49,7 +49,7 @@ class Bot(commands.Bot):
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
-            "GM_updates_channel": 753897253743362068
+            "GM_update_channel": 753897253743362068
         }
 
     async def on_ready(self):
@@ -87,12 +87,10 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         if not self.is_ready():
             return
-        elif message.channel.id == self.datas["GM_updates_channel"]:
-            global_chat_cog = self.get_cog("GlobalChat")
-            await global_chat_cog.on_dm_message(message)
-        elif message.author.bot:
+        elif message.channel.id == self.datas["GM_update_channel"]:
             notify_cog = self.get_cog("Notify")
             await notify_cog.on_GM_update(message)
+        elif message.author.bot:
             return
         elif message.guild is None:
             global_chat_cog = self.get_cog("GlobalChat")
@@ -132,7 +130,7 @@ class Bot(commands.Bot):
                 "LOCK": self.LOCK
             },
             "notify": {
-                "GM_updates": self.GM_update
+                "GM_update": self.GM_update
             },
             "system": {
                 "maintenance": self.maintenance

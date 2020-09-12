@@ -19,7 +19,7 @@ class Help(commands.HelpCommand):
         Returns:
             None
         """
-        cogs = ["GlobalChat", "Costume", "Information"]
+        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
         page = 1
 
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])

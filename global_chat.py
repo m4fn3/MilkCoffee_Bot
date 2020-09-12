@@ -341,7 +341,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("このユーザーはBOTに登録していません。")
 
-    async def check_point(self, message, reason, dm=True):
+    async def check_point(self, message, reason, dm=False):
         if self.bot.database[str(message.author.id)]["global"]["warning"] >= 10:
             embed = discord.Embed(title="重要通知", color=0xdc143c)
             embed.description = f"あなたは違反行為によりミュートされました。\n理由: {reason}の検出等\nミュートをご自身で解除されることはできません。\n尚、この通知が不服である場合(誤検出である等)はお手数ですが、[公式サーバー]({self.bot.datas['server']})の<#{self.bot.datas['appeal_channel']}>にて異議申し立てを行ってください。"
@@ -440,9 +440,9 @@ class GlobalChat(commands.Cog):
                 if webhook is None:
                     webhook = await target_channel.create_webhook(name=f"global_chat_webhook_mafu")
                 if has_attachment:
-                    msg_obj = await webhook.send(message.content, embed=attachment_embed, username=message.author.name, avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+                    msg_obj = await webhook.send(message.content, embed=attachment_embed, username=str(message.author), avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
                 else:
-                    msg_obj = await webhook.send(message.content, username=message.author.name, avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+                    msg_obj = await webhook.send(message.content, username=str(message.author), avatar_url=message.author.avatar_url, wait=True, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
                 self.bot.global_chat_log[str(message.id)]["webhooks"].append({
                     "guild": msg_obj.guild.id,
                     "channel": msg_obj.channel.id,
@@ -540,7 +540,7 @@ __他のサーバーから届いたメッセージは、webhookという技術�
                 self.bot.database[str(message.author.id)]["global"]["warning"] = 0
             if (now - self.bot.database[str(message.author.id)]["global"]["last_time"]) <= 3:
                 self.bot.database[str(message.author.id)]["global"]["fast_post"] += 1
-                if self.bot.database[str(message.author.id)]["global"]["fast_post"] >= 2:
+                if self.bot.database[str(message.author.id)]["global"]["fast_post"] >= 3:
                     punishment["メッセージの連投"] = 2; warning_point += 2
             elif self.bot.database[str(message.author.id)]["global"]["fast_post"] != 0:
                 self.bot.database[str(message.author.id)]["global"]["fast_post"] = 0
