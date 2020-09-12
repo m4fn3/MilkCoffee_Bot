@@ -754,7 +754,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("head", page)
+            embed.description = "左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n" + self.get_list("back", page)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
