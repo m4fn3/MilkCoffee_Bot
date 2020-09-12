@@ -29,7 +29,7 @@ class Information(commands.Cog):
                             f"機能リクエストにもできる限り、ご対応させていただきます!"
         embed.add_field(name="ステータス", value=f"```導入サーバー数: {len(self.bot.guilds)}\nBOTが認識しているユーザー数:{len(self.bot.users)}```", inline=False)
         embed.add_field(name="稼働時間", value=f"{d}日 {h}時間 {m}分 {s}秒", inline=False)
-        embed.add_field(name="各種URL", value=f"[BOT招待用URL]({self.bot.datas['invite']}) | [サポート用サーバー]({self.bot.datas['server']})", inline=False)
+        embed.add_field(name="各種URL", value=f"[BOT招待用URL]({self.bot.datas['invite']}) | [サポート用サーバー]({self.bot.datas['server']}) | [公式サイト]({self.bot.datas['web']})", inline=False)
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測するよ!。")

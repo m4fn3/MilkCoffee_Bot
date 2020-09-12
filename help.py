@@ -76,6 +76,7 @@ class Help(commands.HelpCommand):
                 await message.remove_reaction("❔", self.context.bot.user)
                 break
 
+
     async def send_cog_help(self, cog) -> None:
         """
         コグの説明を表示

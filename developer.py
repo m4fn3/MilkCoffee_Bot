@@ -372,6 +372,42 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
         return [res.decode('utf-8') for res in result]
 
+    @commands.command(hidden=True)
+    async def make_html(self, ctx):
+        f = open("commands_html.txt", "w")
+        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
+        for cog in cogs:
+            coga = self.bot.get_cog(name=cog)
+            f.write(f"""
+          <div id="{coga.qualified_name}">
+            <h1>{coga.qualified_name}</h1>
+            <p>{coga.description}</p>
+                """)
+            for cmd in self.bot.get_cog(name=cog).walk_commands():
+                if cmd.usage is None:
+                    continue
+                desc = cmd.description.replace("<prefix>", "m!").replace("`", "").replace("\n", "<br>")
+                alias = ""
+                if cmd.aliases:
+                    alias = ", ".join(cmd.aliases)
+                    alias = f"\n            <p>略記: {alias}</p>"
+                help = ""
+                if cmd.help:
+                    help = "\n" + cmd.help.replace("<prefix>", "m!").replace("`", "").replace("\n", "<br>")
+                    help = f"\n             <p>{help}</p>"
+                f.write(f"""
+                <div class="command_box" id="open_command">
+                  <p>{cmd.usage}</p>
+                  <div class="command_description">
+                    <p>{desc}</p>{alias}{help}
+                  </div>
+                </div>
+                    """)
+            f.write("""
+          </div>
+                """)
+        f.close()
+
 
 def setup(bot):
     bot.add_cog(Developer(bot))

@@ -49,7 +49,8 @@ class Bot(commands.Bot):
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
-            "GM_update_channel": 753897253743362068
+            "GM_update_channel": 753897253743362068,
+            "web": "https://milkcoffee.cf/"
         }
 
     async def on_ready(self):

@@ -364,7 +364,7 @@ class GlobalChat(commands.Cog):
             else:
                 await message.channel.send(message.author.mention, embed=embed)
             embed = discord.Embed(title="重要通知", color=0x228b22)
-            embed.description = f"あなたは違反行為によってロックされましたが、以下の手順で解除することができます:\n> 1.禁止行為の再確認\n> 2.確認後に当BOTとのDMで `unlock` と送信する。\nロック解除後に違反行為を犯した場合は、ミュートされる可能性がありますので十分ご注意ください。(ミュート解除はご自身では行えません)"
+            embed.description = f"あなたは違反行為によってロックされましたが、以下の手順で解除することができます:\n> 1.[禁止行為](https://milkcoffee.cf/usage#rules_of_globalchat)の再確認\n> 2.確認後に当BOTとのDMで `unlock` と送信する。\nロック解除後に違反行為を犯した場合は、ミュートされる可能性がありますので十分ご注意ください。(ミュート解除はご自身では行えません)"
             await message.author.send(embed=embed)
             reason = f"自動ロック({message.id}) " + reason
             self.bot.LOCK[str(message.author.id)] = reason
@@ -458,6 +458,7 @@ class GlobalChat(commands.Cog):
         welcome_text = f"""
 ❔グローバルチャットとは❔他のサーバーの人と特定のチャンネルを介してお話しできちゃうサービスだよ!
 __他のサーバーから届いたメッセージは、webhookという技術を使用しているため、**BOT**と表示されますが、中身は**[人間]**です!!__
+使う前に必ず[禁止事項](https://milkcoffee.cf/usage#rules_of_globalchat)を確認してね!
 何かわからないことがあれば、[公式サーバー]({self.bot.datas['server']})まで！
         """
         embed.description = welcome_text
