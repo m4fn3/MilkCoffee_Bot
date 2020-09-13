@@ -380,7 +380,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             coga = self.bot.get_cog(name=cog)
             f.write(f"""
           <div id="{coga.qualified_name}">
-            <h1>{coga.qualified_name}</h1>
+            <h1>m!{coga.qualified_name}</h1>
             <p>{coga.description}</p>
                 """)
             for cmd in self.bot.get_cog(name=cog).walk_commands():

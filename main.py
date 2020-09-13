@@ -39,7 +39,7 @@ class Bot(commands.Bot):
         self.uptime = time.time()
         self.datas = {
             "server": "https://discord.gg/RbzSSrw",
-            "invite": "https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot",
+            "invite": "https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&redirect_uri=https%3A%2F%2Fmilkcoffee.cf&scope=bot",
             "author": "mafu#7582",
             "server_id": 565434676877983772,
             "notice_channel": 750947806558289960,
