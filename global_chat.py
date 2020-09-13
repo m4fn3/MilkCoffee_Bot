@@ -143,6 +143,23 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("メッセージIDは数字で指定してください。")
 
+    @global_command.command(usage="prohibitions", description="グローバルチャットでの禁止事項を表示するよ!")
+    async def prohibitions(self, ctx):
+        embed = discord.Embed(title="グローバルチャット禁止事項", color=0xcc66cc)
+        embed.description = """
+当サービスでのグローバルチャットでは以下の行為を禁止しています。
+違反した場合、予告なくロック、ミュート処置をとることがあります。
+```
+・成人向けコンテンツまたはグロテスクな表現を含むコンテンツの送信
+・誹謗中傷を含むコンテンツの送信
+・サーバー招待URL等を送信して宣伝する行為
+・短い間隔で何度も文章を送信し、負荷をかける行為
+・BOTのコマンドを送信する行為
+・その他当チームが極めて不適切だと判断するコンテンツ
+```
+        """
+        await ctx.send(embed=embed)
+
     @commands.command(hidden=True)
     async def mute(self, ctx, user_id, *, reason):
         user: discord.User
