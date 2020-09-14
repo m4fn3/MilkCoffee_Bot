@@ -112,11 +112,22 @@ class Costume(commands.Cog):
                     "save": []
                 }
             }
+            await self.process_new_user(ctx.message)
         elif "costume" not in self.bot.database[str(ctx.author.id)]:
             self.bot.database[str(ctx.author.id)]["costume"] = {
                 "canvas": "1o4s3k",
                 "save": []
             }
+            await self.process_new_user(ctx.message)
+
+    async def process_new_user(self, message):
+        embed = discord.Embed(title="装飾シミュレータへようこそ!", color=0x00ffff)
+        embed.description = f"""
+装飾シミュレータ操作用コマンドのリストは`{self.bot.command_prefix}help Costume`で確認できるよ!
+使い方がよくわからなかったら、下記のリンクの動画も確認してみてね!
+[https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)
+        """
+        await message.channel.send(message.author.mention, embed=embed)
 
     async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
         """
