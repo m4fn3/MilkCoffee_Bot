@@ -9,7 +9,11 @@ class Notify(commands.Cog):
 
     async def on_GM_update(self, message):
         for channel_id in self.bot.GM_update:
-            await self.bot.get_channel(channel_id).send(message.content)
+            try:
+                self.bot.get_channel(channel_id)
+                await self.bot.get_channel(channel_id).send(message.content)
+            except:
+                self.bot.GM_update.remove(channel_id)
 
     @commands.command(usage="follow (チャンネル)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
     async def follow(self, ctx):
