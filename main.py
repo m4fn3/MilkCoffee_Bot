@@ -50,12 +50,32 @@ class Bot(commands.Bot):
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
             "GM_update_channel": 753897253743362068,
+            "system-log-channel": 755016319660720188,
             "web": "https://milkcoffee.cf/"
         }
 
     async def on_ready(self):
         await self.change_presence(status=discord.Status.dnd, activity=discord.Game("起動中..."))
         print(f"Logged in to {self.user}")
+        if self.user.id != 742952261176655882:
+            print("テスト環境モード")
+            self.GM_update = []
+            self.global_channels = []
+            self.datas = {
+                "server": "https://discord.gg/RbzSSrw",
+                "invite": "https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&redirect_uri=https%3A%2F%2Fmilkcoffee.cf&scope=bot",
+                "author": "mafu#7582",
+                "server_id": 565434676877983772,
+                "notice_channel": 750947806558289960,
+                "appeal_channel": 723170714907312129,
+                "log_channel": 754986353850187797,
+                "global_chat_log_channel": 754986353850187797,
+                "database_channel": 744466393356959785,
+                "global_chat_log_save_channel": 751053982100619275,
+                "GM_update_channel": 754980772326408222,
+                "system-log-channel": 755016319660720188,
+                "web": "https://milkcoffee.cf/"
+            }
         db_dict: dict
         database_channel = self.get_channel(self.datas["database_channel"])
         database_msg = await database_channel.fetch_message(database_channel.last_message_id)
@@ -79,24 +99,6 @@ class Bot(commands.Bot):
         db_dict = json.loads(db_byte)
         self.global_chat_log = db_dict["log"]
         self.global_chat_day = db_dict["day"]
-        if self.user.id != 742952261176655882:
-            print("テスト環境モード")
-            self.GM_update = []
-            self.global_channels = []
-            self.datas = {
-                "server": "https://discord.gg/RbzSSrw",
-                "invite": "https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&redirect_uri=https%3A%2F%2Fmilkcoffee.cf&scope=bot",
-                "author": "mafu#7582",
-                "server_id": 565434676877983772,
-                "notice_channel": 750947806558289960,
-                "appeal_channel": 723170714907312129,
-                "log_channel": 754986353850187797,
-                "global_chat_log_channel": 754986353850187797,
-                "database_channel": 744466393356959785,
-                "global_chat_log_save_channel": 751053982100619275,
-                "GM_update_channel": 754980772326408222,
-                "web": "https://milkcoffee.cf/"
-            }
         if not self.save_database.is_running():
             self.save_database.start()
         if not self.save_global_chat_log.is_running():

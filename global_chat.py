@@ -468,7 +468,7 @@ class GlobalChat(commands.Cog):
                 self.global_chat_message_cache[message.id].append(msg_obj)
             del self.sending_message[message.id]
         except:
-            await message.channel.send(traceback2.format_exc())
+            await self.bot.get_channel(self.bot.datas["system-log-channel"]).send(traceback2.format_exc())
 
     async def process_new_user(self, message):
         embed = discord.Embed(title="グローバルチャットに関するお知らせ!", color=0xff0000)
