@@ -104,7 +104,7 @@ class Bot(commands.Bot):
             self.save_database.start()
         if not self.save_global_chat_log.is_running():
             self.save_global_chat_log.start()
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix[0]}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_message(self, message):
         if not self.is_ready():
@@ -118,7 +118,7 @@ class Bot(commands.Bot):
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_dm_message(message)
         elif message.content == f"<@!{self.user.id}>":
-            return await message.channel.send(f"このBOTのprefixは `{self.command_prefix}` です!\n`{self.command_prefix}help` で詳しい使い方を確認できます。")
+            return await message.channel.send(f"このBOTのprefixは `{self.command_prefix[0]}` です!\n`{self.command_prefix[0]}help` で詳しい使い方を確認できます。")
         elif message.channel.id in self.global_channels:
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_global_message(message)
@@ -129,13 +129,13 @@ class Bot(commands.Bot):
         embed = discord.Embed(title=f"{guild.name} に参加しました。", color=0x00ffff)
         embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix[0]}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_guild_remove(self, guild):
         embed = discord.Embed(title=f"{guild.name} を退出しました。", color=0xff1493)
         embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix[0]}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_command(self, ctx):
         await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")

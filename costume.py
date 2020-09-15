@@ -123,7 +123,7 @@ class Costume(commands.Cog):
     async def process_new_user(self, message):
         embed = discord.Embed(title="装飾シミュレータへようこそ!", color=0x00ffff)
         embed.description = f"""
-装飾シミュレータ操作用コマンドのリストは`{self.bot.command_prefix}help Costume`で確認できるよ!
+装飾シミュレータ操作用コマンドのリストは`{self.bot.command_prefix[0]}help Costume`で確認できるよ!
 使い方がよくわからなかったら、下記のリンクの動画も確認してみてね!
 [https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)
         """
