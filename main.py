@@ -12,7 +12,7 @@ TOKEN = os.getenv("TOKEN")
 
 logging.basicConfig(level=logging.INFO)
 
-PREFIX = "m!"
+PREFIX = "m?"
 
 
 class Bot(commands.Bot):
@@ -51,6 +51,7 @@ class Bot(commands.Bot):
             "links_check_channel": 752875973044863057,
             "GM_update_channel": 753897253743362068,
             "system-log-channel": 755016319660720188,
+            "command_log_channel": 755433660483633182,
             "web": "https://milkcoffee.cf/"
         }
 
@@ -73,6 +74,7 @@ class Bot(commands.Bot):
                 "global_chat_log_save_channel": 751053982100619275,
                 "GM_update_channel": 754980772326408222,
                 "system-log-channel": 755016319660720188,
+                "command_log_channel": 755433660483633182,
                 "web": "https://milkcoffee.cf/"
             }
         db_dict: dict
@@ -134,6 +136,9 @@ class Bot(commands.Bot):
         embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.command_prefix}help | {len(self.guilds)}servers | {self.datas['server']}"))
+
+    async def on_command(self, ctx):
+        await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
 
     @tasks.loop(seconds=30.0)
     async def save_database(self):
