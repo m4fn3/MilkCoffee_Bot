@@ -12,7 +12,7 @@ TOKEN = os.getenv("TOKEN")
 
 logging.basicConfig(level=logging.INFO)
 
-PREFIX = "m!"
+PREFIX = ["m!", "m！", "ｍ!", "ｍ！"]
 
 
 class Bot(commands.Bot):
