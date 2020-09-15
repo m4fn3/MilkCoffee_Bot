@@ -17,8 +17,8 @@ PREFIX = "m!"
 
 class Bot(commands.Bot):
 
-    def __init__(self, command_prefix, help_command):
-        super().__init__(command_prefix, help_command)
+    def __init__(self, command_prefix, help_command, status, activity):
+        super().__init__(command_prefix, help_command, status=status, activity=activity)
         self.bot_cogs = ["costume", "developer", "global_chat", "info", "notify"]
         for cog in self.bot_cogs:
             self.load_extension(cog)
@@ -55,7 +55,6 @@ class Bot(commands.Bot):
         }
 
     async def on_ready(self):
-        await self.change_presence(status=discord.Status.dnd, activity=discord.Game("起動中..."))
         print(f"Logged in to {self.user}")
         if self.user.id != 742952261176655882:
             print("テスト環境モード")
@@ -173,5 +172,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix=PREFIX, help_command=Help())
+    bot = Bot(command_prefix=PREFIX, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("BOT起動中..."))
     bot.run(TOKEN)
