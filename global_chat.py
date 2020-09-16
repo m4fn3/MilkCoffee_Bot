@@ -291,8 +291,8 @@ class GlobalChat(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("m!history <add|del|see>")
 
-    @history.command()
-    async def delete(self, ctx, user_id, warn_id):
+    @history.command(name="delete")
+    async def history_delete(self, ctx, user_id, warn_id):
         user: discord.User
         if ctx.message.mentions:
             user = ctx.message.mentions[0]
@@ -316,8 +316,8 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("このユーザーはBOTに登録していません。")
 
-    @history.command()
-    async def add(self, ctx, user_id, reason, point):
+    @history.command(name="add")
+    async def history_add(self, ctx, user_id, reason, point):
         user: discord.User
         if ctx.message.mentions:
             user = ctx.message.mentions[0]
@@ -333,15 +333,15 @@ class GlobalChat(commands.Cog):
                 return await ctx.send("ポイントは数字で指定してください")
             self.bot.database[str(user.id)]["global"]["history"][str(ctx.message.id)] = {reason: int(point)}
             self.bot.database[str(user.id)]["global"]["warning"] += int(point)
-            embed = discord.Embed(title=f"{ctx.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n合計違反点数: {point}\n現在の合計点数: {self.bot.database[str(user.id)]['global']['warning']}\n警告番号: {ctx.message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed = discord.Embed(title=f"{user.name} が警告を受けました。", color=0xffff00)
+            embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n合計違反点数: {point}\n現在の合計点数: {self.bot.database[str(user.id)]['global']['warning']}\n警告番号: {ctx.message.id}\n実行者: {str(ctx.author)} ({ctx.author.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             await self.check_point(ctx.message, reason, True)
         else:
             await ctx.send("このユーザーはBOTに登録していません。")
 
-    @history.command()
-    async def see(self, ctx, user_id):
+    @history.command(name="see")
+    async def history_see(self, ctx, user_id):
         user: discord.User
         if ctx.message.mentions:
             user = ctx.message.mentions[0]

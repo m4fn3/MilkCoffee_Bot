@@ -124,7 +124,13 @@ class Costume(commands.Cog):
         embed = discord.Embed(title="装飾シミュレータへようこそ!", color=0x00ffff)
         embed.description = f"""
 装飾シミュレータ操作用コマンドのリストは`{self.bot.command_prefix[0]}help Costume`で確認できるよ!
-使い方がよくわからなかったら、下記のリンクの動画も確認してみてね!
+m!add (base/character/weapon/head/body/back) 番号 
+m!list (base/character/weapon/head/body/back)
+例:
+`m!list character`
+`m!add character 1`
+実際に上の例にあるコマンドを使ってみてね！
+もっと知りたいって人はこの動画を見てね！
 [https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)
         """
         await message.channel.send(message.author.mention, embed=embed)
