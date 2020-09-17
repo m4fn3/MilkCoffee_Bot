@@ -1,6 +1,6 @@
 from discord.ext import commands
 from contextlib import redirect_stdout
-import asyncio, datetime, discord, io, os, subprocess, sys, textwrap, time, traceback2
+import asyncio, datetime, discord, io, os, subprocess, sys, textwrap, time, traceback2, re
 try:
     import psutil
 except:
@@ -373,6 +373,54 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         return [res.decode('utf-8') for res in result]
 
     @commands.command(hidden=True)
+    async def make_trans(self, ctx):
+        f = open("strings.txt", "w")
+        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
+        for cog in cogs:
+            target_cog = self.bot.get_cog(name=cog)
+            f.write(f"""
+{target_cog.qualified_name}
+{target_cog.description}
+""")
+            for cmd in self.bot.get_cog(name=cog).walk_commands():
+                if cmd.usage is None:
+                    continue
+                f.write("--" + cmd.name + "\n")
+                f.write(cmd.usage + "\n")
+                try:
+                    if cmd.breif is not None:
+                        f.write(cmd.breif + "\n")
+                except:
+                    pass
+                try:
+                    if cmd.description is not None:
+                        f.write(cmd.description + "\n")
+                except:
+                    pass
+                try:
+                    if cmd.help is not None:
+                        f.write(cmd.help + "\n")
+                except:
+                    pass
+        f.close()
+        await ctx.send("完了")
+
+    @commands.command(hidden=True)
+    async def make_string(self, ctx):
+        cogs = ["costume", "global_chat", "info", "notify"]
+        log_f = open("string-log.txt", "w")
+        text: str
+        for cog_name in cogs:
+            print(cog_name)
+            with open(f"{cog_name}.py") as f:
+                text = f.read()
+            mch = re.finditer(r"await ctx.send\((.+)\)", text)
+            for i in mch:
+                log_f.write(i.group(1) + "\n")
+        log_f.close()
+        await ctx.send("完了")
+
+    @commands.command(hidden=True)
     async def make_html(self, ctx):
         f = open("commands_html.txt", "w")
         cogs = ["GlobalChat", "Notify", "Costume", "Information"]
@@ -407,6 +455,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
           </div>
                 """)
         f.close()
+        await ctx.send("完了")
 
 
 def setup(bot):
