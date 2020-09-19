@@ -475,6 +475,7 @@ class GlobalChat(commands.Cog):
         welcome_text = f"""
 ❔グローバルチャットとは❔他のサーバーの人と特定のチャンネルを介してお話しできちゃうサービスだよ!
 __他のサーバーから届いたメッセージは、webhookという技術を使用しているため、**BOT**と表示されますが、中身は**[人間]**です!!__
+(同じサーバーの人のメッセージはBOTと表示されません)
 使う前に必ず[禁止事項](https://milkcoffee.cf/usage#rules_of_globalchat)を確認してね!
 何かわからないことがあれば、[公式サーバー]({self.bot.datas['server']})まで！
         """
