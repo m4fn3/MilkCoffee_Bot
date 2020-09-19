@@ -123,7 +123,7 @@ class Costume(commands.Cog):
     async def process_new_user(self, message):
         embed = discord.Embed(title="装飾シミュレータへようこそ!", color=0x00ffff)
         embed.description = f"""
-装飾シミュレータ操作用コマンドのリストは`{self.bot.command_prefix[0]}help Costume`で確認できるよ!
+装飾シミュレータ操作用コマンドのリストは`{self.bot.PREFIX}help Costume`で確認できるよ!
 m!add (base/character/weapon/head/body/back) 番号 
 m!list (base/character/weapon/head/body/back)
 例:
@@ -239,7 +239,7 @@ m!list (base/character/weapon/head/body/back)
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
 
-    @commands.command(usage="show (保存番号|保存名称)", brief="現在の装飾を表示できるよ!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!", help="`<prefix>show` ... 現在の装飾を表示`\n<prefix>show 1` ... 1番目に保存された装飾を表示\n`<prefix>show 無題1` ... 無題1という名前で保存された装飾を表示")
+    @commands.command(usage="show (保存番号|保存名称)", brief="現在の装飾を表示できるよ!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!", help="`<prefix>show` ... 現在の装飾を表示`\n<prefix>show 1` ... 1番目に保存された装飾を表示\n`<prefix>show Untitled1` ... Untitled1という名前で保存された装飾を表示")
     async def show(self, ctx) -> None:
         """
         保存番号または保存名称から保存された画像または、作業中の画像を表示
@@ -274,7 +274,7 @@ m!list (base/character/weapon/head/body/back)
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
 
-    @commands.command(usage="load [保存番号|保存名称]", brief="保存した作品を作業場に読み込むよ!", description="保存した作品を番号または名称で指定して、現在の作業場に読み込むよ!", help="`<prefix>load 1` ... 1番目に保存された作品を読み込む\n`<prefix>load 無題1` ... 無題1という名前で保存された作品を読み込む")
+    @commands.command(usage="load [保存番号|保存名称]", brief="保存した作品を作業場に読み込むよ!", description="保存した作品を番号または名称で指定して、現在の作業場に読み込むよ!", help="`<prefix>load 1` ... 1番目に保存された作品を読み込む\n`<prefix>load Untitled1` ... Untitled1という名前で保存された作品を読み込む")
     async def load(self, ctx, *, index: str) -> None:
         """
         保存された作品を作業場に読み込む
@@ -303,7 +303,7 @@ m!list (base/character/weapon/head/body/back)
         self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']}\"を読み込みました.")
 
-    @commands.command(usage="save (保存名称)", brief="現在の装飾を保存できるよ!" ,description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'無題1'みたいな名前を自動でつけとくね!", help="`<prefix>save` ... 作品を保存します(名前は自動で無題1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
+    @commands.command(usage="save (保存名称)", brief="現在の装飾を保存できるよ!" ,description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'Untitled1'みたいな名前を自動でつけとくね!", help="`<prefix>save` ... 作品を保存します(名前は自動でUntitled1のように付けられます)\n`<prefix>save 新作品` ... 新作品という名前で作品を保存します")
     async def save(self, ctx) -> None:
         """
         現在の装飾を保存
@@ -321,8 +321,8 @@ m!list (base/character/weapon/head/body/back)
         if len(listed) == 1:
             count = 1
             while True:
-                if f"無題{count}" not in used_name_list:
-                    name = f"無題{count}"
+                if f"Untitled{count}" not in used_name_list:
+                    name = f"Untitled{count}"
                     break
                 count += 1
         else:

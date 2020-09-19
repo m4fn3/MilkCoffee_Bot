@@ -450,7 +450,7 @@ class GlobalChat(commands.Cog):
                     continue
                 elif not target_channel.permissions_for(target_channel.guild.get_member(self.bot.user.id)).manage_webhooks:
                     self.bot.global_channels.remove(channel_id)
-                    await target_channel.send(f"グローバルチャットメッセージの転送しようとしたけど、`manage_webhooks(webhookの管理)`権限が不足していて、できなかったよ(´;ω;｀)(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.command_prefix[0]}global join` を実行して、グローバルチャンネルに参加してね!")
+                    await target_channel.send(f"グローバルチャットメッセージの転送しようとしたけど、`manage_webhooks(webhookの管理)`権限が不足していて、できなかったよ(´;ω;｀)(グローバルチャットへの接続を解除しました)\n権限設定を修正してから、再度 `{self.bot.PREFIX}global join` を実行して、グローバルチャンネルに参加してね!")
                     continue
                 channel_webhooks = await target_channel.webhooks()
                 webhook = discord.utils.get(channel_webhooks, name="global_chat_webhook_mafu")
