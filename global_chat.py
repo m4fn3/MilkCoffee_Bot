@@ -71,15 +71,12 @@ class GlobalChat(commands.Cog):
             self.bot.invites.remove(invite.code)
 
     async def cog_before_invoke(self, ctx):
+        if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
+            await ctx.send(f"現在BOTはメンテナンス中です。\n理由: {self.bot.maintenance}\n詳しい情報については公式サーバーにてご確認ください。")
+            raise commands.CommandError("maintenance-error")
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
-
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument):
-            await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
-        else:
-            await ctx.send(f"エラーが発生しました:\n{error}")
 
     async def on_dm_message(self, message):
         if message.content == "unlock":

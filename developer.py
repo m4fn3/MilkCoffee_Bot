@@ -41,6 +41,16 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         else:
             await ctx.send(f"エラーが発生しました:\n{error}")
 
+    @commands.command(aliases=["mtn", "mt"])
+    async def maintenance(self, ctx, *, reason):
+        self.bot.maintenance = reason
+        await ctx.send(f"メンテナンスを設定しました。\n理由: {reason}")
+
+    @commands.command(aliases=["unmtn", "unmt"])
+    async def unmaintenance(self, ctx):
+        self.bot.maintenance = ""
+        await ctx.send("メンテナンスを解除しました。")
+
     @commands.command()
     async def admin(self, ctx, user_id, *, reason):
         user: discord.User

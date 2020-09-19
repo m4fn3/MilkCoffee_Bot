@@ -13,7 +13,7 @@ TOKEN = os.getenv("TOKEN")
 logging.basicConfig(level=logging.INFO)
 
 PREFIX = "m!"
-PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
+PREFIXES = ["m?", "m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
 
 
 class Bot(commands.Bot):
@@ -35,7 +35,7 @@ class Bot(commands.Bot):
         self.global_channels = []
         self.global_chat_log = {}
         self.global_chat_day = {}
-        self.maintenance = True
+        self.maintenance = ""
         self.invites = []
         self.GM_update = []
         self.uptime = time.time()

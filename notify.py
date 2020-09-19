@@ -7,6 +7,11 @@ class Notify(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
+    async def cog_before_invoke(self, ctx):
+        if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
+            await ctx.send(f"現在BOTはメンテナンス中です。\n理由: {self.bot.maintenance}\n詳しい情報については公式サーバーにてご確認ください。")
+            raise commands.CommandError("maintenance-error")
+
     async def on_GM_update(self, message):
         for channel_id in self.bot.GM_update:
             try:
