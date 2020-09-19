@@ -1,0 +1,6 @@
+assets/
+datas/
+filter/
+.idea/
+*.pyc
+.env

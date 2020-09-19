@@ -120,7 +120,8 @@ class Bot(commands.Bot):
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_dm_message(message)
         elif message.content == f"<@!{self.user.id}>":
-            return await message.channel.send(f"このBOTのprefixは `{self.PREFIX}` です!\n`{self.PREFIX}help` で詳しい使い方を確認できます。")
+            # TODO: 翻訳
+            return await message.channel.send(["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。"][0].format(self.PREFIX, self.PREFIX))
         elif message.channel.id in self.global_channels:
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_global_message(message)
@@ -179,5 +180,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("BOT起動中..."))
+    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."))
     bot.run(TOKEN)
