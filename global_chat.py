@@ -584,7 +584,7 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             self.bot.database[str(message.author.id)]["global"]["warning"] += warning_point
             self.bot.database[str(message.author.id)]["global"]["last_warning"] = now
             embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n対象メッセージ:\n {message.content}\n ({message.id})\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             code = await self.check_point(message, warning_text)
             if code:
