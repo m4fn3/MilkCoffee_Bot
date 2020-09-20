@@ -71,15 +71,12 @@ class GlobalChat(commands.Cog):
             self.bot.invites.remove(invite.code)
 
     async def cog_before_invoke(self, ctx):
+        if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
+            await ctx.send(f"現在BOTはメンテナンス中です。\n理由: {self.bot.maintenance}\n詳しい情報については公式サーバーにてご確認ください。")
+            raise commands.CommandError("maintenance-error")
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(f"あなたのアカウントはBANされています。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
-
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument):
-            await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
-        else:
-            await ctx.send(f"エラーが発生しました:\n{error}")
 
     async def on_dm_message(self, message):
         if message.content == "unlock":
@@ -475,6 +472,7 @@ class GlobalChat(commands.Cog):
         welcome_text = f"""
 ❔グローバルチャットとは❔他のサーバーの人と特定のチャンネルを介してお話しできちゃうサービスだよ!
 __他のサーバーから届いたメッセージは、webhookという技術を使用しているため、**BOT**と表示されますが、中身は**[人間]**です!!__
+(同じサーバーの人のメッセージはBOTと表示されません)
 使う前に必ず[禁止事項](https://milkcoffee.cf/usage#rules_of_globalchat)を確認してね!
 何かわからないことがあれば、[公式サーバー]({self.bot.datas['server']})まで！
         """
@@ -586,7 +584,7 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             self.bot.database[str(message.author.id)]["global"]["warning"] += warning_point
             self.bot.database[str(message.author.id)]["global"]["last_warning"] = now
             embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n対象メッセージ:\n {message.content}\n ({message.id})\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             code = await self.check_point(message, warning_text)
             if code:

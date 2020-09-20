@@ -35,7 +35,7 @@ class Bot(commands.Bot):
         self.global_channels = []
         self.global_chat_log = {}
         self.global_chat_day = {}
-        self.maintenance = True
+        self.maintenance = ""
         self.invites = []
         self.GM_update = []
         self.uptime = time.time()
