@@ -12,6 +12,7 @@ class GlobalChat(commands.Cog):
         self.sending_message = {}
         self.filter_obj = Filter(self.bot)
         self.global_chat_message_cache = {}
+        self.command_list = []
 
     async def delete_global_message(self, message_id: int):
         if str(message_id) in self.bot.global_chat_log:
@@ -51,7 +52,11 @@ class GlobalChat(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        await self.initialize_cog()
+
+    async def initialize_cog(self):
         self.global_chat_log_channel = self.bot.get_channel(self.bot.datas["global_chat_log_channel"])
+        self.command_list = [self.bot.PREFIX + str(cmd) for cmd in self.bot.walk_commands()]
         if not self.process_chat_log.is_running():
             self.process_chat_log.start()
 
@@ -568,6 +573,10 @@ __他のサーバーから届いたメッセージは、webhookという技術�
                 self.bot.database[str(message.author.id)]["global"]["same_post"] = 0
             self.bot.database[str(message.author.id)]["global"]["last_time"] = now
             self.bot.database[str(message.author.id)]["global"]["last_word"] = message.content
+            if message.content in self.command_list:
+                await message.channel.send(f"{message.author.mention}さん!\nグローバルチャットに接続しているチャンネルでは**__コマンドを使えないよ__**!\n代わりに他のチャンネルを使用してね!")
+                if not punishment:
+                    return 1
             if res == 1 and not punishment:
                 return 0
             if reason == 0:  # 不適切なリンク
@@ -584,7 +593,7 @@ __他のサーバーから届いたメッセージは、webhookという技術�
             self.bot.database[str(message.author.id)]["global"]["warning"] += warning_point
             self.bot.database[str(message.author.id)]["global"]["last_warning"] = now
             embed = discord.Embed(title=f"{message.author.name} が警告を受けました。", color=0xffff00)
-            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n対象メッセージ:\n {message.content}\n ({message.id})\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
+            embed.description = f"ユーザー情報: {str(message.author)} ({message.author.id})\n理由: {warning_text}\n対象メッセージ:\n {message.content}\n合計違反点数: {warning_point}\n現在の合計点数: {self.bot.database[str(message.author.id)]['global']['warning']}\n警告番号: {message.id}\n実行者: {str(self.bot.user)} ({self.bot.user.id})"
             await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
             code = await self.check_point(message, warning_text)
             if code:

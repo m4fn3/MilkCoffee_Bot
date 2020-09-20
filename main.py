@@ -35,7 +35,7 @@ class Bot(commands.Bot):
         self.global_channels = []
         self.global_chat_log = {}
         self.global_chat_day = {}
-        self.maintenance = ""
+        self.maintenance = "Starting..."
         self.invites = []
         self.GM_update = []
         self.uptime = time.time()
@@ -61,6 +61,7 @@ class Bot(commands.Bot):
         print(f"Logged in to {self.user}")
         if self.user.id != 742952261176655882:
             print("テスト環境モード")
+            self.command_prefix.append("m?")
             self.GM_update = []
             self.global_channels = []
             self.datas = {
@@ -107,6 +108,9 @@ class Bot(commands.Bot):
         if not self.save_global_chat_log.is_running():
             self.save_global_chat_log.start()
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
+        if self.user.id != 742952261176655882:
+            self.GM_update = []
+            self.global_channels = []
 
     async def on_message(self, message):
         if not self.is_ready():
@@ -179,5 +183,5 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("BOT起動中..."))
+    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."))
     bot.run(TOKEN)
