@@ -56,7 +56,7 @@ class Notify(commands.Cog):
         else:
             await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。\n代わりに公式サーバーの<#{self.bot.datas['notice_channel']}>を手動でフォローすることもできます。")
 
-    @commands.command(usage="notice (twitter/facebook/youtube) (チャンネル)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!")
+    @commands.command(usage="notice (チャンネル)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!")
     async def notice(self, ctx):
         cmd = ctx.message.content.split()
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
