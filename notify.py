@@ -70,10 +70,10 @@ class Notify(commands.Cog):
         if len(cmd) == 1 or (len(cmd) == 2 and cmd[1] not in ["twitter", "facebook", "youtube"]):
             embed = discord.Embed(title=["MilkChoco運営の更新情報通知の設定!", "Setting up update information notifications of MilkChoco!", "MilkChoco 운영의 업데이트 알림 설정!", "¡Configuración de notificaciones de información de actualización de MilkChoco!"][user_lang])
             embed.description = f"""
-下のリアクションを押すと通知チャンネルに設定していなかった場合は設定、すでに設定していた場合は解除するよ!
-{self.emoji["notify"]["twitter"]} ... Twitterでの投稿
-{self.emoji["notify"]["facebook"]} ... FaceBookでの投稿
-{self.emoji["notify"]["youtube"]} ... YouTubeでの投稿
+{['下のリアクションを押すと通知チャンネルに設定していなかった場合は設定、すでに設定していた場合は解除するよ!', 'If you press the reaction below, it will be set if it is not set to the notification channel, and it will be canceled if it has already been set!', '아래 반응을 누르면 알림 채널이 설정되어 있지 않으면 설정되고, 이미 설정되어 있으면 취소됩니다!', 'Si presiona la reacción a continuación, se configurará si no está configurado en el canal de notificación, y se cancelará si ya se configuró.'][user_lang]}
+{self.emoji["notify"]["twitter"]} ... Twitter
+{self.emoji["notify"]["facebook"]} ... FaceBook
+{self.emoji["notify"]["youtube"]} ... YouTube
 """
             msg = await ctx.send(embed=embed)
             await msg.add_reaction(self.emoji["notify"]["twitter"])
