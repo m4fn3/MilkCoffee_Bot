@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-def get_lg(lang, region):
+def get_lg(lang: int, region):
     if lang == LanguageCode.REGION:
         if str(region) == "japan":
             return LanguageCode.JAPANESE.value - 1
@@ -10,7 +10,7 @@ def get_lg(lang, region):
         else:
             return LanguageCode.ENGLISH.value - 1
     else:
-        return lang.value - 1
+        return lang - 1
 
 
 class LanguageCode(IntEnum):
