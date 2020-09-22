@@ -21,7 +21,7 @@ class Notify(commands.Cog):
             except:
                 self.bot.GM_update.remove(channel_id)
 
-    @commands.command(usage="follow (チャンネル)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
+    @commands.command(usage="follow (チャンネル)^follow (channel)^follow (채널)^follow (canal)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!^Receive BOT updates to the channel on your server! If you do not specify a channel, we will setup to the channel that command executed^봇의 소식을 당신의 서버에 제공합니다! 채널을 지정하지 않으면 명령을 실행한 채널에 공지합니다!^¡Un BOT enviará una notificación al canal en su servidor! Si no especifica un canal, ¡notificaremos al canal donde se ejecutó el comando!")
     async def follow(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
@@ -34,7 +34,7 @@ class Notify(commands.Cog):
         else:
             await ctx.send(f"`manage_webhooks(webhookの管理)`権限が不足しています。\n代わりに公式サーバーの<#{self.bot.datas['notice_channel']}>を手動でフォローすることもできます。")
 
-    @commands.command(usage="notice (チャンネル)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!")
+    @commands.command(usage="notice (チャンネル)^notice (channel)^notice (채널)^notice (canal)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!^Receive MilkChoco updates on your server's channel!^밀크초코 운영의 업데이트 정보를 당신의 서버의 채널에 제공합니다!^¡Lo mantendremos informado sobre las operaciones de MilkChoco en su canal de servidor!")
     async def notice(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
