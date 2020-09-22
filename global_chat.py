@@ -14,6 +14,12 @@ class GlobalChat(commands.Cog):
         self.global_chat_message_cache = {}
         self.command_list = []
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"引数が不足しているよ!.\n使い方: `{self.bot.PREFIX}{ctx.command.usage}`\n詳しくは `{self.bot.PREFIX}help {ctx.command.qualified_name}`")
+        else:
+            await ctx.send(f"エラーが発生しました。管理者にお尋ねください。\n{error}")
+
     async def delete_global_message(self, message_id: int):
         if str(message_id) in self.bot.global_chat_log:
             if message_id in self.sending_message:

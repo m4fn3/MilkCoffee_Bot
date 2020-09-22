@@ -12,6 +12,12 @@ class Information(commands.Cog):
             await ctx.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
             raise commands.CommandError("Your Account Banned")
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"引数が不足しているよ!.\n使い方: `{self.bot.PREFIX}{ctx.command.usage}`\n詳しくは `{self.bot.PREFIX}help {ctx.command.qualified_name}`")
+        else:
+            await ctx.send(f"エラーが発生しました。管理者にお尋ねください。\n{error}")
+
     @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。")
     async def invite(self, ctx):
         text = f"__**BOTの招待用URL**__:\n{self.bot.datas['invite']}\n" \

@@ -37,6 +37,12 @@ class Notify(commands.Cog):
                 except:
                     self.bot.GM_update["youtube"].remove(channel_id)
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"引数が不足しているよ!.\n使い方: `{self.bot.PREFIX}{ctx.command.usage}`\n詳しくは `{self.bot.PREFIX}help {ctx.command.qualified_name}`")
+        else:
+            await ctx.send(f"エラーが発生しました。管理者にお尋ねください。\n{error}")
+
     @commands.command(usage="follow (チャンネル)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!")
     async def follow(self, ctx):
         channel_id: int
