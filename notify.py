@@ -1,6 +1,7 @@
 from discord.ext import commands
 import asyncio, discord, json
 
+
 class Notify(commands.Cog):
     """お知らせの設定するよ!"""
 
