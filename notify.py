@@ -64,7 +64,7 @@ class Notify(commands.Cog):
         else:
             target_channel = ctx.channel
         if len(cmd) == 1 or (len(cmd) == 2 and cmd[1] not in ["twitter", "facebook", "youtube"]):
-            embed = discord.Embed(title="運営の更新情報通知の設定!")
+            embed = discord.Embed(title="MilkChoco運営の更新情報通知の設定!")
             embed.description = f"""
 下のリアクションを押すと通知チャンネルに設定していなかった場合は設定、すでに設定していた場合は解除するよ!
 {self.emoji["notify"]["twitter"]} ... Twitterでの投稿
