@@ -3,6 +3,7 @@ from PIL import Image
 from typing import Any
 import asyncio, discord, io, json, re, difflib, traceback2
 from item_parser import *
+from multilingual import *
 
 
 class Costume(commands.Cog):

@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord, datetime, time
+from multilingual import *
 
 
 class Information(commands.Cog):

@@ -2,6 +2,7 @@ from discord.ext import commands, tasks
 import discord, logging, os, json, io, time
 from os.path import join, dirname
 from dotenv import load_dotenv
+from multilingual import *
 
 from help import Help
 

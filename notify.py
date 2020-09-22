@@ -1,5 +1,6 @@
 from discord.ext import commands
 import asyncio
+from multilingual import *
 
 class Notify(commands.Cog):
     """お知らせの設定するよ!"""

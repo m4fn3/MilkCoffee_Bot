@@ -6,18 +6,6 @@ class Language(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
-    def get_language(self, user_id: int, region):
-        lang = self.bot.database[str(user_id)]["language"]
-        if lang == LanguageCode.REGION:
-            if str(region) == "japan":
-                return LanguageCode.JAPANESE.value - 1
-            elif str(region) == "south-korea":
-                return LanguageCode.KOREAN.value - 1
-            else:
-                return LanguageCode.ENGLISH.value - 1
-        else:
-            return lang.value - 1
-
     @commands.command(aliases=["lang"])
     async def language(self, ctx):
         text = ctx.message.content.split()

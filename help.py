@@ -1,6 +1,6 @@
 import asyncio, discord
 from discord.ext import commands
-
+from multilingual import *
 
 class Help(commands.HelpCommand):
     def __init__(self):
@@ -8,7 +8,7 @@ class Help(commands.HelpCommand):
         self.no_category = "Help"
         self.command_attrs["description"] = "コマンド一覧を表示します"
         self.command_attrs["help"] = "BOTのヘルプコマンドです"
-        self.footer_message = f"<prefix>help (コマンド名) でさらに詳しいコマンドの説明が見れるよ!"
+        self.footer_message = ["<prefix>help (コマンド名) でさらに詳しいコマンドの説明が見れるよ!", "See <prefix> help (command name) for more detailed command instructions!", "<prefix>help (명령 이름)에서 자세한 명령의 설명을 볼 수 있어요!", "Consulte la ayuda sobre algún comando utilizando <prefix>help (nombre de comando) para obtener instrucciones más detalladas acerca del comando."]
 
     async def send_bot_help(self, mapping) -> None:
         """
@@ -25,7 +25,7 @@ class Help(commands.HelpCommand):
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-        embed.description = cog.description + f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})まで！"
+        embed.description = cog.description + [f"\n分からないことがあれば、[サポート用サーバー]({self.context.bot.datas['server']})まで！", f"If you have any questions, go to [Support Server]({self.context.bot.datas['server']})!", f"모르는 것이 있으면, [지원용 서버]({self.context.bot.datas['server']})까지!", f"Si tiene alguna pregunta, comuníquese con [Support Server]({self.context.bot.datas['server']})."][get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)]
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
         embed.set_footer(text=self.footer_message.replace("<prefix>", self.context.bot.PREFIX))
