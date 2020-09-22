@@ -26,9 +26,9 @@ class Help(commands.HelpCommand):
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-        embed.description = cog.description + self.description_message[user_lang].format(self.context.bot.datas["server"])
+        embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.datas["server"])
         for cmd in await self.filter_commands(cmds, sort=True):
-            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{cmd.description.split('^')[user_lang]}```", inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
         message = await self.get_destination().send(embed=embed)
         await message.add_reaction("◀️")
@@ -65,10 +65,10 @@ class Help(commands.HelpCommand):
                 cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
                 cmds = cog.get_commands()
                 embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-                embed.description = cog.description + self.description_message[user_lang].format(self.context.bot.datas["server"])
+                embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.datas["server"])
                 for cmd in await self.filter_commands(cmds, sort=True):
-                    descriptinon = cmd.brief if cmd.brief is not None else cmd.description
-                    embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage}", value=f"```{descriptinon}```", inline=False)
+                    descriptinon = cmd.brief.split('^')[user_lang] if cmd.brief is not None else cmd.description.split('^')[user_lang]
+                    embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{descriptinon}```", inline=False)
                 embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
                 await message.edit(embed=embed)
             except asyncio.TimeoutError:
@@ -89,9 +89,9 @@ class Help(commands.HelpCommand):
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-        embed.description = cog.description
+        embed.description = cog.description.split("^")[user_lang]
         for cmd in await self.filter_commands(cmds, sort=True):
-            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage}", value=f"```{cmd.description}```", inline=False)
+            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{cmd.description.split('^')[user_lang]}```", inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
         await self.get_destination().send(embed=embed)
 
@@ -114,7 +114,7 @@ class Help(commands.HelpCommand):
         cmds = group.walk_commands()
         embed.add_field(name=["サブコマンド :", "Subcommand :", "명령어 :", "Subcomando:"][user_lang], value=f"{sum(1 for _ in await self.filter_commands(group.walk_commands()))}個")
         for cmd in await self.filter_commands(cmds, sort=True):
-            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage}", value=f"{cmd.description}", inline=False)
+            embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"{cmd.description.split('^')[user_lang]}", inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
         await self.get_destination().send(embed=embed)
 
@@ -128,8 +128,8 @@ class Help(commands.HelpCommand):
             None
         """
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
-        embed = discord.Embed(title=f"{self.context.bot.PREFIX}{command.usage}", color=0x00ff00)
-        embed.description = f"```{command.description}```"
+        embed = discord.Embed(title=f"{self.context.bot.PREFIX}{command.usage.split('^')[user_lang]}", color=0x00ff00)
+        embed.description = f"```{command.description.split('^')[user_lang]}```"
         if command.aliases:
             embed.add_field(name=["略記(エイリアス) :", "Abbreviation (alias) :", "단축 (별칭) :", "Abreviatura (alias):"][user_lang], value="`" + "`, `".join(command.aliases) + "`", inline=False)
         if command.help:
