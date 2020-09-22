@@ -236,6 +236,8 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
                 await ctx.send(f"{text}の再読み込みに失敗しました\n{traceback2.format_exc()}.")
             else:
                 await ctx.send(f"{text}の再読み込みに成功しました.")
+            if text == "global_chat":
+                await self.bot.get_cog("GlobalChat").initialize_cog()
         else:
             await ctx.send("存在しない名前です.")
 

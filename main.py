@@ -36,9 +36,13 @@ class Bot(commands.Bot):
         self.global_channels = []
         self.global_chat_log = {}
         self.global_chat_day = {}
-        self.maintenance = ""
+        self.maintenance = "Starting..."
         self.invites = []
-        self.GM_update = []
+        self.GM_update = {
+            "twitter": [],
+            "youtube": [],
+            "facebook": []
+        }
         self.uptime = time.time()
         self.datas = {
             "server": "https://discord.gg/RbzSSrw",
@@ -52,7 +56,7 @@ class Bot(commands.Bot):
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
-            "GM_update_channel": 753897253743362068,
+            "GM_update_channel": [753897253743362068, 757583425736540190, 757592252238528512],
             "system-log-channel": 755016319660720188,
             "command_log_channel": 755433660483633182,
             "web": "https://milkcoffee.cf/"
@@ -62,8 +66,7 @@ class Bot(commands.Bot):
         print(f"Logged in to {self.user}")
         if self.user.id != 742952261176655882:
             print("テスト環境モード")
-            self.GM_update = []
-            self.global_channels = []
+            self.command_prefix.append("m?")
             self.datas = {
                 "server": "https://discord.gg/RbzSSrw",
                 "invite": "https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&redirect_uri=https%3A%2F%2Fmilkcoffee.cf&scope=bot",
@@ -75,7 +78,7 @@ class Bot(commands.Bot):
                 "global_chat_log_channel": 754986353850187797,
                 "database_channel": 744466393356959785,
                 "global_chat_log_save_channel": 751053982100619275,
-                "GM_update_channel": 754980772326408222,
+                "GM_update_channel": [754980772326408222, 757602418115608588, 757602427103870987],
                 "system-log-channel": 755016319660720188,
                 "command_log_channel": 755433660483633182,
                 "web": "https://milkcoffee.cf/"
@@ -92,7 +95,9 @@ class Bot(commands.Bot):
         self.MUTE = db_dict["global"]["MUTE"]
         self.LOCK = db_dict["global"]["LOCK"]
         self.global_channels = db_dict["global"]["channels"]
-        self.GM_update = db_dict["notify"]["GM_update"]
+        self.GM_update["twitter"] = db_dict["notify"]["twitter"]
+        self.GM_update["youtube"] = db_dict["notify"]["youtube"]
+        self.GM_update["facebook"] = db_dict["notify"]["facebook"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
         self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
@@ -108,11 +113,18 @@ class Bot(commands.Bot):
         if not self.save_global_chat_log.is_running():
             self.save_global_chat_log.start()
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
+        if self.user.id != 742952261176655882:
+            self.GM_update = {
+                "twitter": [],
+                "youtube": [],
+                "facebook": []
+            }
+            self.global_channels = []
 
     async def on_message(self, message):
         if not self.is_ready():
             return
-        elif message.channel.id == self.datas["GM_update_channel"]:
+        elif message.channel.id in self.datas["GM_update_channel"]:
             notify_cog = self.get_cog("Notify")
             await notify_cog.on_GM_update(message)
         elif message.author.bot:
@@ -159,7 +171,9 @@ class Bot(commands.Bot):
                 "LOCK": self.LOCK
             },
             "notify": {
-                "GM_update": self.GM_update
+                "twitter": self.GM_update["twitter"],
+                "youtube": self.GM_update["youtube"],
+                "facebook": self.GM_update["facebook"]
             },
             "system": {
                 "maintenance": self.maintenance
