@@ -40,11 +40,7 @@ class Information(commands.Cog):
 
     @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測するよ!。")
     async def ping(self, ctx):
-        before = time.monotonic()
-        message = await ctx.send("Pong")
-        ping = (time.monotonic() - before) * 1000
-        await message.delete()
-        await ctx.send(f"反応速度: `{int(ping)}`[ms]")
+        await ctx.send(f"反応速度: `{int(self.bot.latency*1000)}`[ms]")
 
     @commands.command(usage="tos", description="BOTの利用規約を表示するよ!")
     async def tos(self, ctx):
