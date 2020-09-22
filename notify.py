@@ -1,12 +1,15 @@
 from discord.ext import commands
-import asyncio
+import asyncio, discord, json
 from multilingual import *
+
 
 class Notify(commands.Cog):
     """お知らせの設定するよ!"""
 
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
+        with open('./assets/emoji_data.json', 'r', encoding="utf-8") as f:
+            self.emoji = json.load(f)
 
     async def cog_before_invoke(self, ctx):
         if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
@@ -14,12 +17,33 @@ class Notify(commands.Cog):
             raise commands.CommandError("maintenance-error")
 
     async def on_GM_update(self, message):
-        for channel_id in self.bot.GM_update:
-            try:
-                self.bot.get_channel(channel_id)
-                await self.bot.get_channel(channel_id).send(message.content)
-            except:
-                self.bot.GM_update.remove(channel_id)
+        if message.channel.id == self.bot.datas["GM_update_channel"][0]:  # Twitter
+            for channel_id in self.bot.GM_update["twitter"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["twitter"].remove(channel_id)
+        elif message.channel.id == self.bot.datas["GM_update_channel"][1]:  # FaceBook
+            for channel_id in self.bot.GM_update["facebook"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["facebook"].remove(channel_id)
+        elif message.channel.id == self.bot.datas["GM_update_channel"][2]:  # YouTube
+            for channel_id in self.bot.GM_update["youtube"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["youtube"].remove(channel_id)
+
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"引数が不足しているよ!.\n使い方: `{self.bot.PREFIX}{ctx.command.usage}`\n詳しくは `{self.bot.PREFIX}help {ctx.command.qualified_name}`")
+        else:
+            await ctx.send(f"エラーが発生しました。管理者にお尋ねください。\n{error}")
 
     @commands.command(usage="follow (チャンネル)^follow (channel)^follow (채널)^follow (canal)", description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!^Receive BOT updates to the channel on your server! If you do not specify a channel, we will setup to the channel that command executed^봇의 소식을 당신의 서버에 제공합니다! 채널을 지정하지 않으면 명령을 실행한 채널에 공지합니다!^¡Un BOT enviará una notificación al canal en su servidor! Si no especifica un canal, ¡notificaremos al canal donde se ejecutó el comando!")
     async def follow(self, ctx):
@@ -36,29 +60,49 @@ class Notify(commands.Cog):
 
     @commands.command(usage="notice (チャンネル)^notice (channel)^notice (채널)^notice (canal)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!^Receive MilkChoco updates on your server's channel!^밀크초코 운영의 업데이트 정보를 당신의 서버의 채널에 제공합니다!^¡Lo mantendremos informado sobre las operaciones de MilkChoco en su canal de servidor!")
     async def notice(self, ctx):
-        channel_id: int
+        cmd = ctx.message.content.split()
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
             target_channel = ctx.message.channel_mentions[0]
         else:
             target_channel = ctx.channel
-        if target_channel.id not in self.bot.GM_update:
-            self.bot.GM_update.append(target_channel.id)
-            await ctx.send(f"{target_channel.mention} を更新通知用チャンネルに設定したよ!")
-        else:
-            await ctx.send(f"{target_channel.mention} は既に更新通知用チャンネルに設定されているよ!")
+        if len(cmd) == 1 or (len(cmd) == 2 and cmd[1] not in ["twitter", "facebook", "youtube"]):
+            embed = discord.Embed(title="MilkChoco運営の更新情報通知の設定!")
+            embed.description = f"""
+下のリアクションを押すと通知チャンネルに設定していなかった場合は設定、すでに設定していた場合は解除するよ!
+{self.emoji["notify"]["twitter"]} ... Twitterでの投稿
+{self.emoji["notify"]["facebook"]} ... FaceBookでの投稿
+{self.emoji["notify"]["youtube"]} ... YouTubeでの投稿
+"""
+            msg = await ctx.send(embed=embed)
+            await msg.add_reaction(self.emoji["notify"]["twitter"])
+            await msg.add_reaction(self.emoji["notify"]["facebook"])
+            await msg.add_reaction(self.emoji["notify"]["youtube"])
 
-    @commands.command(usage="unnotice (チャンネル)", description="MilkChoco運営の更新情報の受け取りを停止するよ!")
-    async def unnotice(self, ctx):
-        channel_id: int
-        if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
-            target_channel = ctx.message.channel_mentions[0]
+            def check(r, u):
+                return r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.emoji["notify"]["twitter"], self.emoji["notify"]["facebook"], self.emoji["notify"]["youtube"]]
+
+            while True:
+                try:
+                    reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=check)
+                    if str(reaction.emoji) == self.emoji["notify"]["twitter"]:
+                        await self.setup_message(ctx.channel, target_channel, "twitter")
+                    elif str(reaction.emoji) == self.emoji["notify"]["facebook"]:
+                        await self.setup_message(ctx.channel, target_channel, "facebook")
+                    elif str(reaction.emoji) == self.emoji["notify"]["youtube"]:
+                        await self.setup_message(ctx.channel, target_channel, "youtube")
+                except asyncio.TimeoutError:
+                    await msg.remove_reaction(self.emoji["notify"]["twitter"], self.bot.user)
+                    await msg.remove_reaction(self.emoji["notify"]["facebook"], self.bot.user)
+                    await msg.remove_reaction(self.emoji["notify"]["youtube"], self.bot.user)
+                    break
+
+    async def setup_message(self, channel, target_channel, update_type):
+        if target_channel.id not in self.bot.GM_update[update_type]:
+            self.bot.GM_update[update_type].append(target_channel.id)
+            await channel.send(f"{target_channel.mention} を{update_type}更新通知用チャンネルに設定したよ!")
         else:
-            target_channel = ctx.channel
-        if target_channel.id in self.bot.GM_update:
-            self.bot.GM_update.remove(target_channel.id)
-            await ctx.send(f"{target_channel.mention} の更新通知設定を解除したよ!")
-        else:
-            await ctx.send(f"{target_channel.mention} は更新通知用チャンネルに設定されていないよ!")
+            self.bot.GM_update[update_type].remove(target_channel.id)
+            await channel.send(f"{target_channel.mention} の{update_type}更新通知設定を解除したよ!")
 
     @commands.command(usage="ads", description="次広告が見れるまでの10分間のタイマーを設定するよ!広告見ようとはおもってるけど、忘れちゃう人向け。")
     async def ads(self, ctx):
