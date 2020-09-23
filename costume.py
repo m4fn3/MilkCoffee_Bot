@@ -38,7 +38,7 @@ class Costume(commands.Cog):
             if self.item_info[item_type]["min"] <= int(item_name) <= self.item_info[item_type]["max"]:
                 return 1, [item_type, item_name]
             else:
-                return 0, "wrong_item_index"
+                return 0, ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong item number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
         elif index:
             type_list = [item_type]
         else:
@@ -54,7 +54,7 @@ class Costume(commands.Cog):
                         match_per = diff_per
                         item_info = [i, j]
         if match_per == -1:
-            return 0, "no_match"
+            return 0, ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
         else:
             return 1, item_info
 
@@ -453,9 +453,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text)
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
@@ -473,9 +474,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
 
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text, index=True, item_type="base")
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
@@ -493,9 +495,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text, index=True, item_type="character")
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
@@ -513,9 +516,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text, index=True, item_type="weapon")
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
@@ -533,9 +537,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text, index=True, item_type="head")
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
@@ -553,9 +558,10 @@ m!list (base/character/weapon/head/body/back)
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         code, result = self.find_item(text, index=True, item_type="body")
         if code == 0:
-            return await ctx.send(self.bot.error_text[result])
+            return await ctx.send(result[user_lang])
         await ctx.send(f"このアイテムが見つかったよ!: {self.name[result[0]][result[1]]} {self.emoji[result[0]][result[1]]}")
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])

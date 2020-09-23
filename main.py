@@ -25,8 +25,6 @@ class Bot(commands.Bot):
         self.PREFIX = PREFIX
         for cog in self.bot_cogs:
             self.load_extension(cog)
-        with open('error_text.json', 'r', encoding='utf-8') as f:
-            self.error_text = json.load(f)
         self.database = {}
         self.ADMIN = {}
         self.BAN = {}
