@@ -351,7 +351,7 @@ m!list (base/character/weapon/head/body/back)
         )
         await ctx.send(f"保存したよ!. 名称: '{name}'")
 
-    @commands.command(aliases=["mylist"], usage="my (ページ)", brief="保存した作品の一覧を表示するよ!", description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!", help="`{}my` ... 保存した作品集の1ページ目を表示します\n`{}my 2` ... 保存した作品集の2ページ目を表示します")
+    @commands.command(aliases=["mylist"], usage="my (ページ)^my (page)^my (페이지)^my (página)", brief="保存した作品の一覧を表示するよ!^Display a list of saved works!^저장된 작업 목록을 표시 할 수 있어!^¡Puedes mostrar una lista de trabajos guardados!", description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!^Display a list of saved works! If you do not specify a page, it will be displayed from the first page! But don't worry because you can also move pages by pressing reaction!^저장된 작업 목록을 표시 할 수 있어! 페이지를 지정하지 않으면, 1 페이지에서 볼 수 있어!하지만 반응을 눌러 페이지 이동도 할 수 있으니까 걱정하지 마!^¡Puedes mostrar una lista de trabajos guardados! Si no especificas una página, se mostrará desde la primera página ¡Pero no te preocupes porque también puedes mover páginas presionando reacción!", help="`{}my` ... 保存した作品集の1ページ目を表示します\n`{}my 2` ... 保存した作品集の2ページ目を表示します^`<prefix>my` ... Displays the first page of the saved work collection\n`<prefix>my 2` ... Displays the second page of the saved work collection^`<prefix>my` ... 저장된 작품집의 첫 페이지를 표시합니다\n`<prefix>my 2` ... 저장된 작품집의 두 번째 페이지를 표시합니다^`<prefijo>my` ... Muestra la primera página de la colección de trabajo guardada\n`<prefijo>my 2` ... Muestra la segunda página de la colección de trabajo guardada")
     async def my(self, ctx) -> None:
         """
         保存した作品を表示
@@ -400,7 +400,7 @@ m!list (base/character/weapon/head/body/back)
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
-    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]", brief="保存した作品を削除するよ!", description="保存した作品を番号または名称で指定して削除するよ!一度削除したらその作品は戻せないから気を付けてね!", help="`{}delete 1` ... 1番目に保存された作品を削除します\n`{}delete 旧作品`... 旧作品という名前の作品を削除します")
+    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]^delete [save number | save name]^delete 저장 번호 | 저장 명칭]^delete [guardar número | guardar nombre]", brief="保存した作品を削除するよ!^Delete the saved work by number or name!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야!Elimina el trabajo guardado especificando el número o el nombre^", description="保存した作品を番号または名称で指定して削除するよ!一度削除したらその作品は戻せないから気を付けてね!^Delete the saved work by number or name! Be careful because once you delete it, you cannot restore it!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야! 한 번 삭제하면 그 작품은 되돌릴 수 없기 때문에 조심해줘!^Elimina el trabajo guardado especificando el número o el nombre ¡Ten cuidado porque una vez eliminado, el trabajo no se puede restaurar!", help="`{}delete 1` ... 1番目に保存された作品を削除します\n`{}delete 旧作品`... 旧作品という名前の作品を削除します^`<prefix>delete 1` ... Delete the first saved work\n`<prefix>delete Old work` ... Deletes the work named Old work^`<prefix>delete 1` ... 1 번째에 저장된 작업을 삭제합니다\n`<prefix>delete 이전 작품`... 이전 작품이라는 작품을 삭제합니다^`<prefijo>delete 1` ... Elimina el primer trabajo guardado\n`<prefijo>delete Old work` ... Elimina el trabajo llamado Old work")
     async def delete(self, ctx, *, index) -> None:
         """
         保存した画像を削除
@@ -429,7 +429,7 @@ m!list (base/character/weapon/head/body/back)
             else:
                 await ctx.send("そのような名前の作品はないよ!")
 
-    @commands.group(usage="add [種類] [番号|名称]", brief="アイテムを追加するよ!", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!", help="`{}add weapon AT` ... ATという名前の武器を追加します\n`{}add head 1` ... 1番の頭装飾を追加します")
+    @commands.group(usage="add [種類] [番号|名称]^add [type] [number | name]^add [종류] [번호 | 명칭]^add [tipo] [número | nombre]", brief="アイテムを追加するよ!", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!^Add an item!\nFor the first'type', specify one of base / character / weapon / head / body / back (for details, press the? Reaction of the help command to check).\nFor the second'number | name', specify the item's name or number!^항목을 추가 해요!\n첫 번째 '종류'는 base / character / weapon / head / body / back (자세한 내용은 help 명령어의 리액션을 눌러 확인주세요) 중 하나를 지정해\n두 번째 '번호 | 명칭'은 아이템의 이름 또는 번호를 지정해줘!^¡Agregaré un artículo!\nPara el primer 'tipo', especifique uno de base / character / weapon / head / body / back (para más detalles, presione? Reacción del comando de ayuda para verificar).\nPara el segundo 'número | nombre', especifique el nombre o número del artículo.", help="`{}add weapon AT` ... ATという名前の武器を追加します\n`{}add head 1` ... 1番の頭装飾を追加します^`<prefix>add weapon AT` ... Add a weapon named AT\n`<prefix>add head 1` ... Add the first head decoration^`<prefix>add weapon AT-43` ... AT-43이라는 무기를 추가합니다\n`<prefix>add head 1` ... 1 번 머리 코스튬을 추가합니다^`<prefijo>add weapon AT` ... Agregar un arma llamada AT\n`<prefijo>add head 1` ... Agregar la primera decoración de la cabeza")
     async def add(self, ctx) -> None:
         """
         アイテムを追加
@@ -442,7 +442,7 @@ m!list (base/character/weapon/head/body/back)
         if ctx.invoked_subcommand is None:
             await ctx.send(f"サブコマンドが不足しているよ!\n`{ctx.prefix}help add`で使い方を確認してね!")
 
-    @add.command(name="item", aliases=["i"], usage="add item [名称]", description="アイテムを追加できるよ!名前を教えてくれたら、全種類の中から探すからね!", help="検索対象が全種類で広いから、思っているものと違うアイテムとマッチする可能性もあるよ>< また、全種類対応だから各種類のアイテム番号は使えないよ.。\n`{}add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します")
+    @add.command(name="item", aliases=["i"], usage="add item [名称]^add item [name]^add item [명칭]^add item [nombre]", description="アイテムを追加できるよ!名前を教えてくれたら、全種類の中から探すからね!^You can add items! If you tell me your name, I'll look for it in all types!^항목을 추가 할 수 있어! 이름을 가르쳐 주면 모든 종류 중에서 찾으니까!^¡Puedes agregar artículos! Si me dices tu nombre, ¡lo buscaré en todos los tipos!", help="検索対象が全種類で広いから、思っているものと違うアイテムとマッチする可能性もあるよ>< また、全種類対応だから各種類のアイテム番号は使えないよ.。\n`{}add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します^Since the search target is wide for all types, there is a possibility that it will match items that are different from what you think.> <Also, since all types are supported, you cannot use each type of item number.\n`{}add item myocat` ... Search for and add an item named myocat from all types^검색 대상이 모든 종류기 때문에, 생각하는 것과 다른 아이템과 매치 할 가능성도 있어요> <또한 모든 종류에 대응하기 때문에 각 유형의 항목 번호는 사용할 수 없어 ..\n`{}add item myocat` ... myocat라는 항목을 모든 종류에서 검색하여 추가합니다^Dado que el objetivo de búsqueda es amplio para todos los tipos, existe la posibilidad de que coincida con elementos que son diferentes de lo que cree.\n`{}add item myocat` ... Buscar y agregar un elemento llamado myocat de todos los tipos")
     async def add_item(self, ctx, *, text) -> None:
         """
         全アイテムから条件に合ったアイテムを探索
@@ -462,7 +462,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]", description="白黒を設定できるよ!。", help="`{}add base 0` ... 0番目の色を設定します(白色)\n`{}add base choco` ... chocoを設定します（黒色)")
+    @add.command(name="base", aliases=["s", "bs"], usage="add base [番号|名称]^add base [number | name]^add base [번호 | 제목]^add base [número | nombre]", description="白黒を設定できるよ!^Set base color(black and white)!^밀크와 초코를 설정 할 수있어!^¡Puede configurar blanco y negro!", help="`{}add base 0` ... 0番目の色を設定します(白色)\n`{}add base choco` ... chocoを設定します（黒色)^`<prefix> add base 0` ... Set the 0th color (white)\n`<prefix> add base choco` ... Set choco (black)^`<prefix> add base 0` ... 0 번째 색상을 설정합니다 (밀크)\n`<prefix> add base choco` ... choco을 설정합니다 (초코)^`<prefijo> agregar base 0` ... Establecer el color 0 (blanco)\n`<prefijo> agregar base choco` ... Establecer choco (negro)")
     async def add_base(self, ctx, *, text) -> None:
         """
         baseの中から条件に合ったアイテムを探索
@@ -502,7 +502,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]", description="武器を設定できるよ!", help="`{}add weapon 3` ... 3番目の武器を設定します\n`{}add weapon spyra` ... spyraを武器に設定します")
+    @add.command(name="weapon", aliases=["w", "wp", "weap"], usage="add weapon [番号|名称]^add weapon [number | name]^add weapon [번호 | 제목]^add weapon [número | nombre]", description="武器を設定できるよ!^Set the weapon!^무기를 설정 할 수 있어!^¡Puedes configurar tu arma!", help="`{}add weapon 3` ... 3番目の武器を設定します\n`{}add weapon spyra` ... spyraを武器に設定します^`{}add weapon 3` ... Set the third weapon\n`{}add weapon spyra` ... Set spyra as a weapon^`{}add weapon 3` ... 3 번째 무기를 설정합니다\n`{}add weapon spyra` ... spyra을 무기로 설정합니다^`{}add weapon 3` ... Establecer la tercera arma\n`{}add weapon spyra` ... Establecer spyra como arma")
     async def add_weapon(self, ctx, *, text) -> None:
         """
         weaponの中から条件にあったアイテムを探索
@@ -522,7 +522,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]", description="頭装飾を設定できるよ!", help="`{}add head 4` ... 4番目の頭装飾を設定します\n`{}add head M.CHIKEN` ... M.CHIKENという名前の頭装飾を設定します")
+    @add.command(name="head", aliases=["h", "hd"], usage="add head [番号|名称]^add head [number | name]^add head [번호 | 제목]^add head [número | nombre]", description="頭装飾を設定できるよ!^Set the head decoration!^머리 장식을 설정 할 수 있어!^¡Puedes configurar la decoración de la cabeza!", help="`{}add head 4` ... 4番目の頭装飾を設定します\n`{}add head M.CHIKEN` ... M.CHIKENという名前の頭装飾を設定します^`{}add head 4` ... Set the 4th head decoration\n`{}add head M.CHIKEN` ... Set the head decoration named M.CHIKEN^`{}add head 4` ... 4 번째 머리 코스튬을 설정합니다\n`{}add head M.CHIKEN` ... M.CHIKEN라는 머리 코스튬을 설정합니다^`{}add head 4` ... Establecer la decoración de la cuarta cabeza\n`{}add head M.CHIKEN` ... Establecer la decoración de la cabeza llamada M.CHIKEN")
     async def add_head(self, ctx, *, text) -> None:
         """
         headの中から条件にあったアイテムを探索
@@ -542,7 +542,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]", description="体装飾を設定できるよ!", help="`{}add body 5`...番目の体装飾を設定します\n`{}add body n.s.suit` ... n.s.suitという名前の体装飾を設定します")
+    @add.command(name="body", aliases=["d", "bd", "by"], usage="add body [番号|名称]^add body [number | name]^add body [번호 | 제목]^add body [número | nombre]", description="体装飾を設定できるよ!^Set the body decoration!^몸 장식을 설정 할 수있어!^¡Puedes configurar la decoración del cuerpo!", help="`{}add body 5`...番目の体装飾を設定します\n`{}add body n.s.suit` ... n.s.suitという名前の体装飾を設定します^`<prefix>add body 5` ... sets the third body decoration\n`<prefix> add body n.s.suit` ... Set a body decoration named n.s.suit\n^`<prefix> add body 5` ... 5번째 신체 장식을 설정합니다\n`<prefix> add body n.s.suit` ... n.s.suit라는 신체 코스튬을 설정합니다\n`<prefijo>add body 5` ... establece la decoración del tercer cuerpo\n`<prefijo>add body n.s.suit` ... Establece la decoración del cuerpo llamada n.s.suit")
     async def add_body(self, ctx, *, text) -> None:
         """
         bodyの中から条件にあったアイテムを探索
@@ -562,7 +562,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]", description="背中装飾を指定できるよ!", help="`{}add back 6`...6番目の背中装飾を設定します\n`{}add back B.MOUSE` ... B.MOUSEという名前の背中装飾を設定します")
+    @add.command(name="back", aliases=["b", "bk", "bc"], usage="add back [番号|名称]^add back [number | name]^add back [번호 | 제목]^add back [número | nombre]", description="背中装飾を指定できるよ!^Set the back decoration!^허리 장식을 지정할 수 있어요!^¡Puedes especificar la decoración de la espalda!", help="`{}add back 6`...6番目の背中装飾を設定します\n`{}add back B.MOUSE` ... B.MOUSEという名前の背中装飾を設定します^`<prefix>add back 6` ... Set the 6th back decoration\n`<prefix>add back B.MOUSE` ... Set the back decoration named B.MOUSE^`<prefix>add back 6` ... 6 번째 등 코스튬을 설정합니다\n`<prefix>add back B.MOUSE` ... B.MOUSE라는 등 코스튬을 설정합니다^`<prefijo>add back 6` ... Establecer la sexta decoración trasera\n`<prefijo>add back B.MOUSE` ... Establecer la decoración de la espalda llamada B.MOUSE")
     async def add_back(self, ctx, *, text) -> None:
         """
         backの中から条件にあったアイテムを探索
@@ -582,7 +582,7 @@ m!list (base/character/weapon/head/body/back)
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.group(usage="list [種類]", description="その種類のアイテム一覧を表示するよ!", help="`{}list character` ... キャラクターのリストを表示します\n`{}list weapon` ... 武器のリストを表示します")
+    @commands.group(usage="list [種類]^list [type]^list [종류]^lista [tipo]", description="その種類のアイテム一覧を表示するよ!^Show a list of items of that type!^이 유형의 항목을 나열합니다!^¡Mostraré una lista de elementos de ese tipo!", help="`{}list character` ... キャラクターのリストを表示します\n`{}list weapon` ... 武器のリストを表示します^`{}list character` ... Show a list of characters\n`{}list weapon` ... Shows a list of weapons^`{}list character` ... 캐릭터의 목록을 표시합니다\n`{}list weapon` ... 무기의 목록을 표시합니다^`{}list character` ... Muestra una lista de caracteres\n`{}list weapon` ... Muestra una lista de armas")
     async def list(self, ctx) -> None:
         """
         アイテム一覧を表示
@@ -595,7 +595,7 @@ m!list (base/character/weapon/head/body/back)
         if ctx.invoked_subcommand is None:
             await ctx.send(f"サブコマンドが不足しているよ!\n`{ctx.prefix}help list`で使い方を確認できます。")
 
-    @list.command(name="base", aliases=["s", "bs"], usage="list base", description="白黒のリストを表示するよ!この場合は白と黒の二つしかないんだけどね💦", help="`{}list base` ... キャラ色のリストを表示します")
+    @list.command(name="base", aliases=["s", "bs"], usage="list base^list base^list base^list base", description="白黒のリストを表示するよ!この場合は白と黒の二つしかないんだけどね💦^Show the base color list (black and white)! In this case there are only two, white and black 💦^색상의 목록을 표시합니다! 이 경우에는 밀크와 초코 밖에 없지만 💦^¡Te mostraré una lista en blanco y negro! En este caso solo hay dos, blanco y negro 💦", help="`{}list base` ... キャラ色のリストを表示します^`{}list base` ... Display a list of character colors^`{}list base` ... 캐릭터 색상의 목록을 표시합니다^`{}list base` ... Muestra una lista de colores de caracteres")
     async def list_base(self, ctx) -> None:
         """
         baseのアイテム一覧を検索
@@ -610,7 +610,7 @@ m!list (base/character/weapon/head/body/back)
         embed.set_footer(text="1 / 1 ページを表示中")
         await ctx.send(embed=embed)
 
-    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon", description="武器のリストを表示するよ!", help="`{}list character` ...キャラクターのリストを表示します")
+    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon^list weapon^list weapon^list weapon", description="武器のリストを表示するよ!^Show a list of weapons!^무기의 목록을 표시합니다!^¡Muestra una lista de armas!", help="``{}list weapon` ... 武器のリストを表示します^`{}list weapon` ... Shows a list of weapons^`{}list weapon` ... 무기의 목록을 표시합니다^`{}list weapon` ... Muestra una lista de armas")
     async def list_weapon(self, ctx) -> None:
         """
         weaponのアイテム一覧を検索
@@ -645,7 +645,7 @@ m!list (base/character/weapon/head/body/back)
             embed.set_footer(text=f"{page} / 4 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character", description="キャラクターのリストを表示するよ!", help="`{}list weapon` ... 武器のリストを表示します")
+    @list.command(name="character", aliases=["c", "ch", "char"], usage="list character^list character^list character^list character", description="キャラクターのリストを表示するよ!^Show the list of characters!^캐릭터의 목록을 표시합니다!^¡Muestre la lista de personajes!", help="`{}list character` ...キャラクターのリストを表示します^`{}list character` ... Show a list of characters^`{}list character` ... 캐릭터의 목록을 표시합니다^`{}list character` ... Muestra una lista de caracteres")
     async def list_character(self, ctx):
         """
         characterのアイテム一覧を検索
@@ -680,7 +680,7 @@ m!list (base/character/weapon/head/body/back)
             embed.set_footer(text=f"{page} / 3 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="head", aliases=["h", "hd"], usage="list head", description="頭装飾のリストを表示するよ!", help="`{}list head` ... 頭装飾のリストを表示します")
+    @list.command(name="head", aliases=["h", "hd"], usage="list head^list head^list head^list head", description="頭装飾のリストを表示するよ!^Show a list of headdresses!^머리 코스튬의 목록을 표시합니다!^¡Muestra una lista de tocados!", help="`{}list head` ... 頭装飾のリストを表示します^`{}list head` ... Shows a list of head decorations^`{}list head` ... 머리 코스튬의 목록을 표시합니다^`{}list head` ... Muestra una lista de decoraciones de cabeza")
     async def list_head(self, ctx):
         """
         headのアイテム一覧を検索
@@ -715,7 +715,7 @@ m!list (base/character/weapon/head/body/back)
             embed.set_footer(text=f"{page} / 6 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body", description="体装飾のリストを表示するよ!", help="`{}list body` ... 体装飾のリストを表示します")
+    @list.command(name="body", aliases=["d", "bd", "by"], usage="list body^list body^list body^list body", description="体装飾のリストを表示するよ!^Show a list of body decorations!^몸 코스튬의 목록을 표시합니다!^¡Muestre una lista de decoraciones corporales!", help="`{}list body` ... 体装飾のリストを表示します^`{}list body` ... Shows a list of body decorations^`{}list body` ... 몸 코스튬의 목록을 표시합니다^`{}list body` ... Muestra una lista de decoraciones corporales")
     async def list_body(self, ctx):
         """
         bodyのアイテム一覧を検索
@@ -750,7 +750,7 @@ m!list (base/character/weapon/head/body/back)
             embed.set_footer(text=f"{page} / 7 ページを表示中")
             await message.edit(embed=embed)
 
-    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back", description="背中装飾のリストを表示するよ!", help="`{}list back` ... 背中装飾のリストを表示します")
+    @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back^list back^list back^list back", description="背中装飾のリストを表示するよ!^Show a list of back decorations!^등 코스튬의 목록을 표시합니다!^¡Muestre una lista de decoraciones traseras!", help="`{}list back` ... 背中装飾のリストを表示します^`{}list back` ... Shows a list of back decorations^`{}list back` ... 등 코스튬의 목록을 표시합니다^¡Muestre una lista de decoraciones traseras!")
     async def list_back(self, ctx):
         """
         backのアイテム一覧を検索
