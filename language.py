@@ -2,7 +2,7 @@ from discord.ext import commands
 from multilingual import *
 
 class Language(commands.Cog):
-    """lang_emoji"""
+    """# TODO:^# TODO:^# TODO:^# TODO:"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
@@ -27,6 +27,7 @@ class Language(commands.Cog):
 
     @commands.command(aliases=["lang"])
     async def language(self, ctx):
+        # TODO: 修正
         text = ctx.message.content.split()
         if len(text) == 1:
             pass
