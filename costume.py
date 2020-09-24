@@ -111,6 +111,7 @@ class Costume(commands.Cog):
             raise commands.CommandError("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
+                "language": 0,
                 "costume": {
                     "canvas": "1o4s3k",
                     "save": []
