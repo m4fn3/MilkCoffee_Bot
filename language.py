@@ -30,8 +30,10 @@ class Language(commands.Cog):
         # TODO: 修正
         text = ctx.message.content.split()
         if len(text) == 1:
-            pass
-            # 言語リスト
+            await ctx.send("""
+select language:
+
+""")
         else:
             lang = text[1].lower()
             if lang in ["ja", "jp", "japanese", "jpn", "日本語"]:
@@ -43,7 +45,7 @@ class Language(commands.Cog):
             elif lang in ["es", "sp", "spa", "spanish", "Español"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
             else:
-                await ctx.send("言語が見つかりませんでした。")
+                await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."])
 
 def setup(bot):
     bot.add_cog(Language(bot))
