@@ -535,6 +535,8 @@ __他のサーバーから届いたメッセージは、webhookという技術�
         await self.global_chat_log_channel.send(embed=embed, files=files)
 
     async def on_global_message(self, message):
+        if self.bot.maintenance:
+            return await message.channel.send(["現在BOTはメンテナンス中です。\n理由: {}\n詳しい情報については公式サーバーにてご確認ください。", "BOT is currently under maintenance. \nReason: {}\nPlease check the official server for more information.", "BOT는 현재 점검 중입니다.\n이유 : {}\n자세한 내용은 공식 서버를 확인하십시오.", "BOT se encuentra actualmente en mantenimiento.\nRazón: {}\nConsulte el servidor oficial para obtener más información."][get_lg(self.bot.database[str(message.author.id)]["language"], message.guild.region)].format(self.bot.maintenance))
         self.sending_message[message.id] = True
         if str(message.author.id) in self.bot.BAN:
             return await message.author.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANされているユーザーはグローバルチャットもご使用になれません。\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
