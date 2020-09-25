@@ -180,7 +180,10 @@ class Bot(commands.Bot):
             "notify": {
                 "twitter": self.GM_update["twitter"],
                 "youtube": self.GM_update["youtube"],
-                "facebook": self.GM_update["facebook"]
+                "facebook_jp": self.GM_update["facebook_jp"],
+                "facebook_en": self.GM_update["facebook_en"],
+                "facebook_es": self.GM_update["facebook_es"],
+                "facebook_kr": self.GM_update["facebook_kr"]
             },
             "system": {
                 "maintenance": self.maintenance
