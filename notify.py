@@ -32,14 +32,35 @@ class Notify(commands.Cog):
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["twitter"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][1]:  # FaceBook
-            for channel_id in self.bot.GM_update["facebook"]:
+        elif message.channel.id == self.bot.datas["GM_update_channel"][1]:  # FaceBookJP
+            for channel_id in self.bot.GM_update["facebook_jp"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][2]:  # YouTube
+        elif message.channel.id == self.bot.datas["GM_update_channel"][2]:  # FaceBookEN
+            for channel_id in self.bot.GM_update["facebook_en"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["facebook"].remove(channel_id)
+        elif message.channel.id == self.bot.datas["GM_update_channel"][3]:  # FaceBookKR
+            for channel_id in self.bot.GM_update["facebook_kr"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["facebook"].remove(channel_id)
+        elif message.channel.id == self.bot.datas["GM_update_channel"][4]:  # FaceBookES
+            for channel_id in self.bot.GM_update["facebook_es"]:
+                try:
+                    self.bot.get_channel(channel_id)
+                    await self.bot.get_channel(channel_id).send(message.content)
+                except:
+                    self.bot.GM_update["facebook"].remove(channel_id)
+        elif message.channel.id == self.bot.datas["GM_update_channel"][5]:  # YouTube
             for channel_id in self.bot.GM_update["youtube"]:
                 try:
                     self.bot.get_channel(channel_id)
@@ -71,6 +92,13 @@ class Notify(commands.Cog):
     @commands.command(usage="notice (チャンネル)^notice (channel)^notice (채널)^notice (canal)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!^Receive MilkChoco updates on your server's channel!^밀크초코 운영의 업데이트 정보를 당신의 서버의 채널에 제공합니다!^¡Lo mantendremos informado sobre las operaciones de MilkChoco en su canal de servidor!")
     async def notice(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        language_text = "en"
+        if user_lang == (LanguageCode.JAPANESE.value - 1):
+            language_text = "jp"
+        elif user_lang == (LanguageCode.KOREAN.value - 1):
+            language_text = "kr"
+        elif user_lang == (LanguageCode.SPANISH.value - 1):
+            language_text = "es"
         cmd = ctx.message.content.split()
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
             target_channel = ctx.message.channel_mentions[0]
@@ -98,7 +126,7 @@ class Notify(commands.Cog):
                     if str(reaction.emoji) == self.emoji["notify"]["twitter"]:
                         await self.setup_message(ctx, target_channel, "twitter")
                     elif str(reaction.emoji) == self.emoji["notify"]["facebook"]:
-                        await self.setup_message(ctx, target_channel, "facebook")
+                        await self.setup_message(ctx, target_channel, "facebook_" + language_text)
                     elif str(reaction.emoji) == self.emoji["notify"]["youtube"]:
                         await self.setup_message(ctx, target_channel, "youtube")
                 except asyncio.TimeoutError:

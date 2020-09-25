@@ -39,7 +39,10 @@ class Bot(commands.Bot):
         self.GM_update = {
             "twitter": [],
             "youtube": [],
-            "facebook": []
+            "facebook_jp": [],
+            "facebook_en": [],
+            "facebook_kr": [],
+            "facebook_es": []
         }
         self.uptime = time.time()
         self.datas = {
@@ -54,7 +57,7 @@ class Bot(commands.Bot):
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
-            "GM_update_channel": [753897253743362068, 757583425736540190, 757592252238528512],
+            "GM_update_channel": [753897253743362068, 758122589255893042, 757583425736540190, 758122790527172608, 758122772864958484, 757592252238528512],
             "system-log-channel": 755016319660720188,
             "command_log_channel": 755433660483633182,
             "web": "https://milkcoffee.cf/"
@@ -76,7 +79,7 @@ class Bot(commands.Bot):
                 "global_chat_log_channel": 754986353850187797,
                 "database_channel": 744466393356959785,
                 "global_chat_log_save_channel": 751053982100619275,
-                "GM_update_channel": [754980772326408222, 757602418115608588, 757602427103870987],
+                "GM_update_channel": [754980772326408222, 757602418115608588, 757602418115608588, 757602418115608588, 757602418115608588, 757602427103870987],
                 "system-log-channel": 755016319660720188,
                 "command_log_channel": 755433660483633182,
                 "web": "https://milkcoffee.cf/"
@@ -95,7 +98,10 @@ class Bot(commands.Bot):
         self.global_channels = db_dict["global"]["channels"]
         self.GM_update["twitter"] = db_dict["notify"]["twitter"]
         self.GM_update["youtube"] = db_dict["notify"]["youtube"]
-        self.GM_update["facebook"] = db_dict["notify"]["facebook"]
+        self.GM_update["facebook_jp"] = db_dict["notify"]["facebook_jp"]
+        self.GM_update["facebook_en"] = db_dict["notify"]["facebook_en"]
+        self.GM_update["facebook_kr"] = db_dict["notify"]["facebook_kr"]
+        self.GM_update["facebook_es"] = db_dict["notify"]["facebook_es"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
         self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
@@ -115,7 +121,10 @@ class Bot(commands.Bot):
             self.GM_update = {
                 "twitter": [],
                 "youtube": [],
-                "facebook": []
+                "facebook_jp": [],
+                "facebook_en": [],
+                "facebook_kr": [],
+                "facebook_es": []
             }
             self.global_channels = []
 
