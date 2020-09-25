@@ -111,12 +111,12 @@ class Help(commands.HelpCommand):
             None
         """
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
-        embed = discord.Embed(title=f"{self.context.bot.PREFIX}{group.usage}", color=0x00ff00)
-        embed.description = f"```{group.description}```"
+        embed = discord.Embed(title=f"{self.context.bot.PREFIX}{group.usage.split('^')[user_lang]}", color=0x00ff00)
+        embed.description = f"```{group.description.split('^')[user_lang]}```"
         if group.aliases:
             embed.add_field(name=["略記(エイリアス) :", "Abbreviation (alias) :", "단축 (별칭) :", "Abreviatura (alias):"][user_lang], value="`" + "`, `".join(group.aliases) + "`", inline=False)
         if group.help:
-            embed.add_field(name=["使用例 :", "Example of use :", "사용 예 :", "Ejemplo de uso :"][user_lang], value=group.help.replace("<prefix>", self.context.bot.PREFIX), inline=False)
+            embed.add_field(name=["使用例 :", "Example of use :", "사용 예 :", "Ejemplo de uso :"][user_lang], value=group.help.split("^")[user_lang].format(self.context.bot.PREFIX), inline=False)
         cmds = group.walk_commands()
         embed.add_field(name=["サブコマンド :", "Subcommand :", "명령어 :", "Subcomando:"][user_lang], value=f"{sum(1 for _ in await self.filter_commands(group.walk_commands()))}個")
         for cmd in await self.filter_commands(cmds, sort=True):
@@ -139,7 +139,7 @@ class Help(commands.HelpCommand):
         if command.aliases:
             embed.add_field(name=["略記(エイリアス) :", "Abbreviation (alias) :", "단축 (별칭) :", "Abreviatura (alias):"][user_lang], value="`" + "`, `".join(command.aliases) + "`", inline=False)
         if command.help:
-            embed.add_field(name=["使用例 :", "Example of use :", "사용 예 :", "Ejemplo de uso :"][user_lang], value=command.help.replace("<prefix>", self.context.bot.PREFIX), inline=False)
+            embed.add_field(name=["使用例 :", "Example of use :", "사용 예 :", "Ejemplo de uso :"][user_lang], value=command.help.split("^")[user_lang].format(self.context.bot.PREFIX), inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
         await self.get_destination().send(embed=embed)
 
