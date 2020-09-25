@@ -32,8 +32,7 @@ class Language(commands.Cog):
             await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
     async def language_selector(self, ctx):
-        embed = discord.Embed(title="WELCOME TO MilkCoffee!!")
-        embed.description = f"{self.emoji['language']['language']} Select language:"
+        embed = discord.Embed(title=f"{self.emoji['language']['language']} Select language:")
         embed.add_field(name=f"{self.emoji['language']['region']} Server Region", value="m!lang region")
         embed.add_field(name=":flag_jp: 日本語 Japanese", value="m!lang ja")
         embed.add_field(name=":flag_au: English English", value="m!lang en")
@@ -57,16 +56,16 @@ class Language(commands.Cog):
                 await ctx.send(f"{self.emoji['language']['region']} Set language to [Server Region]!")
             elif str(reaction.emoji) == "🇯🇵":
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value
-                await ctx.send(":flag_jp: 言語を [日本語] に設定しました!")
+                await ctx.send(":flag_jp: 言語を __日本語__ に設定しました!")
             elif str(reaction.emoji) == "🇦🇺":
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value
-                await ctx.send(":flag_au: Set language to [English]")
+                await ctx.send(":flag_au: Set language to __English__")
             elif str(reaction.emoji) == "🇰🇷":
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value
-                await ctx.send(":flag_kr: 언어를 [한국어] 로 설정했습니다!")
+                await ctx.send(":flag_kr: 언어를 __한국어__ 로 설정했습니다!")
             elif str(reaction.emoji) == "🇪🇸":
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
-                await ctx.send(":flag_es: Establecer idioma en [Español]!")
+                await ctx.send(":flag_es: Establecer idioma en __Español__!")
         except asyncio.TimeoutError:
             pass
         finally:
@@ -88,16 +87,16 @@ class Language(commands.Cog):
                 await ctx.send(f"{self.emoji['language']['region']} Set language to [Server Region]!")
             elif lang in ["ja", "jp", "japanese", "jpn", "日本語", "1"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value
-                await ctx.send(":flag_jp: 言語を [日本語] に設定しました!")
+                await ctx.send(":flag_jp: 言語を __日本語__ に設定しました!")
             elif lang in ["en", "eng", "english", "2"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value
-                await ctx.send(":flag_au: Set language to [English]")
+                await ctx.send(":flag_au: Set language to __English__")
             elif lang in ["ko", "kr", "korean", "kor", "한국어", "3"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value
-                await ctx.send(":flag_kr: 언어를 [한국어] 로 설정했습니다!")
+                await ctx.send(":flag_kr: 언어를 __한국어__ 로 설정했습니다!")
             elif lang in ["es", "sp", "spa", "spanish", "Español", "4"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
-                await ctx.send(":flag_es: Establecer idioma en [Español]!")
+                await ctx.send(":flag_es: Establecer idioma en __Español__!")
             else:
                 await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)])
 
