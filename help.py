@@ -20,9 +20,13 @@ class Help(commands.HelpCommand):
         Returns:
             None
         """
-        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
+        cogs: list
         page = 1
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
+        if user_lang == (LanguageCode.JAPANESE.value - 1):
+            cogs = ["Language", "GlobalChat", "Notify", "Costume", "Information"]
+        else:
+            cogs = ["Language", "Notify", "Costume", "Information"]
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
@@ -67,8 +71,8 @@ class Help(commands.HelpCommand):
                 embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
                 embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.datas["server"])
                 for cmd in await self.filter_commands(cmds, sort=True):
-                    descriptinon = cmd.brief.split('^')[user_lang] if cmd.brief is not None else cmd.description.split('^')[user_lang]
-                    embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{descriptinon}```", inline=False)
+                    description = cmd.brief.split('^')[user_lang] if cmd.brief is not None else cmd.description.split('^')[user_lang]
+                    embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{description}```", inline=False)
                 embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
                 await message.edit(embed=embed)
             except asyncio.TimeoutError:

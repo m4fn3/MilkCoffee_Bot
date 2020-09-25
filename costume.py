@@ -105,10 +105,10 @@ class Costume(commands.Cog):
     async def cog_before_invoke(self, ctx):
         if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
             await ctx.send(["現在BOTはメンテナンス中です。\n理由: {}\n詳しい情報については公式サーバーにてご確認ください。", "BOT is currently under maintenance. \nReason: {}\nPlease check the official server for more information.", "BOT는 현재 점검 중입니다.\n이유 : {}\n자세한 내용은 공식 서버를 확인하십시오.", "BOT se encuentra actualmente en mantenimiento.\nRazón: {}\nConsulte el servidor oficial para obtener más información."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].formant(self.bot.maintenance))
-            raise commands.CommandError("maintenance-error")
+            raise Exception("maintenance-error")
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
-            raise commands.CommandError("Your Account Banned")
+            raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
                 "language": 0,
@@ -117,6 +117,7 @@ class Costume(commands.Cog):
                     "save": []
                 }
             }
+            await self.bot.get_cog("Language").language_selector(ctx)
             await self.process_new_user(ctx.message)
         elif "costume" not in self.bot.database[str(ctx.author.id)]:
             self.bot.database[str(ctx.author.id)]["costume"] = {
@@ -402,7 +403,7 @@ class Costume(commands.Cog):
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
-    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]^delete [save number | save name]^delete 저장 번호 | 저장 명칭]^delete [guardar número | guardar nombre]", brief="保存した作品を削除するよ!^Delete the saved work by number or name!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야!Elimina el trabajo guardado especificando el número o el nombre^", description="保存した作品を番号または名称で指定して削除するよ!一度削除したらその作品は戻せないから気を付けてね!^Delete the saved work by number or name! Be careful because once you delete it, you cannot restore it!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야! 한 번 삭제하면 그 작품은 되돌릴 수 없기 때문에 조심해줘!^Elimina el trabajo guardado especificando el número o el nombre ¡Ten cuidado porque una vez eliminado, el trabajo no se puede restaurar!", help="`{}delete 1` ... 1番目に保存された作品を削除します\n`{}delete 旧作品`... 旧作品という名前の作品を削除します^`{}delete 1` ... Delete the first saved work\n`{}delete Old work` ... Deletes the work named Old work^`{}delete 1` ... 1 번째에 저장된 작업을 삭제합니다\n`{}delete 이전 작품`... 이전 작품이라는 작품을 삭제합니다^`{}delete 1` ... Elimina el primer trabajo guardado\n`{}delete Old work` ... Elimina el trabajo llamado Old work")
+    @commands.command(aliases=["remove", "del", "rm"], usage="delete [保存番号|保存名称]^delete [save number | save name]^delete 저장 번호 | 저장 명칭]^delete [guardar número | guardar nombre]", brief="保存した作品を削除するよ!^Delete the saved work by number or name!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야!^Elimina el trabajo guardado especificando el número o el nombre", description="保存した作品を番号または名称で指定して削除するよ!一度削除したらその作品は戻せないから気を付けてね!^Delete the saved work by number or name! Be careful because once you delete it, you cannot restore it!^저장 한 작품에 번호 또는 이름을 지정하고 삭제하는거야! 한 번 삭제하면 그 작품은 되돌릴 수 없기 때문에 조심해줘!^Elimina el trabajo guardado especificando el número o el nombre ¡Ten cuidado porque una vez eliminado, el trabajo no se puede restaurar!", help="`{}delete 1` ... 1番目に保存された作品を削除します\n`{}delete 旧作品`... 旧作品という名前の作品を削除します^`{}delete 1` ... Delete the first saved work\n`{}delete Old work` ... Deletes the work named Old work^`{}delete 1` ... 1 번째에 저장된 작업을 삭제합니다\n`{}delete 이전 작품`... 이전 작품이라는 작품을 삭제합니다^`{}delete 1` ... Elimina el primer trabajo guardado\n`{}delete Old work` ... Elimina el trabajo llamado Old work")
     async def delete(self, ctx, *, index) -> None:
         """
         保存した画像を削除
@@ -433,7 +434,7 @@ class Costume(commands.Cog):
             else:
                 await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
 
-    @commands.group(usage="add [種類] [番号|名称]^add [type] [number | name]^add [종류] [번호 | 명칭]^add [tipo] [número | nombre]", brief="アイテムを追加するよ!", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!^Add an item!\nFor the first'type', specify one of base / character / weapon / head / body / back (for details, press the? Reaction of the help command to check).\nFor the second'number | name', specify the item's name or number!^항목을 추가 해요!\n첫 번째 '종류'는 base / character / weapon / head / body / back (자세한 내용은 help 명령어의 리액션을 눌러 확인주세요) 중 하나를 지정해\n두 번째 '번호 | 명칭'은 아이템의 이름 또는 번호를 지정해줘!^¡Agregaré un artículo!\nPara el primer 'tipo', especifique uno de base / character / weapon / head / body / back (para más detalles, presione? Reacción del comando de ayuda para verificar).\nPara el segundo 'número | nombre', especifique el nombre o número del artículo.", help="`{}add weapon AT` ... ATという名前の武器を追加します\n`{}add head 1` ... 1番の頭装飾を追加します^`{}add weapon AT` ... Add a weapon named AT\n`{}add head 1` ... Add the first head decoration^`{}add weapon AT-43` ... AT-43이라는 무기를 추가합니다\n`{}add head 1` ... 1 번 머리 코스튬을 추가합니다^`{}add weapon AT` ... Agregar un arma llamada AT\n`{}add head 1` ... Agregar la primera decoración de la cabeza")
+    @commands.group(usage="add [種類] [番号|名称]^add [type] [number | name]^add [종류] [번호 | 명칭]^add [tipo] [número | nombre]", brief="アイテムを追加するよ!^Add items^항목을 추가 해요!^Añadir artículo", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!^Add an item!\nFor the first'type', specify one of base / character / weapon / head / body / back (for details, press the? Reaction of the help command to check).\nFor the second'number | name', specify the item's name or number!^항목을 추가 해요!\n첫 번째 '종류'는 base / character / weapon / head / body / back (자세한 내용은 help 명령어의 리액션을 눌러 확인주세요) 중 하나를 지정해\n두 번째 '번호 | 명칭'은 아이템의 이름 또는 번호를 지정해줘!^¡Agregaré un artículo!\nPara el primer 'tipo', especifique uno de base / character / weapon / head / body / back (para más detalles, presione? Reacción del comando de ayuda para verificar).\nPara el segundo 'número | nombre', especifique el nombre o número del artículo.", help="`{}add weapon AT` ... ATという名前の武器を追加します\n`{}add head 1` ... 1番の頭装飾を追加します^`{}add weapon AT` ... Add a weapon named AT\n`{}add head 1` ... Add the first head decoration^`{}add weapon AT-43` ... AT-43이라는 무기를 추가합니다\n`{}add head 1` ... 1 번 머리 코스튬을 추가합니다^`{}add weapon AT` ... Agregar un arma llamada AT\n`{}add head 1` ... Agregar la primera decoración de la cabeza")
     async def add(self, ctx) -> None:
         """
         アイテムを追加

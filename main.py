@@ -21,7 +21,7 @@ class Bot(commands.Bot):
 
     def __init__(self, command_prefix, help_command, status, activity):
         super().__init__(command_prefix, help_command, status=status, activity=activity)
-        self.bot_cogs = ["costume", "developer", "global_chat", "info", "notify"]
+        self.bot_cogs = ["language", "costume", "developer", "global_chat", "info", "notify"]
         self.PREFIX = PREFIX
         for cog in self.bot_cogs:
             self.load_extension(cog)
