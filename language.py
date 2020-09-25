@@ -3,7 +3,7 @@ import discord, json, asyncio
 from multilingual import *
 
 class Language(commands.Cog):
-    """# TODO:^# TODO:^# TODO:^# TODO:"""
+    """言語を設定するよ!^Set up language!^언어를 설정합니다!^Configurar idioma!"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
         with open('./assets/emoji_data.json', 'r', encoding="utf-8") as f:
@@ -99,7 +99,7 @@ class Language(commands.Cog):
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
                 await ctx.send(":flag_es: Establecer idioma en [Español]!")
             else:
-                await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."])
+                await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)])
 
 def setup(bot):
     bot.add_cog(Language(bot))

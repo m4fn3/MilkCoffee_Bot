@@ -27,6 +27,8 @@ class Help(commands.HelpCommand):
             cogs = ["Language", "GlobalChat", "Notify", "Costume", "Information"]
         else:
             cogs = ["Language", "Notify", "Costume", "Information"]
+        if self.context.bot.database[str(self.context.author.id)]["language"] != LanguageCode.REGION:
+            cogs.remove("Language"); cogs.append("Language")
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
