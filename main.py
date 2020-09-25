@@ -2,6 +2,7 @@ from discord.ext import commands, tasks
 import discord, logging, os, json, io, time
 from os.path import join, dirname
 from dotenv import load_dotenv
+from multilingual import *
 
 from help import Help
 
@@ -20,12 +21,10 @@ class Bot(commands.Bot):
 
     def __init__(self, command_prefix, help_command, status, activity):
         super().__init__(command_prefix, help_command, status=status, activity=activity)
-        self.bot_cogs = ["costume", "developer", "global_chat", "info", "notify"]
+        self.bot_cogs = ["language", "costume", "developer", "global_chat", "info", "notify"]
         self.PREFIX = PREFIX
         for cog in self.bot_cogs:
             self.load_extension(cog)
-        with open('error_text.json', 'r', encoding='utf-8') as f:
-            self.error_text = json.load(f)
         self.database = {}
         self.ADMIN = {}
         self.BAN = {}
@@ -40,7 +39,10 @@ class Bot(commands.Bot):
         self.GM_update = {
             "twitter": [],
             "youtube": [],
-            "facebook": []
+            "facebook_jp": [],
+            "facebook_en": [],
+            "facebook_kr": [],
+            "facebook_es": []
         }
         self.uptime = time.time()
         self.datas = {
@@ -55,13 +57,14 @@ class Bot(commands.Bot):
             "database_channel": 744466393356959785,
             "global_chat_log_save_channel": 751053982100619275,
             "links_check_channel": 752875973044863057,
-            "GM_update_channel": [753897253743362068, 757583425736540190, 757592252238528512],
+            "GM_update_channel": [753897253743362068, 758122589255893042, 757583425736540190, 758122790527172608, 758122772864958484, 757592252238528512],
             "system-log-channel": 755016319660720188,
             "command_log_channel": 755433660483633182,
             "web": "https://milkcoffee.cf/"
         }
 
     async def on_ready(self):
+        self.maintenance = ""
         print(f"Logged in to {self.user}")
         if self.user.id != 742952261176655882:
             print("テスト環境モード")
@@ -77,7 +80,7 @@ class Bot(commands.Bot):
                 "global_chat_log_channel": 754986353850187797,
                 "database_channel": 744466393356959785,
                 "global_chat_log_save_channel": 751053982100619275,
-                "GM_update_channel": [754980772326408222, 757602418115608588, 757602427103870987],
+                "GM_update_channel": [754980772326408222, 757602418115608588, 757602418115608588, 757602418115608588, 757602418115608588, 757602427103870987],
                 "system-log-channel": 755016319660720188,
                 "command_log_channel": 755433660483633182,
                 "web": "https://milkcoffee.cf/"
@@ -96,7 +99,10 @@ class Bot(commands.Bot):
         self.global_channels = db_dict["global"]["channels"]
         self.GM_update["twitter"] = db_dict["notify"]["twitter"]
         self.GM_update["youtube"] = db_dict["notify"]["youtube"]
-        self.GM_update["facebook"] = db_dict["notify"]["facebook"]
+        self.GM_update["facebook_jp"] = db_dict["notify"]["facebook_jp"]
+        self.GM_update["facebook_en"] = db_dict["notify"]["facebook_en"]
+        self.GM_update["facebook_kr"] = db_dict["notify"]["facebook_kr"]
+        self.GM_update["facebook_es"] = db_dict["notify"]["facebook_es"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
         self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
@@ -116,7 +122,10 @@ class Bot(commands.Bot):
             self.GM_update = {
                 "twitter": [],
                 "youtube": [],
-                "facebook": []
+                "facebook_jp": [],
+                "facebook_en": [],
+                "facebook_kr": [],
+                "facebook_es": []
             }
             self.global_channels = []
 
@@ -132,7 +141,7 @@ class Bot(commands.Bot):
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_dm_message(message)
         elif message.content == f"<@!{self.user.id}>":
-            return await message.channel.send(f"このBOTのprefixは `{self.PREFIX}` です!\n`{self.PREFIX}help` で詳しい使い方を確認できます。")
+            return await message.channel.send(["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."][get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
         elif message.channel.id in self.global_channels:
             global_chat_cog = self.get_cog("GlobalChat")
             await global_chat_cog.on_global_message(message)

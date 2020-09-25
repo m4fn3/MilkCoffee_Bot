@@ -33,7 +33,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) not in self.bot.ADMIN:
-            raise commands.CommandError("Developer-Admin-Error")
+            raise Exception("Developer-Admin-Error")
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument):

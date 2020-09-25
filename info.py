@@ -1,48 +1,62 @@
 from discord.ext import commands
 import discord, datetime, time
+from multilingual import *
 
 
 class Information(commands.Cog):
-    """色々な情報の設定をするよ!"""
+    """色々な情報の設定をするよ!^For various information!^다양한 정보를 설정하는것입니다!^¡Estableceré diversa información!"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await ctx.send(f"あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{self.bot.datas['appeal_channel']}> にてご対応させていただきます。")
-            raise commands.CommandError("Your Account Banned")
+            await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
+            raise Exception("Your Account Banned")
+        elif str(ctx.author.id) not in self.bot.database:
+            self.bot.database[str(ctx.author.id)] = {
+                "language": 0
+            }
+            await self.bot.get_cog("Language").language_selector(ctx)
 
     async def cog_command_error(self, ctx, error):
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"引数が不足しているよ!.\n使い方: `{self.bot.PREFIX}{ctx.command.usage}`\n詳しくは `{self.bot.PREFIX}help {ctx.command.qualified_name}`")
+            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         else:
-            await ctx.send(f"エラーが発生しました。管理者にお尋ねください。\n{error}")
+            await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
-    @commands.command(aliases=["inv"], usage="invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。")
+    @commands.command(aliases=["inv"], usage="invite^invite^invite^invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。^Send you the BOT invitation link! Please invite me to the new server!^봇의 초대링크를 표시합니다! 여러 서버에 초대주세요!^¡Te mostraré el enlace de invitación BOT! ¡Invítame a varios servidores!")
     async def invite(self, ctx):
-        text = f"__**BOTの招待用URL**__:\n{self.bot.datas['invite']}\n" \
-               f"__**サポート用サーバー(公式サーバー)**__:\n{self.bot.datas['server']}"
+        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL* __:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['invite'], self.bot.datas['server'])
         await ctx.send(text)
 
-    @commands.command(aliases=["about"], usage="info", description="BOTに関する情報を表示するよ!。")
+    @commands.command(aliases=["about"], usage="info^info^info^info", description="BOTに関する情報を表示するよ!。^Show information about BOT !.^봇에 대한 정보를 표시합니다!.^Muestra información sobre BOT!.")
     async def info(self, ctx):
         td = datetime.timedelta(seconds=int(time.time() - self.bot.uptime))
-        m, s = divmod(td.seconds, 60); h, m = divmod(m, 60); d = td.days
-        embed = discord.Embed(title="このBOTについて")
-        embed.description = f"BOTをご使用いただき、ありがとうございます！\n" \
-                            f"このBOTはMilkChocoをプレイする人達の、Discordサーバーのために `{self.bot.datas['author']}` によって作成されました。\n" \
-                            f"詳しい使い方は `{ctx.prefix}help` で確認して下さい。\n" \
-                            f"機能リクエストにもできる限り、ご対応させていただきます!"
-        embed.add_field(name="ステータス", value=f"```導入サーバー数: {len(self.bot.guilds)}\nBOTが認識しているユーザー数:{len(self.bot.users)}```", inline=False)
-        embed.add_field(name="稼働時間", value=f"{d}日 {h}時間 {m}分 {s}秒", inline=False)
-        embed.add_field(name="各種URL", value=f"[BOT招待用URL]({self.bot.datas['invite']}) | [サポート用サーバー]({self.bot.datas['server']}) | [公式サイト]({self.bot.datas['web']})", inline=False)
+        m, s = divmod(td.seconds, 60);
+        h, m = divmod(m, 60);
+        d = td.days
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        embed = discord.Embed(title=["このBOTについて", "About this BOT", "봇 정보", "Acerca de este BOT"][user_lang])
+        embed.description = [
+            "BOTをご使用いただき、ありがとうございます！\nこのBOTはMilkChocoをプレイする人達の、Discordサーバーのために `{0}` によって作成されました。\n詳しい使い方は `{1}help` で確認して下さい。\n機能リクエストにもできる限り、ご対応させていただきます!",
+            "Thank you for using BOT!\nThis BOT was created by `{0}` for the Discord server of MilkChoco players.\nFor detailed usage, see `{1}help`\nWe will respond to function requests as much as possible!",
+            "봇을 사용해 주셔서 감사합니다!\n이 봇은 밀크초코를 플레이하는 사람들의 디스코드 서버의 `{0}` 에 의해 작성되었습니다.\n자세한 사용법은 `{1}help` 에서 확인하십시오.\n기능 추가에도 가능한 한 대응하겠습니다!",
+            "¡Gracias por usar BOT! \nEste BOT fue creado por `{0}` para el servidor de Discord de aquellos que juegan Milk Choco.\nPara obtener detalles sobre cómo usarlo, consulte `{1}help`.\n¡Responderemos a las solicitudes de funciones tanto como sea posible!"
+        ][user_lang].format(self.bot.datas["author"], self.bot.PREFIX)
+        embed.add_field(name=["ステータス", "status", "상태", "estado"][user_lang],
+                        value=["```導入サーバー数: {0}\nBOTが認識しているユーザー数:{1}```", "```Number of installed servers: {0}\nNumber of users recognized by BOT: {1}```", "```도입 서버 수 : {0}\nBOT가 인식하고있는 사용자 수 : {1}```", "```Número de servidores instalados: {0}\nNúmero de usuarios reconocidos por BOT: {1} ```"][user_lang].format(len(self.bot.guilds), len(self.bot.users)), inline=False)
+        embed.add_field(name=["稼働時間", "uptime", "가동 시간", "uptime"][user_lang], value=["{0}日 {1}時間 {2}分 {3}秒", "{0} days {1} hours {2} minutes {3} seconds", "{0} 일 {1} 시간 {2} 분 {3} 초", "{0} días {1} horas {2} minutos {3} segundos"][user_lang].format(d, h, m, s), inline=False)
+        embed.add_field(name=["各種URL", "URLs", "각종 URL", "URLs"][user_lang],
+                        value=["[BOT招待用URL]({0}) | [サポート用サーバー]({1}) | [公式サイト]({2})", "[BOT invitation URL]({0}) | [Support server]({1}) | [Official Site]({2}) ", "[봇 초대 링크]({0}) | [지원용 서버]({1}) | [공식 사이트]({2})", "[URL de invitación BOT]({0}) | [Servidor de asistencia]({1}) | [Sitio oficial]({2}) "][user_lang].format(self.bot.datas['invite'], self.bot.datas['server'], self.bot.datas['web']),
+                        inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=["pg"], usage="ping", description="BOTの反応速度を計測するよ!。")
+    @commands.command(aliases=["pg"], usage="ping^ping^ping^ping", description="BOTの反応速度を計測するよ!。^Measure the reaction speed of BOT!^봇의 반응 속도를 측정하는것입니다!^¡Mediré la velocidad de reacción de BOT!")
     async def ping(self, ctx):
-        await ctx.send(f"反応速度: `{int(self.bot.latency*1000)}`[ms]")
+        await ctx.send(["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(int(self.bot.latency*1000)))
 
-    @commands.command(usage="tos", description="BOTの利用規約を表示するよ!")
+    @commands.command(usage="tos^tos^tos^tos", description="BOTの利用規約を表示するよ!^Show the terms of service of BOT!^봇의 이용약관을 표시합니다!^¡Mostraré los términos de uso de BOT!")
     async def tos(self, ctx):
         embed = discord.Embed(title="MilkCoffee 利用規約", color=0xcc66cc)
         embed.description = "この規約は,MafuWorldチーム(以下「当チーム」)が提供する,DiscordBOT「MilkCoffee」(以下「本サービス」)をユーザーの皆様(以下「利用者」)がご利用頂く際の取扱いにつき定めるものです。本規約に同意したうえで本サービスをご利用ください。"
