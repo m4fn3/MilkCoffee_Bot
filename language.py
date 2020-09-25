@@ -1,10 +1,13 @@
 from discord.ext import commands
+import discord, json
 from multilingual import *
 
 class Language(commands.Cog):
     """# TODO:^# TODO:^# TODO:^# TODO:"""
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
+        with open('./assets/emoji_data.json', 'r', encoding="utf-8") as f:
+            self.emoji = json.load(f)
 
     async def cog_before_invoke(self, ctx):
         if self.bot.maintenance and str(ctx.author.id) not in self.bot.ADMIN:
@@ -30,20 +33,64 @@ class Language(commands.Cog):
         # TODO: 修正
         text = ctx.message.content.split()
         if len(text) == 1:
-            await ctx.send("""
-select language:
+            embed = discord.Embed(title="WELCOME TO MilkCoffee!!")
+            embed.description = f"{self.emoji['language']} Select language:"
+            embed.add_field(name=f"{self.emoji['region']} Server Region", value="m!lang region")
+            embed.add_field(name=":flag_jp: 日本語 Japanese", value="m!lang ja")
+            embed.add_field(name=":flag_au: English English", value="m!lang en")
+            embed.add_field(name=":flag_kr: 한국어 Korean", value="m!lang ko")
+            embed.add_field(name=":flag_es: Español Spanish", value="m!lang es")
+            msg_obj = await ctx.send(embed=embed)
+            await msg_obj.add_reaction(self.emoji['region'])
+            await msg_obj.add_reaction(":flag_jp:")
+            await msg_obj.add_reaction(":flag_au:")
+            await msg_obj.add_reaction(":flag_kr:")
+            await msg_obj.add_reaction(":flag_es:")
 
-""")
+            def check(r, u):
+                return r.message.id == msg_obj.id and u == ctx.author and str(r.emoji) in [self.emoji['region'], ":flag_jp:", ":flag_au:", ":flag_kr:", ":flag_es:"]
+            try:
+                reaction, user = self.bot.wait_for("on_reaction_add", timeout=60, check=check)
+                if str(reaction.emoji) == self.emoji['region']:
+                    self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.REGION.value
+                    await ctx.send(f"{self.emoji['region']} Set language to [Server Region]!")
+                elif str(reaction.emoji) == "flag_jp":
+                    self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value
+                    await ctx.send(":flag_jp: 言語を [日本語] に設定しました!")
+                elif str(reaction.emoji) == "flag_au":
+                    self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value
+                    await ctx.send(":flag_au: Set language to [English]")
+                elif str(reaction.emoji) == "flag_kr":
+                    self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value
+                    await ctx.send(":flag_kr: 언어를 [한국어] 로 설정했습니다!")
+                elif str(reaction.emoji) == "flag_es":
+                    self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
+                    await ctx.send(":flag_es: Establecer idioma en [Español]!")
+            except:
+                pass
+            finally:
+                await msg_obj.remove_reaction(self.emoji['region'], self.bot.user)
+                await msg_obj.remove_reaction(":flag_jp:", self.bot.user)
+                await msg_obj.remove_reaction(":flag_au:", self.bot.user)
+                await msg_obj.remove_reaction(":flag_kr:", self.bot.user)
+                await msg_obj.remove_reaction(":flag_es:", self.bot.user)
         else:
             lang = text[1].lower()
-            if lang in ["ja", "jp", "japanese", "jpn", "日本語"]:
+            if lang in ["region", "server", "guild", "auto", "サーバー", "地域", "サーバー地域", "0"]:
+                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.REGION.value
+                await ctx.send(f"{self.emoji['region']} Set language to [Server Region]!")
+            elif lang in ["ja", "jp", "japanese", "jpn", "日本語", "1"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value
-            elif lang in ["en", "eng", "english"]:
+                await ctx.send(":flag_jp: 言語を [日本語] に設定しました!")
+            elif lang in ["en", "eng", "english", "2"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value
-            elif lang in ["ko", "kr", "korean", "kor", "한국어"]:
+                await ctx.send(":flag_au: Set language to [English]")
+            elif lang in ["ko", "kr", "korean", "kor", "한국어", "3"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value
-            elif lang in ["es", "sp", "spa", "spanish", "Español"]:
+                await ctx.send(":flag_kr: 언어를 [한국어] 로 설정했습니다!")
+            elif lang in ["es", "sp", "spa", "spanish", "Español", "4"]:
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
+                await ctx.send(":flag_es: Establecer idioma en [Español]!")
             else:
                 await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."])
 
