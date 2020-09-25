@@ -18,7 +18,7 @@ class GlobalChat(commands.Cog):
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {1}`", "Not enough arguments! \nUsage: `{0} {1}` \nFor more information `{0}help {1}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {1}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {1}"][user_lang].format(self.bot.PREFIX, ctx.command.usage, ctx.command.qualified_name))
+            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         else:
             await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
@@ -110,7 +110,7 @@ class GlobalChat(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(f"サブコマンドが不足しています。\n`{ctx.prefix}help global`で使い方を確認できます。")
 
-    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続するよ!。チャンネルを指定しなかったら、コマンドが実行されたチャンネルに設定するよ!。", help="`<prefix>global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`<prefix>global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
+    @global_command.command(name="join", usage="global join (チャンネル)", description="グローバルチャットに接続するよ!。チャンネルを指定しなかったら、コマンドが実行されたチャンネルに設定するよ!。", help="`{0}global join` ... コマンドを打ったチャンネルをグローバルチャットに接続します。\n`{0}global join #チャンネル` ... 指定したチャンネルをグローバルチャットに接続します。")
     async def global_join(self, ctx):
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
@@ -134,7 +134,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send(f"BOTの`manage_webhooks(webhookの管理)`権限が不足しているよ!")
 
-    @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断するよ!。(グローバルチャットに接続されているチャンネルではコマンドは実行できないから気を付けてね)", help="`<prefix>global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
+    @global_command.command(name="leave", usage="global leave [チャンネル]", description="指定したチャンネルをグローバルチャットから切断するよ!。(グローバルチャットに接続されているチャンネルではコマンドは実行できないから気を付けてね)", help="`{0}global leave #チャンネル` ... 指定したチャンネルをグローバルチャットから切断します。")
     async def global_leave(self, ctx):
         if ctx.message.channel_mentions:
             target_channel = ctx.message.channel_mentions[0]

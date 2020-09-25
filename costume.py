@@ -129,7 +129,7 @@ class Costume(commands.Cog):
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {1}`", "Not enough arguments! \nUsage: `{0} {1}` \nFor more information `{0}help {1}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {1}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {1}"][user_lang].format(self.bot.PREFIX, ctx.command.usage, ctx.command.qualified_name))
+            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         else:
             await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
@@ -490,7 +490,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]", description="キャラクターを設定できるよ!。", help="`{0}add character 2` ... 2番目のキャラクターを設定します\n`{0}add character air` ... キャラクターをairに設定します")
+    @add.command(name="character", aliases=["c", "ch", "char"], usage="add character [番号|名称]^add character [number | name]^add character [번호 | 제목]^add character [número | nombre]", description="キャラクターを設定できるよ!。", help="`{0}add character 2` ... 2番目のキャラクターを設定します\n`{0}add character air` ... キャラクターをairに設定します")
     async def add_character(self, ctx, *, text):
         """
         characterの中から条件にあったアイテムを探索
@@ -620,12 +620,12 @@ class Costume(commands.Cog):
             None
         """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        embed = discord.Embed(title=["色一覧", "base list", "base목록", "lista base"])
+        embed = discord.Embed(title=["色一覧", "base list", "base목록", "lista base"][user_lang])
         embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("base", 1)
         embed.set_footer(text=["1 / 1 ページを表示中", "current page 1 / 1 ", "1 / 1 페이를보기", "1 / 1 Página de visualización"][user_lang])
         await ctx.send(embed=embed)
 
-    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon^list weapon^list weapon^list weapon", description="武器のリストを表示するよ!^Show a list of weapons!^무기의 목록을 표시합니다!^¡Muestra una lista de armas!", help="``{0}list weapon` ... 武器のリストを表示します^`{0}list weapon` ... Shows a list of weapons^`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list weapon` ... Muestra una lista de armas")
+    @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon^list weapon^list weapon^list weapon", description="武器のリストを表示するよ!^Show a list of weapons!^무기의 목록을 표시합니다!^¡Muestra una lista de armas!", help="`{0}list weapon` ... 武器のリストを表示します^`{0}list weapon` ... Shows a list of weapons^`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list weapon` ... Muestra una lista de armas")
     async def list_weapon(self, ctx) -> None:
         """
         weaponのアイテム一覧を検索

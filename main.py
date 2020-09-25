@@ -64,6 +64,7 @@ class Bot(commands.Bot):
         }
 
     async def on_ready(self):
+        self.maintenance = ""
         print(f"Logged in to {self.user}")
         if self.user.id != 742952261176655882:
             print("テスト環境モード")
