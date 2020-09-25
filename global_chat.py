@@ -158,7 +158,7 @@ class GlobalChat(commands.Cog):
         else:
             await ctx.send("メッセージIDは数字で指定してください。")
 
-    @global_command.command(usage="prohibitions", description="グローバルチャットでの禁止事項を表示するよ!")
+    @global_command.command(usage="global prohibitions", description="グローバルチャットでの禁止事項を表示するよ!")
     async def prohibitions(self, ctx):
         embed = discord.Embed(title="グローバルチャット禁止事項", color=0xcc66cc)
         embed.description = """
