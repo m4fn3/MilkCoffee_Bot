@@ -159,6 +159,7 @@ class Costume(commands.Cog):
         Returns:
             None
         """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         base = Image.open(f"./assets/base/{base_id}.png")
         character = Image.open(f"./assets/character/{base_id}/{character_id}.png")
         weapon = Image.open(f"./assets/weapon/{weapon_id}.png")
@@ -174,13 +175,13 @@ class Costume(commands.Cog):
         embed = discord.Embed()
         item_id = parse_item_list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
         text = f"{self.emoji['base'][str(base_id)]} {self.emoji['character'][str(character_id)]} {self.emoji['weapon'][str(weapon_id)]} {self.emoji['head'][str(head_id)]} {self.emoji['body'][str(body_id)]} {self.emoji['back'][str(back_id)]}"#f"装飾コード: {item_id}"
-        embed.add_field(name="ベース色", value=f"{base_id} {self.emoji['base'][str(base_id)]} {self.name['base'][str(base_id)]}")
-        embed.add_field(name="キャラクター", value=f"{character_id} {self.emoji['character'][str(character_id)]} {self.name['character'][str(character_id)]}")
-        embed.add_field(name="武器", value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]} {self.name['weapon'][str(weapon_id)]}")
-        embed.add_field(name="頭装飾", value=f"{head_id} {self.emoji['head'][str(head_id)]} {self.name['head'][str(head_id)]}")
-        embed.add_field(name="体装飾", value=f"{body_id} {self.emoji['body'][str(body_id)]} {self.name['body'][str(body_id)]}")
-        embed.add_field(name="背中装飾", value=f"{back_id} {self.emoji['back'][str(back_id)]} {self.name['back'][str(back_id)]}")
-        embed.set_footer(text=f"装飾コード: {item_id}", icon_url="http://zorba.starfree.jp/MilkChoco/icon.png")
+        embed.add_field(name=["ベース色", "base", "색상", "base"][user_lang], value=f"{base_id} {self.emoji['base'][str(base_id)]} {self.name['base'][str(base_id)]}")
+        embed.add_field(name=["キャラクター", "character", "캐릭터", "caracteres"][user_lang], value=f"{character_id} {self.emoji['character'][str(character_id)]} {self.name['character'][str(character_id)]}")
+        embed.add_field(name=["武器", "weapon", "무기", "arma"][user_lang], value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]} {self.name['weapon'][str(weapon_id)]}")
+        embed.add_field(name=["頭装飾", "head", "머리", "cabeza"][user_lang], value=f"{head_id} {self.emoji['head'][str(head_id)]} {self.name['head'][str(head_id)]}")
+        embed.add_field(name=["体装飾", "body", "몸", "cuerpo"][user_lang], value=f"{body_id} {self.emoji['body'][str(body_id)]} {self.name['body'][str(body_id)]}")
+        embed.add_field(name=["背中装飾", "back", "허리", "espalda"][user_lang], value=f"{back_id} {self.emoji['back'][str(back_id)]} {self.name['back'][str(back_id)]}")
+        embed.set_footer(text=["装飾コード: {}", "CostumeCode: {}", "장식 코드: {}", "código de decoración: {}"][user_lang].format(item_id), icon_url="http://zorba.starfree.jp/MilkChoco/milkchoco.jpg")
         await ctx.send(text, embed=embed, file=discord.File(fp=io.BytesIO(base), filename="result.png"))
         return
 
@@ -313,7 +314,7 @@ class Costume(commands.Cog):
             else:
                 return await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
         self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
-        await ctx.send(f"{item_index + 1}番目の\"{self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']}\"を読み込みました.")
+        await ctx.send(["{}番目の\"{}\"を読み込みました.", "loaded {}th {}", "{} 번째 \"{}\"을 읽어 습니다.", "{}th \"{}\" cargado"][user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
 
     @commands.command(usage="save (保存名称)^save (save name)^save (저장 명칭)^save (guardar nombre)", brief="現在の装飾を保存できるよ!^Save the current decoration!^현재의 장식을 저장 할 수 있어!^¡Puede guardar la decoración actual!", description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'Untitled1'みたいな名前を自動でつけとくね!^Save the current decoration! If you don't specify a save name, I automatically give it a name like 'Untitled 1'!^현재의 장식을 저장 할 수 있어! 저장할 이름을 지정하지 않으면, 'Untitled 1'같은 이름을 자동으로 저장할거야!^¡Puede guardar la decoración actual! Si no especifica un nombre para guardar, puede darle automáticamente un nombre como 'Untitled 1'.", help="`{0}save` ... 作品を保存します(名前は自動でUntitled1のように付けられます)\n`{0}save 新作品` ... 新作品という名前で作品を保存します^`{0} save` ... Save your work (named automatically like Untitled 1)\n`{0}save new work` ... Save the work with the name new work^`{0} save` ... 작품을 저장합니다 (이름은 자동으로 제목 1과 같이 지정됩니다)\n`{0}save 새로운 작품`... 새로운 작품이라는 이름으로 작품을 저장합니다^`{0}save` ... Guarda tu trabajo (nombrado automáticamente como Sin título 1)\n`{0}save nuevo trabajo` ... Guardar el trabajo con el nombre nuevo trabajo")
     async def save(self, ctx) -> None:
@@ -352,7 +353,7 @@ class Costume(commands.Cog):
                 "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
-        await ctx.send(f"保存したよ!. 名称: '{name}'")
+        await ctx.send(["保存したよ! 名称: '{}'", "Saved! Name: '{}'", "저장 했어! 이름: '{}'", "¡Guardado!. Nombre: '{}'"][user_lang].format(name))
 
     @commands.command(aliases=["mylist"], usage="my (ページ)^my (page)^my (페이지)^my (página)", brief="保存した作品の一覧を表示するよ!^Display a list of saved works!^저장된 작업 목록을 표시 할 수 있어!^¡Puedes mostrar una lista de trabajos guardados!", description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!^Display a list of saved works! If you do not specify a page, it will be displayed from the first page! But don't worry because you can also move pages by pressing reaction!^저장된 작업 목록을 표시 할 수 있어! 페이지를 지정하지 않으면, 1 페이지에서 볼 수 있어!하지만 반응을 눌러 페이지 이동도 할 수 있으니까 걱정하지 마!^¡Puedes mostrar una lista de trabajos guardados! Si no especificas una página, se mostrará desde la primera página ¡Pero no te preocupes porque también puedes mover páginas presionando reacción!", help="`{0}my` ... 保存した作品集の1ページ目を表示します\n`{0}my 2` ... 保存した作品集の2ページ目を表示します^`{0}my` ... Displays the first page of the saved work collection\n`{0}my 2` ... Displays the second page of the saved work collection^`{0}my` ... 저장된 작품집의 첫 페이지를 표시합니다\n`{0}my 2` ... 저장된 작품집의 두 번째 페이지를 표시합니다^`{0}my` ... Muestra la primera página de la colección de trabajo guardada\n`{0}my 2` ... Muestra la segunda página de la colección de trabajo guardada")
     async def my(self, ctx) -> None:

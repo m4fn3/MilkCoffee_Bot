@@ -124,7 +124,7 @@ class Help(commands.HelpCommand):
         if group.help:
             embed.add_field(name=["使用例 :", "Example of use :", "사용 예 :", "Ejemplo de uso :"][user_lang], value=group.help.split("^")[user_lang].format(self.context.bot.PREFIX), inline=False)
         cmds = group.walk_commands()
-        embed.add_field(name=["サブコマンド :", "Subcommand :", "명령어 :", "Subcomando:"][user_lang], value=f"{sum(1 for _ in await self.filter_commands(group.walk_commands()))}個")
+        embed.add_field(name=["サブコマンド :", "Subcommand :", "명령어 :", "Subcomando:"][user_lang], value=f"{sum(1 for _ in await self.filter_commands(group.walk_commands()))}")
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"{cmd.description.split('^')[user_lang]}", inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
