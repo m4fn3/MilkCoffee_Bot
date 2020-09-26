@@ -596,7 +596,7 @@ class Costume(commands.Cog):
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
-    @commands.group(usage="list [種類]^list [type]^list [종류]^lista [tipo]", description="その種類のアイテム一覧を表示するよ!^Show a list of items of that type!^이 유형의 항목을 나열합니다!^¡Mostraré una lista de elementos de ese tipo!", help="`{0}list character` ... キャラクターのリストを表示します\n`{0}list weapon` ... 武器のリストを表示します^`{0}list character` ... Show a list of characters\n`{0}list weapon` ... Shows a list of weapons^`{0}list character` ... 캐릭터의 목록을 표시합니다\n`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list character` ... Muestra una lista de caracteres\n`{0}list weapon` ... Muestra una lista de armas")
+    @commands.group(usage="list [種類]^list [type]^list [종류]^list [tipo]", description="その種類のアイテム一覧を表示するよ!^Show a list of items of that type!^이 유형의 항목을 나열합니다!^¡Mostraré una lista de elementos de ese tipo!", help="`{0}list character` ... キャラクターのリストを表示します\n`{0}list weapon` ... 武器のリストを表示します^`{0}list character` ... Show a list of characters\n`{0}list weapon` ... Shows a list of weapons^`{0}list character` ... 캐릭터의 목록을 표시합니다\n`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list character` ... Muestra una lista de caracteres\n`{0}list weapon` ... Muestra una lista de armas")
     async def list(self, ctx) -> None:
         """
         アイテム一覧を表示
