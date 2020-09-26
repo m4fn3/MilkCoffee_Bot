@@ -27,7 +27,7 @@ class Information(commands.Cog):
 
     @commands.command(aliases=["inv"], usage="invite^invite^invite^invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。^Send you the BOT invitation link! Please invite me to the new server!^봇의 초대링크를 표시합니다! 여러 서버에 초대주세요!^¡Te mostraré el enlace de invitación BOT! ¡Invítame a varios servidores!")
     async def invite(self, ctx):
-        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL* __:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['invite'], self.bot.datas['server'])
+        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['invite'], self.bot.datas['server'])
         await ctx.send(text)
 
     @commands.command(aliases=["about"], usage="info^info^info^info", description="BOTに関する情報を表示するよ!。^Show information about BOT !.^봇에 대한 정보를 표시합니다!.^Muestra información sobre BOT!.")
