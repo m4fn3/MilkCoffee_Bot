@@ -1,7 +1,7 @@
 # MilkCoffee
 MilkChocoOnline-FPSのプレイヤーのためのDiscordBOTです。
 
-[公式サイト](https://milkcoffee.cf) | [公式サーバー](https://milkcoffee.cf/links/server**)
+[公式サイト](https://milkcoffee.cf) | [公式サーバー](https://milkcoffee.cf/links/server)
 
 
 ## 機能
