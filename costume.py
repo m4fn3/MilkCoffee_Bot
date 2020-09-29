@@ -1,7 +1,7 @@
 from discord.ext import commands
 from PIL import Image
 from typing import Any
-import asyncio, discord, io, json, re, difflib, traceback2
+import asyncio, discord, io, json, re, difflib, traceback2, random
 from item_parser import *
 from multilingual import *
 
@@ -130,6 +130,8 @@ class Costume(commands.Cog):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(["コマンド実行の間隔が速すぎるよ! `{:.2f}`秒後に再度使用できるよ!", "The command execution interval is too fast! You can use it again in `{:.2f}` seconds!", "명령 실행 간격이 너무 빠릅니다! `{:.2f}` 초 후에 다시 사용할 수 있습니다!", "¡El intervalo de ejecución del comando es demasiado rápido! ¡Puede volver a utilizarlo en `{:.2f}` segundos!"][user_lang].format(error.retry_after))
         else:
             await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
@@ -251,6 +253,7 @@ class Costume(commands.Cog):
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
 
     @commands.command(usage="show (保存番号|保存名称)^show (save number | save name)^show (저장 번호 | 저장 명칭)^show (guardar número | guardar nombre)", brief="現在の装飾を表示できるよ!^Show the current decoration!^현재의 장식을 표시 할 수 있어!^¡Puede mostrar la decoración actual!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!^Show the current decoration! After specifying the save number, the works that match the number will be displayed from the saved works!^현재의 장식을 표시 할  수있어! 저장 번호를 지정한 후 저장 한 작품 중에서 번호에 있던 작품을 보여주지!^¡Puede mostrar la decoración actual! Después de especificar el número de guardado, las obras que coincidan con el número se mostrarán de las obras guardadas.", help="`{0}show` ... 現在の装飾を表示`\n{0}show 1` ... 1番目に保存された装飾を表示\n`{0}show Untitled1` ... Untitled1という名前で保存された装飾を表示^`{0}show` ... Show current decoration`\n{0}show 1` ... Show the first saved decoration\n`{0}show Untitled 1` ... Show decorations saved as Untitled 1^`{0}show` ... 현재의 장식을 표시`\n{0}show 1` ... 첫번째로 저장된 장식을 표시\n`{0}show 제목 1` ... 제목 1로 저장 된 장식을 표시^`{0}show` ... Mostrar decoración actual`\n{0}show 1` ... Mostrar la primera decoración guardada\n`{0}show Untitled 1` ... Muestra las decoraciones guardadas con el nombre Untitled 1")
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def show(self, ctx) -> None:
         """
         保存番号または保存名称から保存された画像または、作業中の画像を表示
@@ -438,6 +441,7 @@ class Costume(commands.Cog):
                 await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
 
     @commands.group(usage="add [種類] [番号|名称]^add [type] [number | name]^add [종류] [번호 | 명칭]^add [tipo] [número | nombre]", brief="アイテムを追加するよ!^Add items^항목을 추가 해요!^Añadir artículo", description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!^Add an item!\nFor the first'type', specify one of base / character / weapon / head / body / back (for details, press the? Reaction of the help command to check).\nFor the second'number | name', specify the item's name or number!^항목을 추가 해요!\n첫 번째 '종류'는 base / character / weapon / head / body / back (자세한 내용은 help 명령어의 리액션을 눌러 확인주세요) 중 하나를 지정해\n두 번째 '번호 | 명칭'은 아이템의 이름 또는 번호를 지정해줘!^¡Agregaré un artículo!\nPara el primer 'tipo', especifique uno de base / character / weapon / head / body / back (para más detalles, presione? Reacción del comando de ayuda para verificar).\nPara el segundo 'número | nombre', especifique el nombre o número del artículo.", help="`{0}add weapon AT` ... ATという名前の武器を追加します\n`{0}add head 1` ... 1番の頭装飾を追加します^`{0}add weapon AT` ... Add a weapon named AT\n`{0}add head 1` ... Add the first head decoration^`{0}add weapon AT-43` ... AT-43이라는 무기를 추가합니다\n`{0}add head 1` ... 1 번 머리 코스튬을 추가합니다^`{0}add weapon AT` ... Agregar un arma llamada AT\n`{0}add head 1` ... Agregar la primera decoración de la cabeza")
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def add(self, ctx) -> None:
         """
         アイテムを追加
@@ -599,6 +603,7 @@ class Costume(commands.Cog):
         await self.make_image(ctx, item_list[0], item_list[1], item_list[2], item_list[3], item_list[4], item_list[5])
 
     @commands.group(usage="list [種類]^list [type]^list [종류]^list [tipo]", description="その種類のアイテム一覧を表示するよ!^Show a list of items of that type!^이 유형의 항목을 나열합니다!^¡Mostraré una lista de elementos de ese tipo!", help="`{0}list character` ... キャラクターのリストを表示します\n`{0}list weapon` ... 武器のリストを表示します^`{0}list character` ... Show a list of characters\n`{0}list weapon` ... Shows a list of weapons^`{0}list character` ... 캐릭터의 목록을 표시합니다\n`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list character` ... Muestra una lista de caracteres\n`{0}list weapon` ... Muestra una lista de armas")
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def list(self, ctx) -> None:
         """
         アイテム一覧を表示
@@ -807,6 +812,17 @@ class Costume(commands.Cog):
             embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("back", page)
             embed.set_footer(text=["{} / 6 ページを表示中", "current page {} / 6 ", "{} / 6 페이를보기", "{} / 6 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
+
+    @commands.command(usage="random^random^random^random", description="ランダムな装飾を作成します!^Make random costume!^무작위 의상을 만들 수 있습니다^puede hacer un disfraz al azar")
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def random(self, ctx):
+        num_base = random.randint(self.item_info["base"]["min"], self.item_info["base"]["max"])
+        num_character = random.randint(self.item_info["character"]["min"], self.item_info["character"]["max"])
+        num_weapon = random.randint(self.item_info["weapon"]["min"], self.item_info["weapon"]["max"])
+        num_head = random.randint(self.item_info["head"]["min"], self.item_info["head"]["max"])
+        num_body = random.randint(self.item_info["body"]["min"], self.item_info["body"]["max"])
+        num_back = random.randint(self.item_info["back"]["min"], self.item_info["back"]["max"])
+        await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
 
 
 def setup(bot):
