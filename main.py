@@ -19,8 +19,8 @@ PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "
 
 class Bot(commands.Bot):
 
-    def __init__(self, command_prefix, help_command, status, activity):
-        super().__init__(command_prefix, help_command, status=status, activity=activity)
+    def __init__(self, command_prefix, help_command, status, activity, intents):
+        super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
         self.bot_cogs = ["language", "costume", "developer", "global_chat", "info", "notify"]
         self.PREFIX = PREFIX
         for cog in self.bot_cogs:
@@ -205,5 +205,6 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."))
+    intents = discord.Intents.all()
+    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
     bot.run(TOKEN)
