@@ -379,7 +379,7 @@ class Costume(commands.Cog):
         elif listed[1].isdigit():
             return await ctx.send(["ページ数は1~4で指定してね!", "Specify the number of pages from 1 to 4!", "페이지 수는 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 4!"][user_lang])
         else:
-            return await ctx.send(["ページ数は整数で1~4で指定してね!", "Specify the number of pages as an integer from 1 to 4!", "페이지 수는 정수 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 4!"])
+            return await ctx.send(["ページ数は整数で1~4で指定してね!", "Specify the number of pages as an integer from 1 to 4!", "페이지 수는 정수 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 4!"][user_lang])
         item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
         embed = discord.Embed(title=["保存した作品集 ({} / 4 ページ)", "Saved work collection ({} / 4 pages)", "저장된 작품집 ({} / 4 페이지)", "Colección de trabajos guardados ({} / 4 páginas)"][user_lang].format(page))
         embed.description = ["左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!", "The number on the left is the save number, and the name next to it is the save name! The 6 or 7 alphanumeric character string below it is the decoration code!", "왼쪽의 숫자가 저장 명칭이야! 그 아래 숫자 6,7 자리는 코스튬 코드이야!", "El número de la izquierda es el número de guardado, y el nombre al lado es el nombre de guardado. ¡La cadena de 6 o 7 dígitos debajo es el código de decoración!"][user_lang]
