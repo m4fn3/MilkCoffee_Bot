@@ -38,28 +38,28 @@ class Notify(commands.Cog):
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook"].remove(channel_id)
+                    self.bot.GM_update["facebook_jp"].remove(channel_id)
         elif message.channel.id == self.bot.datas["GM_update_channel"][2]:  # FaceBookEN
             for channel_id in self.bot.GM_update["facebook_en"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook"].remove(channel_id)
+                    self.bot.GM_update["facebook_en"].remove(channel_id)
         elif message.channel.id == self.bot.datas["GM_update_channel"][3]:  # FaceBookKR
             for channel_id in self.bot.GM_update["facebook_kr"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook"].remove(channel_id)
+                    self.bot.GM_update["facebook_kr"].remove(channel_id)
         elif message.channel.id == self.bot.datas["GM_update_channel"][4]:  # FaceBookES
             for channel_id in self.bot.GM_update["facebook_es"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook"].remove(channel_id)
+                    self.bot.GM_update["facebook_es"].remove(channel_id)
         elif message.channel.id == self.bot.datas["GM_update_channel"][5]:  # YouTube
             for channel_id in self.bot.GM_update["youtube"]:
                 try:
