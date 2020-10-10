@@ -121,7 +121,7 @@ class GlobalChat(commands.Cog):
             return await ctx.send(f"あなたは {target_channel.mention} チャンネルで設定する権限がないよ!\nセキュリティ対策のため、チャンネルをグローバルチャットに接続するには、コマンドを実行するユーザーが`manage_channels(チャンネルを管理)`の権限を持っていないとだめだよ!\n権限に関しては、サーバーの管理者に依頼してね!")
         if target_channel.id in self.bot.global_channels:
             return await ctx.send(f"{target_channel.mention} は既にグローバルチャットに参加しています。")
-        if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
+        if target_channel.permissions_for(ctx.guild.me).manage_webhooks:
             channel_webhooks = await target_channel.webhooks()
             webhook = discord.utils.get(channel_webhooks, name="global_chat_webhook_mafu")
             if webhook is None:

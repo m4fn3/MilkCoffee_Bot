@@ -83,7 +83,7 @@ class Notify(commands.Cog):
             target_channel = ctx.message.channel_mentions[0]
         else:
             target_channel = ctx.channel
-        if target_channel.permissions_for(ctx.guild.get_member(self.bot.user.id)).manage_webhooks:
+        if target_channel.permissions_for(ctx.guild.me).manage_webhooks:
             await self.bot.get_channel(self.bot.datas['notice_channel']).follow(destination=target_channel)
             await ctx.send(["{}で公式サーバーのBOTお知らせ用チャンネルをフォローしました。", "I followed the BOT notification channel at {}!", "{}에서 BOT 알림 채널을 따라갔습니다!", "Seguí el canal de notificación BOT en {}."][user_lang].format(target_channel.mention))
         else:
