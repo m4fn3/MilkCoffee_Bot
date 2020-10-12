@@ -150,13 +150,17 @@ class Bot(commands.Bot):
 
     async def on_guild_join(self, guild):
         embed = discord.Embed(title=f"{guild.name} に参加しました。", color=0x00ffff)
-        embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        # TODO: インテント修正後に修正
+        # embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_guild_remove(self, guild):
         embed = discord.Embed(title=f"{guild.name} を退出しました。", color=0xff1493)
-        embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        # TODO: インテント修正後に修正
+        # embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
+        embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.datas["log_channel"]).send(embed=embed)
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
