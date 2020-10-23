@@ -209,6 +209,6 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    intents = discord.Intents.default()
+    intents = discord.Intents.all()
     bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
     bot.run(TOKEN)

@@ -720,25 +720,25 @@ class Costume(commands.Cog):
         page: int
         if len(listed) == 2:
             page = 1
-        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 8:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send(["ページ数は1~6で指定してね!", "Specify the number of pages from 1 to 6!", "페이지 수는 1 ~ 6 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 6!"][user_lang])
+            return await ctx.send(["ページ数は1~8で指定してね!", "Specify the number of pages from 1 to 8!", "페이지 수는 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 8!"][user_lang])
         else:
-            return await ctx.send(["ページ数は整数で1~6で指定してね!", "Specify the number of pages as an integer from 1 to 6!", "페이지 수는 정수 1 ~ 6 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 6!"][user_lang])
+            return await ctx.send(["ページ数は整数で1~8で指定してね!", "Specify the number of pages as an integer from 1 to 8!", "페이지 수는 정수 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 8!"][user_lang])
         embed = discord.Embed(title=["頭装飾一覧", "Head list", "머리 목록", "lista de head"][user_lang])
         embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("head", page)
-        embed.set_footer(text=["{} / 6 ページを表示中", "current page {} / 6 ", "{} / 6 페이를보기", "{} / 6 Página de visualización"][user_lang].format(page))
+        embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
         while True:
-            code, new_page = await self.page_reaction_mover(message, ctx.author, 6, page)
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 8, page)
             if code == 0:
                 break
             page = new_page
             embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("head", page)
-            embed.set_footer(text=["{} / 6 ページを表示中", "current page {} / 6 ", "{} / 6 페이를보기", "{} / 6 Página de visualización"][user_lang].format(page))
+            embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
     @list.command(name="body", aliases=["d", "bd", "by"], usage="list body^list body^list body^list body", description="体装飾のリストを表示するよ!^Show a list of body decorations!^몸 코스튬의 목록을 표시합니다!^¡Muestre una lista de decoraciones corporales!", help="`{0}list body` ... 体装飾のリストを表示します^`{0}list body` ... Shows a list of body decorations^`{0}list body` ... 몸 코스튬의 목록을 표시합니다^`{0}list body` ... Muestra una lista de decoraciones corporales")
@@ -756,25 +756,25 @@ class Costume(commands.Cog):
         page: int
         if len(listed) == 2:
             page = 1
-        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 7:
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 9:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send(["ページ数は1~7で指定してね!", "Specify the number of pages from 1 to 7!", "페이지 수는 1 ~ 7 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 7!"][user_lang])
+            return await ctx.send(["ページ数は1~9で指定してね!", "Specify the number of pages from 1 to 9!", "페이지 수는 1 ~ 9 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 9!"][user_lang])
         else:
-            return await ctx.send(["ページ数は整数で1~7で指定してね!", "Specify the number of pages as an integer from 1 to 7!", "페이지 수는 정수 1 ~ 7 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 7!"][user_lang])
+            return await ctx.send(["ページ数は整数で1~9で指定してね!", "Specify the number of pages as an integer from 1 to 9!", "페이지 수는 정수 1 ~ 9 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 9!"][user_lang])
         embed = discord.Embed(title=["体装飾一覧", "Body list", "몸 목록", "lista de body"][user_lang])
         embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("body", page)
-        embed.set_footer(text=["{} / 7 ページを表示中", "current page {} / 7 ", "{} / 7 페이를보기", "{} / 7 Página de visualización"][user_lang].format(page))
+        embed.set_footer(text=["{} / 9 ページを表示中", "current page {} / 9 ", "{} / 9 페이를보기", "{} / 9 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
         while True:
-            code, new_page = await self.page_reaction_mover(message, ctx.author, 7, page)
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 9, page)
             if code == 0:
                 break
             page = new_page
             embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("body", page)
-            embed.set_footer(text=["{} / 7 ページを表示中", "current page {} / 7 ", "{} / 7 페이를보기", "{} / 7 Página de visualización"][user_lang].format(page))
+            embed.set_footer(text=["{} / 9 ページを表示中", "current page {} / 9 ", "{} / 9 페이를보기", "{} / 9 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
     @list.command(name="back", aliases=["b", "bc", "bk"], usage="list back^list back^list back^list back", description="背中装飾のリストを表示するよ!^Show a list of back decorations!^등 코스튬의 목록을 표시합니다!^¡Muestre una lista de decoraciones traseras!", help="`{0}list back` ... 背中装飾のリストを表示します^`{0}list back` ... Shows a list of back decorations^`{0}list back` ... 등 코스튬의 목록을 표시합니다^¡Muestre una lista de decoraciones traseras!")
@@ -792,25 +792,25 @@ class Costume(commands.Cog):
         page: int
         if len(listed) == 2:
             page = 1
-        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 6:
+        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 8:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send(["ページ数は1~6で指定してね!", "Specify the number of pages from 1 to 6!", "페이지 수는 1 ~ 6 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 6!"][user_lang])
+            return await ctx.send(["ページ数は1~8で指定してね!", "Specify the number of pages from 1 to 8!", "페이지 수는 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 8!"][user_lang])
         else:
-            return await ctx.send(["ページ数は整数で1~6で指定してね!", "Specify the number of pages as an integer from 1 to 6!", "페이지 수는 정수 1 ~ 6 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 6!"][user_lang])
+            return await ctx.send(["ページ数は整数で1~8で指定してね!", "Specify the number of pages as an integer from 1 to 8!", "페이지 수는 정수 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 8!"][user_lang])
         embed = discord.Embed(title=["背中装飾一覧", "Back list", "허리 목록", "lista de back"][user_lang])
         embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("back", page)
-        embed.set_footer(text=["{} / 6 ページを表示中", "current page {} / 6 ", "{} / 6 페이를보기", "{} / 6 Página de visualización"][user_lang].format(page))
+        embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
         while True:
-            code, new_page = await self.page_reaction_mover(message, ctx.author, 6, page)
+            code, new_page = await self.page_reaction_mover(message, ctx.author, 8, page)
             if code == 0:
                 break
             page = new_page
             embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("back", page)
-            embed.set_footer(text=["{} / 6 ページを表示中", "current page {} / 6 ", "{} / 6 페이를보기", "{} / 6 Página de visualización"][user_lang].format(page))
+            embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
     @commands.command(usage="random^random^random^random", description="ランダムな装飾を作成します!^Make random costume!^무작위 의상을 만들 수 있습니다^puede hacer un disfraz al azar")

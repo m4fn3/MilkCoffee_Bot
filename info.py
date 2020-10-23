@@ -134,5 +134,26 @@ Discord内のMilkCoffeeBOT及び公式サイト,公式サーバーで提供さ�
         embed.set_footer(text="施行日:2020年9月12日")
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["st"], hidden=True)
+    async def status(self, ctx):
+        embed = discord.Embed(title=f"{ctx.author}")
+        embed.set_thumbnail(url=ctx.author.avatar_url)
+        embed.add_field(name="ID", value=f"{ctx.author.id}")
+
+        def make_status_text(status_text):
+            status_text = str(status_text)
+            if status_text == "online":
+                return ":green_circle:"
+            elif status_text == "offline":
+                return ":black_circle:"
+            elif status_text == "dnd":
+                return ":red_circle:"
+            elif status_text == "idle":
+                return ":yellow_circle:"
+
+        embed.add_field(name="JoinedAt", value=f"{ctx.author.joined_at.strftime('%Y/%m/%d %H:%M:%S')}", inline=False)
+        embed.add_field(name="Status", value=f"Mobile: {make_status_text(ctx.author.mobile_status)} | Web: {make_status_text(ctx.author.web_status)} | Desktop: {make_status_text(ctx.author.desktop_status)}", inline=False)
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Information(bot))
