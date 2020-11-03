@@ -49,6 +49,10 @@ class Help(commands.HelpCommand):
         while True:
             try:
                 reaction, user = await self.context.bot.wait_for("reaction_add", timeout=60, check=check)
+                try:
+                    await message.remove_reaction(reaction, user)
+                except:
+                    pass
                 if str(reaction.emoji) == "▶️":
                     if page == len(cogs):
                         page = 1
