@@ -1,10 +1,13 @@
 import asyncio
-import discord
 import json
+
+import discord
 from discord.ext import commands
 
-from ..Tools.multilingual import *
-from ..main import MilkCoffee
+from .utils.multilingual import *
+
+from .bot import MilkCoffee
+
 
 class Language(commands.Cog):
     """言語を設定するよ!^Set up language!^언어를 설정합니다!^Configurar idioma!"""

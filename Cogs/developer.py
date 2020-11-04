@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import discord
 import io
 import os
 import re
@@ -8,13 +7,14 @@ import subprocess
 import sys
 import textwrap
 import time
-import traceback2
 from contextlib import redirect_stdout
 
+import discord
 import psutil
+import traceback2
 from discord.ext import commands
 
-from ..main import MilkCoffee
+from .bot import MilkCoffee
 
 
 # class

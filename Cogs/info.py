@@ -1,10 +1,12 @@
 import datetime
-import discord
 import time
+
+import discord
 from discord.ext import commands
 
-from ..Tools.multilingual import *
-from ..main import MilkCoffee
+from .utils.multilingual import *
+from .bot import MilkCoffee
+
 
 class Information(commands.Cog):
     """色々な情報の設定をするよ!^For various information!^다양한 정보를 설정하는것입니다!^¡Estableceré diversa información!"""

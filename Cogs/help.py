@@ -1,9 +1,9 @@
 import asyncio
-import discord
 
+import discord
 from discord.ext import commands
 
-from ..Tools.multilingual import *
+from .utils.multilingual import *
 
 
 class Help(commands.HelpCommand):

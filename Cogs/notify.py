@@ -1,11 +1,12 @@
 import asyncio
-import discord
 import json
 
+import discord
 from discord.ext import commands
 
-from ..Tools.multilingual import *
-from ..main import MilkCoffee
+from .utils.multilingual import *
+from .bot import MilkCoffee
+
 
 class Notify(commands.Cog):
     """お知らせの設定するよ!^I'll set the notification!^알림설정하기!^¡Establece notificaciones!"""
