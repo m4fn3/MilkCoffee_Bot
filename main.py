@@ -93,14 +93,6 @@ class Bot(commands.Bot):
         self.GM_update["facebook_es"] = db_dict["notify"]["facebook_es"]
         self.Contributor = db_dict["role"]["Contributor"]
         self.maintenance = db_dict["system"]["maintenance"]
-        self.invites = [invite.code for invite in await self.get_guild(self.datas["server_id"]).invites()]
-        database_channel = self.get_channel(self.datas["global_chat_log_save_channel"])
-        database_msg = await database_channel.fetch_message(database_channel.last_message_id)
-        database_file = database_msg.attachments[0]
-        db_byte = await database_file.read()
-        db_dict = json.loads(db_byte)
-        if not self.save_database.is_running():
-            self.save_database.start()
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
         if self.user.id != 742952261176655882:
             self.GM_update = {
@@ -142,32 +134,34 @@ class Bot(commands.Bot):
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.datas['server']}"))
 
     async def on_command(self, ctx):
-        await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
+        pass  # await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
+        # TODO: 一時無効化
 
-    @tasks.loop(seconds=30.0)
-    async def save_database(self):
-        db_dict = {
-            "user": self.database,
-            "role": {
-                "ADMIN": self.ADMIN,
-                "BAN": self.BAN,
-                "Contributor": self.Contributor
-            },
-            "notify": {
-                "twitter": self.GM_update["twitter"],
-                "youtube": self.GM_update["youtube"],
-                "facebook_jp": self.GM_update["facebook_jp"],
-                "facebook_en": self.GM_update["facebook_en"],
-                "facebook_es": self.GM_update["facebook_es"],
-                "facebook_kr": self.GM_update["facebook_kr"]
-            },
-            "system": {
-                "maintenance": self.maintenance
-            }
-        }
-        database_channel = self.get_channel(self.datas["database_channel"])
-        db_bytes = json.dumps(db_dict, indent=2)
-        await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
+    # NOTE: db化
+    # @tasks.loop(seconds=30.0)
+    # async def save_database(self):
+    #     db_dict = {
+    #         "user": self.database,
+    #         "role": {
+    #             "ADMIN": self.ADMIN,
+    #             "BAN": self.BAN,
+    #             "Contributor": self.Contributor
+    #         },
+    #         "notify": {
+    #             "twitter": self.GM_update["twitter"],
+    #             "youtube": self.GM_update["youtube"],
+    #             "facebook_jp": self.GM_update["facebook_jp"],
+    #             "facebook_en": self.GM_update["facebook_en"],
+    #             "facebook_es": self.GM_update["facebook_es"],
+    #             "facebook_kr": self.GM_update["facebook_kr"]
+    #         },
+    #         "system": {
+    #             "maintenance": self.maintenance
+    #         }
+    #     }
+    #     database_channel = self.get_channel(self.datas["database_channel"])
+    #     db_bytes = json.dumps(db_dict, indent=2)
+    #     await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
 
 
 
