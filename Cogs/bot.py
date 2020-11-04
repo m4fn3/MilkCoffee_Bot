@@ -8,6 +8,8 @@ from Cogs.utils.multilingual import *
 from Cogs.Data.static_data import StaticData
 from Cogs.Data.strings import Strings
 
+from .utils.messenger import normal
+
 class MilkCoffee(commands.Bot):
 
     def __init__(self, main_prefix, command_prefix, help_command, status, activity, intents):
@@ -48,8 +50,7 @@ class MilkCoffee(commands.Bot):
         elif message.author.bot:  # BOTからのメッセージの場合
             return
         elif message.content == f"<@!{self.user.id}>":  # BOTがメンションされた時
-            # TODO: eb
-            return await message.channel.send(self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
+            return await normal(message.channel, self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
         else:  # コマンドとして処理
             await self.process_commands(message)
 
