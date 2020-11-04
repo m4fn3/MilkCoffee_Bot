@@ -137,7 +137,7 @@ class Bot(commands.Bot):
         pass  # await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
         # TODO: 一時無効化
 
-    # NOTE: db化
+    # NOTE: db化する
     # @tasks.loop(seconds=30.0)
     # async def save_database(self):
     #     db_dict = {
