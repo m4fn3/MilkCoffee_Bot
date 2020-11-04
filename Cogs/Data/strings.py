@@ -45,10 +45,14 @@ class Strings:
     deleted_work = ["{}番目の{}を削除したよ!", "The {} th {} has been deleted!", "{} 번째 {}를 삭제 했어!", "¡El {} th {} ha sido eliminado!"]
     not_found_with_number = ["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"]
     this_item_found = ["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"]
+    showing_page = ["1 / {} ページを表示中", "current page 1 / {} ", "1 / {} 페이를보기", "1 / {} Página de visualización"]
     list_description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"]
     list_base_title = ["色一覧", "base list", "base목록", "lista base"]
-    showing_page = ["1 / {} ページを表示中", "current page 1 / {} ", "1 / {} 페이를보기", "1 / {} Página de visualización"]
     list_weapon_title = ["武器一覧", "Weapon list", "무기 목록", "lista de arma"]
+    # info.py
+    reaction_rate = ["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"]
+    invite_links = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"]
+
 
 
 

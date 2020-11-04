@@ -35,7 +35,7 @@ class Information(commands.Cog):
 
     @commands.command(aliases=["inv"], usage="invite^invite^invite^invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。^Send you the BOT invitation link! Please invite me to the new server!^봇의 초대링크를 표시합니다! 여러 서버에 초대주세요!^¡Te mostraré el enlace de invitación BOT! ¡Invítame a varios servidores!")
     async def invite(self, ctx):
-        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(
+        text = self.bot.text.invite_links[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(
             self.bot.data.invite, self.bot.data.server)
         await ctx.send(text)
 
@@ -63,7 +63,7 @@ class Information(commands.Cog):
 
     @commands.command(aliases=["pg"], usage="ping^ping^ping^ping", description="BOTの反応速度を計測するよ!。^Measure the reaction speed of BOT!^봇의 반응 속도를 측정하는것입니다!^¡Mediré la velocidad de reacción de BOT!")
     async def ping(self, ctx):
-        await ctx.send(["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(int(self.bot.latency * 1000)))
+        await ctx.send(self.bot.text.reaction_rate[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(int(self.bot.latency * 1000)))
 
     @commands.command(usage="tos^tos^tos^tos", description="BOTの利用規約を表示するよ!^Show the terms of service of BOT!^봇의 이용약관을 표시합니다!^¡Mostraré los términos de uso de BOT!")
     async def tos(self, ctx):
