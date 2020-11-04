@@ -1,19 +1,28 @@
-from discord.ext import commands
+import asyncio
+import datetime
+import discord
+import io
+import os
+import re
+import subprocess
+import sys
+import textwrap
+import time
+import traceback2
 from contextlib import redirect_stdout
-import asyncio, datetime, discord, io, os, subprocess, sys, textwrap, time, traceback2, re
-try:
-    import psutil
-except:
-    psutil_available = False
-else:
-    psutil_available = True
+
+import psutil
+from discord.ext import commands
+
+from ..main import MilkCoffee
 
 
 # class
 class Developer(commands.Cog, command_attrs=dict(hidden=True)):
     """BOTのシステムを管理します。(ADMIN以上の権限が必要です)"""
+
     def __init__(self, bot):
-        self.bot = bot  # type: commands.MilkCoffee
+        self.bot = bot  # type: MilkCoffee
         self._last_result = None
         try:
             import psutil
@@ -269,7 +278,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
     async def restart(self, ctx):
         await ctx.send(":closed_lock_with_key:BOTを再起動します.")
         python = sys.executable
-        os.execl(python, python, * sys.argv)
+        os.execl(python, python, *sys.argv)
 
     @system.command(aliases=["q"])
     async def quit(self, ctx):
@@ -328,14 +337,13 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         h, m = divmod(m, 60)
         d = td.days
         uptime = f"{d}d {h}h {m}m {s}s"
-        if psutil_available:
-            cpu_per = psutil.cpu_percent()
-            mem_total = psutil.virtual_memory().total / 10**9
-            mem_used = psutil.virtual_memory().used / 10**9
-            mem_per = psutil.virtual_memory().percent
-            swap_total = psutil.swap_memory().total / 10**9
-            swap_used = psutil.swap_memory().used / 10**9
-            swap_per = psutil.swap_memory().percent
+        cpu_per = psutil.cpu_percent()
+        mem_total = psutil.virtual_memory().total / 10 ** 9
+        mem_used = psutil.virtual_memory().used / 10 ** 9
+        mem_per = psutil.virtual_memory().percent
+        swap_total = psutil.swap_memory().total / 10 ** 9
+        swap_used = psutil.swap_memory().used / 10 ** 9
+        swap_per = psutil.swap_memory().percent
         guilds = len(self.bot.guilds)
         users = len(self.bot.users)
         vcs = len(self.bot.voice_clients)
@@ -348,8 +356,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
                 voice_channels += 1
         latency = self.bot.latency
         embed = discord.Embed(title="Process")
-        if psutil_available:
-            embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
+        embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
         embed.add_field(name="Discord", value=f"```yaml\nServers:{guilds}\nTextChannels:{text_channels}\nVoiceChannels:{voice_channels}\nUsers:{users}\nConnectedVC:{vcs}```", inline=False)
         embed.add_field(name="Run", value=f"```yaml\nUptime: {uptime}\nLatency: {latency:.2f}[s]\n```")
         await ctx.send(embed=embed)
@@ -377,6 +384,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
                     def kill():
                         process.kill()
                         process.wait()
+
                     await loop.run_in_executor(None, kill)
                     raise
         else:

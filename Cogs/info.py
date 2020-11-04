@@ -4,13 +4,13 @@ import time
 from discord.ext import commands
 
 from ..Tools.multilingual import *
-
+from ..main import MilkCoffee
 
 class Information(commands.Cog):
     """色々な情報の設定をするよ!^For various information!^다양한 정보를 설정하는것입니다!^¡Estableceré diversa información!"""
 
     def __init__(self, bot):
-        self.bot = bot  # type: commands.MilkCoffee
+        self.bot = bot  # type: MilkCoffee
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
@@ -40,8 +40,8 @@ class Information(commands.Cog):
     @commands.command(aliases=["about"], usage="info^info^info^info", description="BOTに関する情報を表示するよ!。^Show information about BOT !.^봇에 대한 정보를 표시합니다!.^Muestra información sobre BOT!.")
     async def info(self, ctx):
         td = datetime.timedelta(seconds=int(time.time() - self.bot.uptime))
-        m, s = divmod(td.seconds, 60);
-        h, m = divmod(m, 60);
+        m, s = divmod(td.seconds, 60)
+        h, m = divmod(m, 60)
         d = td.days
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         embed = discord.Embed(title=["このBOTについて", "About this BOT", "봇 정보", "Acerca de este BOT"][user_lang])

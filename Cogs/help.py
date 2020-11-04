@@ -31,7 +31,7 @@ class Help(commands.HelpCommand):
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
         cogs = ["Language", "Notify", "Costume", "Information"]
         if self.context.bot.database[str(self.context.author.id)]["language"] != LanguageCode.REGION:
-            cogs.remove("Language");
+            cogs.remove("Language")
             cogs.append("Language")
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()

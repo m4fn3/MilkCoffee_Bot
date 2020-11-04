@@ -4,13 +4,13 @@ import json
 from discord.ext import commands
 
 from ..Tools.multilingual import *
-
+from ..main import MilkCoffee
 
 class Language(commands.Cog):
     """言語を設定するよ!^Set up language!^언어를 설정합니다!^Configurar idioma!"""
 
     def __init__(self, bot):
-        self.bot = bot  # type: commands.MilkCoffee
+        self.bot = bot  # type: MilkCoffee
         with open('./Assets/emoji_data.json', 'r', encoding="utf-8") as f:
             self.emoji = json.load(f)
 

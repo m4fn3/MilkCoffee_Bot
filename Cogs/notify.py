@@ -5,13 +5,13 @@ import json
 from discord.ext import commands
 
 from ..Tools.multilingual import *
-
+from ..main import MilkCoffee
 
 class Notify(commands.Cog):
     """お知らせの設定するよ!^I'll set the notification!^알림설정하기!^¡Establece notificaciones!"""
 
     def __init__(self, bot):
-        self.bot = bot  # type: commands.MilkCoffee
+        self.bot = bot  # type: MilkCoffee
         with open('./Assets/emoji_data.json', 'r', encoding="utf-8") as f:
             self.emoji = json.load(f)
 
