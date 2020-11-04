@@ -621,3 +621,5 @@ __他のサーバーから届いたメッセージは、webhookという技術�
 
 def setup(bot):
     bot.add_cog(GlobalChat(bot))
+
+# ended it's life
