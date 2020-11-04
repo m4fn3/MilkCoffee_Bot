@@ -111,8 +111,7 @@ class Costume(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][
-                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.data.appeal_channel))
+            await ctx.send(self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.data.appeal_channel))
             raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
@@ -134,22 +133,17 @@ class Costume(commands.Cog):
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang],
+            await ctx.send(self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang],
                                                                                                                                                                                                                                                                                                                                              ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(["コマンド実行の間隔が速すぎるよ! `{:.2f}`秒後に再度使用できるよ!", "The command execution interval is too fast! You can use it again in `{:.2f}` seconds!", "명령 실행 간격이 너무 빠릅니다! `{:.2f}` 초 후에 다시 사용할 수 있습니다!", "¡El intervalo de ejecución del comando es demasiado rápido! ¡Puede volver a utilizarlo en `{:.2f}` segundos!"][user_lang].format(error.retry_after))
+            await ctx.send(self.bot.text.interval_too_fast[user_lang].format(error.retry_after))
         else:
-            await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
+            await ctx.send(self.bot.text.error_occurred[user_lang].format(error))
 
     async def process_new_user(self, message):
         user_lang = get_lg(self.bot.database[str(message.author.id)]["language"], message.guild.region)
-        embed = discord.Embed(title=["装飾シミュレータへようこそ!", "Welcome to the costume simulator!", "코스튬 시뮬레이터에 오신 것을 환영합니다!", "¡Bienvenido al simulador de disfraz!"][user_lang], color=0x00ffff)
-        embed.description = [
-            "装飾シミュレータ操作用コマンドのリストは`{0}help Costume`で確認できるよ!\nm!add (base/character/weapon/head/body/back) 番号 \nm!list (base/character/weapon/head/body/back)\n例:\n`{0}list character`\n`{0}add character 1`\n実際に上の例にあるコマンドを使ってみてね！\nもっと知りたいって人はこの動画を見てね！\n[https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)",
-            "Welcome to the costume simulator!\nYou can see the list of commands for operating the costume simulator with `{0}help Costume`!\n{0}add (base / character / weapon / head / body / back) number\n{0}list (base / character / weapon / head / body / back)\nExample:\n`{0}list character`\n`{0}add character 1`\nTry using the command in the example above to understand!",
-            "코스튬 시뮬레이터에 오신 것을 환영합니다!\n코스튬 시뮬레이터 조작 명령어는 `{0}help Costume`에서 확인 할 수 있어!\n{0}add (base / character / weapon / head / body / back) 번호\n{0}list (base / character / weapon / head / body / back)\n예 :\n`{0}list character`\n`{0}add character 1`\n실제로 위의 예제에있는 명령을 사용 해보세요!\n더 알고 싶은 사람은 동영상을 보세요!\n[https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)",
-            "¡Bienvenido al simulador de disfraz!\n¡Puedes ver la lista de comandos para operar el simulador de disfraz con `{0}help Costume`!\n{0}add (base / personaje / arma / cabeza / cuerpo / espalda) \n{0}list (base / personaje / arma / cabeza / cuerpo / espalda)\nEjemplo:\n`{0}list character`\n`{0}add character 1`\n¡Intente usar el comando del ejemplo anterior!"
-        ][user_lang].format(self.bot.PREFIX)
+        embed = discord.Embed(title=self.bot.text.welcome_to_costume_title[user_lang], color=0x00ffff)
+        embed.description = self.bot.text.welcome_to_costume_description[user_lang].format(self.bot.PREFIX)
         await message.channel.send(message.author.mention, embed=embed)
 
     async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
@@ -183,13 +177,13 @@ class Costume(commands.Cog):
         embed = discord.Embed()
         item_id = parse_item_list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
         text = f"{self.emoji['base'][str(base_id)]} {self.emoji['character'][str(character_id)]} {self.emoji['weapon'][str(weapon_id)]} {self.emoji['head'][str(head_id)]} {self.emoji['body'][str(body_id)]} {self.emoji['back'][str(back_id)]}"  # f"装飾コード: {item_id}"
-        embed.add_field(name=["ベース色", "base", "색상", "base"][user_lang], value=f"{base_id} {self.emoji['base'][str(base_id)]} {self.name['base'][str(base_id)]}")
-        embed.add_field(name=["キャラクター", "character", "캐릭터", "caracteres"][user_lang], value=f"{character_id} {self.emoji['character'][str(character_id)]} {self.name['character'][str(character_id)]}")
-        embed.add_field(name=["武器", "weapon", "무기", "arma"][user_lang], value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]} {self.name['weapon'][str(weapon_id)]}")
-        embed.add_field(name=["頭装飾", "head", "머리", "cabeza"][user_lang], value=f"{head_id} {self.emoji['head'][str(head_id)]} {self.name['head'][str(head_id)]}")
-        embed.add_field(name=["体装飾", "body", "몸", "cuerpo"][user_lang], value=f"{body_id} {self.emoji['body'][str(body_id)]} {self.name['body'][str(body_id)]}")
-        embed.add_field(name=["背中装飾", "back", "허리", "espalda"][user_lang], value=f"{back_id} {self.emoji['back'][str(back_id)]} {self.name['back'][str(back_id)]}")
-        embed.set_footer(text=["装飾コード: {}", "CostumeCode: {}", "장식 코드: {}", "código de decoración: {}"][user_lang].format(item_id), icon_url="http://zorba.starfree.jp/MilkChoco/milkchoco.jpg")
+        embed.add_field(name=self.bot.text.costume_table_base[user_lang], value=f"{base_id} {self.emoji['base'][str(base_id)]} {self.name['base'][str(base_id)]}")
+        embed.add_field(name=self.bot.text.costume_table_character[user_lang], value=f"{character_id} {self.emoji['character'][str(character_id)]} {self.name['character'][str(character_id)]}")
+        embed.add_field(name=self.bot.text.costume_table_weapon[user_lang], value=f"{weapon_id} {self.emoji['weapon'][str(weapon_id)]} {self.name['weapon'][str(weapon_id)]}")
+        embed.add_field(name=self.bot.text.costume_table_head[user_lang], value=f"{head_id} {self.emoji['head'][str(head_id)]} {self.name['head'][str(head_id)]}")
+        embed.add_field(name=self.bot.text.costume_table_body[user_lang], value=f"{body_id} {self.emoji['body'][str(body_id)]} {self.name['body'][str(body_id)]}")
+        embed.add_field(name=self.bot.text.costume_table_back[user_lang], value=f"{back_id} {self.emoji['back'][str(back_id)]} {self.name['back'][str(back_id)]}")
+        embed.set_footer(text=self.bot.text.costume_table_code[user_lang].format(item_id), icon_url="http://zorba.starfree.jp/MilkChoco/milkchoco.jpg")
         await ctx.send(text, embed=embed, file=discord.File(fp=io.BytesIO(base), filename="result.png"))
         return
 
@@ -285,15 +279,15 @@ class Costume(commands.Cog):
                 if 0 <= int(index) <= item_count:
                     item_index = int(index) - 1
                 else:
-                    return await ctx.send(["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"][user_lang].format(index))
+                    return await ctx.send(self.bot.text.no_th_saved_work[user_lang].format(index))
             elif index.isdigit():
-                return await ctx.send(["1~20の間で指定してね!.", "Please specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."][user_lang])
+                return await ctx.send(self.bot.text.specify_between_1_20[user_lang])
             else:
                 used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
                 if index in used_name_list:
                     item_index = used_name_list.index(index)
                 else:
-                    return await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
+                    return await ctx.send(self.bot.text.not_found_with_name[user_lang])
             item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["Data"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
@@ -319,17 +313,17 @@ class Costume(commands.Cog):
             if 0 <= int(index) <= item_count:
                 item_index = int(index) - 1
             else:
-                return await ctx.send(["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"][user_lang].format(index))
+                return await ctx.send(self.bot.text.no_th_saved_work[user_lang].format(index))
         elif index.isdigit():
-            return await ctx.send(["1~20の間で指定してね!.", "Please specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."][user_lang])
+            return await ctx.send(self.bot.text.specify_between_1_20[user_lang])
         else:
             used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
             else:
-                return await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
+                return await ctx.send(self.bot.text.not_found_with_name[user_lang])
         self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["Data"]
-        await ctx.send(["{}番目の\"{}\"を読み込みました.", "loaded {}th {}", "{} 번째 \"{}\"을 읽어 습니다.", "{}th \"{}\" cargado"][user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
+        await ctx.send(self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
 
     @commands.command(usage="save (保存名称)^save (save name)^save (저장 명칭)^save (guardar nombre)", brief="現在の装飾を保存できるよ!^Save the current decoration!^현재의 장식을 저장 할 수 있어!^¡Puede guardar la decoración actual!",
                       description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'Untitled1'みたいな名前を自動でつけとくね!^Save the current decoration! If you don't specify a save name, I automatically give it a name like 'Untitled 1'!^현재의 장식을 저장 할 수 있어! 저장할 이름을 지정하지 않으면, 'Untitled 1'같은 이름을 자동으로 저장할거야!^¡Puede guardar la decoración actual! Si no especifica un nombre para guardar, puede darle automáticamente un nombre como 'Untitled 1'.",
@@ -347,7 +341,7 @@ class Costume(commands.Cog):
         name: str
         listed = ctx.message.content.split(" ", 1)
         if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
-            return await ctx.send(["保存できるのは20個までだよ! 不要なものを削除してから保存してね!", "You can save up to 20! Delete unnecessary ones before saving!", "불필요한 것들은 빼고 20개까지 저장해줄거야!", "¡Puedes guardar hasta 20! ¡Elimina los innecesarios antes de guardar!"][user_lang])
+            return await ctx.send(self.bot.text.save_up_to_20[user_lang])
         used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
         if len(listed) == 1:
             count = 1
@@ -358,11 +352,11 @@ class Costume(commands.Cog):
                 count += 1
         else:
             if listed[1].isdigit():
-                return await ctx.send(["数字のみの名前は使用できないよ!", "You can't use numbers-only names!", "숫자를 이름으로는 사용할 수 없어!", "¡No puedes usar nombres de solo números!"][user_lang])
+                return await ctx.send(self.bot.text.int_only_name_not_allowed[user_lang])
             elif listed[1] in used_name_list:
-                return await ctx.send(["この名前は既に他の作品についてるよ!.", "This name is already on other works !", "이 이름은 이미 다른 작품에 사용되었어요!", "¡Este nombre ya está en otros trabajos!"][user_lang])
+                return await ctx.send(self.bot.text.name_already_used[user_lang])
             elif len(listed[1]) < 1 or 20 < len(listed[1]):
-                return await ctx.send(["名称は1文字以上20文字以下で指定してね!", "Please specify the name with 1 to 20 characters!", "이름은 1 ~ 20자로 지정주세요!", "Por favor, especifique el nombre con 1 a 20 caracteres."][user_lang])
+                return await ctx.send(self.bot.text.name_length_between_1_20[user_lang])
             name = listed[1]
         self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
             {
@@ -370,7 +364,7 @@ class Costume(commands.Cog):
                 "Data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
-        await ctx.send(["保存したよ! 名称: '{}'", "Saved! Name: '{}'", "저장 했어! 이름: '{}'", "¡Guardado!. Nombre: '{}'"][user_lang].format(name))
+        await ctx.send(self.bot.text.saved_work[user_lang].format(name))
 
     @commands.command(aliases=["mylist"], usage="my (ページ)^my (page)^my (페이지)^my (página)", brief="保存した作品の一覧を表示するよ!^Display a list of saved works!^저장된 작업 목록을 표시 할 수 있어!^¡Puedes mostrar una lista de trabajos guardados!",
                       description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!^Display a list of saved works! If you do not specify a page, it will be displayed from the first page! But don't worry because you can also move pages by pressing reaction!^저장된 작업 목록을 표시 할 수 있어! 페이지를 지정하지 않으면, 1 페이지에서 볼 수 있어!하지만 반응을 눌러 페이지 이동도 할 수 있으니까 걱정하지 마!^¡Puedes mostrar una lista de trabajos guardados! Si no especificas una página, se mostrará desde la primera página ¡Pero no te preocupes porque también puedes mover páginas presionando reacción!",
@@ -386,19 +380,19 @@ class Costume(commands.Cog):
         """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         listed = ctx.message.content.split()
+        page_length = 4
         page: int
         if len(listed) == 1:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send(["ページ数は1~4で指定してね!", "Specify the number of pages from 1 to 4!", "페이지 수는 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 4!"][user_lang])
+            return await ctx.send(self.bot.text.page_number_between[user_lang].format(page_length))
         else:
-            return await ctx.send(["ページ数は整数で1~4で指定してね!", "Specify the number of pages as an integer from 1 to 4!", "페이지 수는 정수 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 4!"][user_lang])
+            return await ctx.send(self.bot.text.page_number_integer_between[user_lang].format(page_length))
         item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
-        embed = discord.Embed(title=["保存した作品集 ({} / 4 ページ)", "Saved work collection ({} / 4 pages)", "저장된 작품집 ({} / 4 페이지)", "Colección de trabajos guardados ({} / 4 páginas)"][user_lang].format(page))
-        embed.description = ["左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!", "The number on the left is the save number, and the name next to it is the save name! The 6 or 7 alphanumeric character string below it is the decoration code!", "왼쪽의 숫자가 저장 명칭이야! 그 아래 숫자 6,7 자리는 코스튬 코드이야!",
-                             "El número de la izquierda es el número de guardado, y el nombre al lado es el nombre de guardado. ¡La cadena de 6 o 7 dígitos debajo es el código de decoración!"][user_lang]
+        embed = discord.Embed(title=self.bot.text.my_title[user_lang].format(page))
+        embed.description = self.bot.text.my_description[user_lang]
         for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
             if index > item_count:
                 break
@@ -414,9 +408,8 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed = discord.Embed(title=["保存した作品集 ({} / 4 ページ)", "Saved work collection ({} / 4 pages)", "저장된 작품집 ({} / 4 페이지)", "Colección de trabajos guardados ({} / 4 páginas)"][user_lang].format(page))
-            embed.description = ["左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!", "The number on the left is the save number, and the name next to it is the save name! The 6 or 7 alphanumeric character string below it is the decoration code!", "왼쪽의 숫자가 저장 명칭이야! 그 아래 숫자 6,7 자리는 코스튬 코드이야!",
-                                 "El número de la izquierda es el número de guardado, y el nombre al lado es el nombre de guardado. ¡La cadena de 6 o 7 dígitos debajo es el código de decoración!"][user_lang]
+            embed = discord.Embed(title=self.bot.text.my_title[user_lang].format(page))
+            embed.description = self.bot.text.my_description[user_lang]
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
                 if index > item_count:
                     break
@@ -444,20 +437,20 @@ class Costume(commands.Cog):
             item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
             if 0 <= int(index) <= item_count:
                 old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(int(index) - 1)
-                await ctx.send(["{}番目の{}を削除したよ!", "The {} th {} has been deleted!", "{} 번째 {}를 삭제 했어!", "¡El {} th {} ha sido eliminado!"][user_lang].format(index, old_data["name"]))
+                await ctx.send(self.bot.text.deleted_work[user_lang].format(index, old_data["name"]))
             else:
-                await ctx.send(["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"][user_lang].format(index))
+                await ctx.send(self.bot.text.not_found_with_number[user_lang].format(index))
         elif index.isdigit():
-            await ctx.send(["1~20の間で指定してね!.", "Please specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."][user_lang])
+            await ctx.send(self.bot.text.specify_between_1_20[user_lang])
         else:
             used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
             if index in used_name_list:
                 item_index = used_name_list.index(index)
                 old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(item_index)
-                await ctx.send(["{}番目の{}を削除したよ!", "The {} th {} has been deleted!", "{} 번째 {}를 삭제 했어!", "¡El {} th {} ha sido eliminado!"][user_lang].format(item_index + 1, old_data["name"]))
+                await ctx.send(self.bot.text.deleted_work[user_lang].format(item_index + 1, old_data["name"]))
 
             else:
-                await ctx.send(["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"][user_lang])
+                await ctx.send(self.bot.text.not_found_with_name[user_lang])
 
     @commands.group(usage="add [種類] [番号|名称]^add [type] [number | name]^add [종류] [번호 | 명칭]^add [tipo] [número | nombre]", brief="アイテムを追加するよ!^Add items^항목을 추가 해요!^Añadir artículo",
                     description="アイテムを追加するよ!\n1つ目の'種類'にはbase/character/weapon/head/body/back(詳しくはhelpコマンドの?リアクションを押して確認してね)のいずれかを指定して、\n2つ目の'番号|名称'にはアイテムの名前または番号を指定してね!^Add an item!\nFor the first'type', specify one of base / character / weapon / head / body / back (for details, press the? Reaction of the help command to check).\nFor the second'number | name', specify the item's name or number!^항목을 추가 해요!\n첫 번째 '종류'는 base / character / weapon / head / body / back (자세한 내용은 help 명령어의 리액션을 눌러 확인주세요) 중 하나를 지정해\n두 번째 '번호 | 명칭'은 아이템의 이름 또는 번호를 지정해줘!^¡Agregaré un artículo!\nPara el primer 'tipo', especifique uno de base / character / weapon / head / body / back (para más detalles, presione? Reacción del comando de ayuda para verificar).\nPara el segundo 'número | nombre', especifique el nombre o número del artículo.",
@@ -474,7 +467,7 @@ class Costume(commands.Cog):
         """
         if ctx.invoked_subcommand is None:
             user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-            await ctx.send(["サブコマンドが不足しているよ!\n`{0}help add`で使い方を確認してね!", "Missing subcommands!\n`{0}help add` to see how to use it!", "하위 명령이 부족한거야! \n`{0}help add` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{0}help add` para ver cómo se usa!"][user_lang].format(self.bot.PREFIX))
+            await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX))
 
     @add.command(name="item", aliases=["i"], usage="add item [名称]^add item [name]^add item [명칭]^add item [nombre]", description="アイテムを追加できるよ!名前を教えてくれたら、全種類の中から探すからね!^You can add items! If you tell me your name, I'll look for it in all types!^항목을 추가 할 수 있어! 이름을 가르쳐 주면 모든 종류 중에서 찾으니까!^¡Puedes agregar artículos! Si me dices tu nombre, ¡lo buscaré en todos los tipos!",
                  help="検索対象が全種類で広いから、思っているものと違うアイテムとマッチする可能性もあるよ>< また、全種類対応だから各種類のアイテム番号は使えないよ.。\n`{0}add item myocat` ... myocatという名前のアイテムを全種類から検索して追加します^Since the search target is wide for all types, there is a possibility that it will match items that are different from what you think.> <Also, since all types are supported, you cannot use each type of item number.\n`{0}add item myocat` ... Search for and add an item named myocat from all types^검색 대상이 모든 종류기 때문에, 생각하는 것과 다른 아이템과 매치 할 가능성도 있어요> <또한 모든 종류에 대응하기 때문에 각 유형의 항목 번호는 사용할 수 없어 ..\n`{0}add item myocat` ... myocat라는 항목을 모든 종류에서 검색하여 추가합니다^Dado que el objetivo de búsqueda es amplio para todos los tipos, existe la posibilidad de que coincida con elementos que son diferentes de lo que cree.\n`{0}add item myocat` ... Buscar y agregar un elemento llamado myocat de todos los tipos")
@@ -492,7 +485,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text)
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -514,7 +507,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="base")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -535,7 +528,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="character")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -557,7 +550,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="weapon")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -579,7 +572,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="head")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -601,7 +594,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="body")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -623,7 +616,7 @@ class Costume(commands.Cog):
         code, result = self.find_item(text, index=True, item_type="back")
         if code == 0:
             return await ctx.send(result[user_lang])
-        await ctx.send(["このアイテムが見つかったよ!: {} {}", "This item was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"][user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
+        await ctx.send(self.bot.text.this_item_found[user_lang].format(self.name[result[0]][result[1]], self.emoji[result[0]][result[1]]))
         item_list = parse_item_code_to_list(self.bot.database[str(ctx.author.id)]["costume"]["canvas"])
         item_list[self.item_info[result[0]]["index"]] = int(result[1])
         self.save_canvas_data(str(ctx.author.id), parse_item_list_to_code(item_list))
@@ -643,7 +636,7 @@ class Costume(commands.Cog):
         """
         if ctx.invoked_subcommand is None:
             user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-            await ctx.send(["サブコマンドが不足しているよ!\n`{0}help list`で使い方を確認してね!", "Missing subcommands!\n`{0}help list` to see how to use it!", "하위 명령이 부족한거야! \n`{0}help list` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{0}help list` para ver cómo se usa!"][user_lang].format(self.bot.PREFIX))
+            await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX))
 
     @list.command(name="base", aliases=["s", "bs"], usage="list base^list base^list base^list base", description="白黒のリストを表示するよ!この場合は白と黒の二つしかないんだけどね💦^Show the base color list (black and white)! In this case there are only two, white and black 💦^색상의 목록을 표시합니다! 이 경우에는 밀크와 초코 밖에 없지만 💦^¡Te mostraré una lista en blanco y negro! En este caso solo hay dos, blanco y negro 💦",
                   help="`{0}list base` ... キャラ色のリストを表示します^`{0}list base` ... Display a list of character colors^`{0}list base` ... 캐릭터 색상의 목록을 표시합니다^`{0}list base` ... Muestra una lista de colores de caracteres")
@@ -657,9 +650,9 @@ class Costume(commands.Cog):
             None
         """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        embed = discord.Embed(title=["色一覧", "base list", "base목록", "lista base"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("base", 1)
-        embed.set_footer(text=["1 / 1 ページを表示中", "current page 1 / 1 ", "1 / 1 페이를보기", "1 / 1 Página de visualización"][user_lang])
+        embed = discord.Embed(title=self.bot.text.list_base_title[user_lang])
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("base", 1)
+        embed.set_footer(text=self.bot.text.showing_page[user_lang].format("1"))
         await ctx.send(embed=embed)
 
     @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon^list weapon^list weapon^list weapon", description="武器のリストを表示するよ!^Show a list of weapons!^무기의 목록을 표시합니다!^¡Muestra una lista de armas!", help="`{0}list weapon` ... 武器のリストを表示します^`{0}list weapon` ... Shows a list of weapons^`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list weapon` ... Muestra una lista de armas")
@@ -674,18 +667,19 @@ class Costume(commands.Cog):
         """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         listed = ctx.message.content.split()
+        page_length = 4
         page: int
         if len(listed) == 2:
             page = 1
         elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
             page = int(listed[1])
         elif listed[1].isdigit():
-            return await ctx.send(["ページ数は1~4で指定してね!", "Specify the number of pages from 1 to 4!", "페이지 수는 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a 4!"][user_lang])
+            return await ctx.send(self.bot.text.page_number_between[user_lang].format(page_length))
         else:
-            return await ctx.send(["ページ数は整数で1~4で指定してね!", "Specify the number of pages as an integer from 1 to 4!", "페이지 수는 정수 1 ~ 4 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 4!"][user_lang])
-        embed = discord.Embed(title=["武器一覧", "Weapon list", "무기 목록", "lista de arma"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("weapon", page)
-        embed.set_footer(text=["{} / 4 ページを表示中", "current page {} / 4 ", "{} / 4 페이를보기", "{} / 4 Página de visualización"][user_lang].format(page))
+            return await ctx.send(self.bot.text.page_number_between[user_lang])
+        embed = discord.Embed(title=self.bot.text.list_weapon_title[user_lang])
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("weapon", page)
+        embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
@@ -694,8 +688,8 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("weapon", page)
-            embed.set_footer(text=["{} / 4 ページを表示中", "current page {} / 4 ", "{} / 4 페이를보기", "{} / 4 Página de visualización"][user_lang].format(page))
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list("weapon", page)
+            embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page))
             await message.edit(embed=embed)
 
     @list.command(name="character", aliases=["c", "ch", "char"], usage="list character^list character^list character^list character", description="キャラクターのリストを表示するよ!^Show the list of characters!^캐릭터의 목록을 표시합니다!^¡Muestre la lista de personajes!",
@@ -721,7 +715,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send(["ページ数は整数で1~3で指定してね!", "Specify the number of pages as an integer from 1 to 3!", "페이지 수는 정수 1 ~ 3 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 3!"][user_lang])
         embed = discord.Embed(title=["キャラ一覧", "Character list", "캐릭터 목록", "lista de personajes"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("character", page)
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("character", page)
         embed.set_footer(text=["{} / 3 ページを表示中", "current page {} / 3 ", "{} / 3 페이를보기", "{} / 3 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -731,7 +725,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("character", page)
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list("character", page)
             embed.set_footer(text=["{} / 3 ページを表示中", "current page {} / 3 ", "{} / 3 페이를보기", "{} / 3 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
@@ -758,7 +752,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send(["ページ数は整数で1~8で指定してね!", "Specify the number of pages as an integer from 1 to 8!", "페이지 수는 정수 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 8!"][user_lang])
         embed = discord.Embed(title=["頭装飾一覧", "Head list", "머리 목록", "lista de head"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("head", page)
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("head", page)
         embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -768,7 +762,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("head", page)
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list("head", page)
             embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
@@ -795,7 +789,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send(["ページ数は整数で1~9で指定してね!", "Specify the number of pages as an integer from 1 to 9!", "페이지 수는 정수 1 ~ 9 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 9!"][user_lang])
         embed = discord.Embed(title=["体装飾一覧", "Body list", "몸 목록", "lista de body"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("body", page)
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("body", page)
         embed.set_footer(text=["{} / 9 ページを表示中", "current page {} / 9 ", "{} / 9 페이를보기", "{} / 9 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -805,7 +799,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("body", page)
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list("body", page)
             embed.set_footer(text=["{} / 9 ページを表示中", "current page {} / 9 ", "{} / 9 페이를보기", "{} / 9 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
@@ -832,7 +826,7 @@ class Costume(commands.Cog):
         else:
             return await ctx.send(["ページ数は整数で1~8で指定してね!", "Specify the number of pages as an integer from 1 to 8!", "페이지 수는 정수 1 ~ 8 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a 8!"][user_lang])
         embed = discord.Embed(title=["背中装飾一覧", "Back list", "허리 목록", "lista de back"][user_lang])
-        embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("back", page)
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list("back", page)
         embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -842,7 +836,7 @@ class Costume(commands.Cog):
             if code == 0:
                 break
             page = new_page
-            embed.description = ["左の数字がアイテム番号、その横の名前がアイテム名称だよ!\n", "The number on the left is the item number, and the name next to it is the item name!\n", "왼쪽의 숫자 아이템 번호 옆의 이름이 항목 명칭이야!\n", "El número de la izquierda es el número de artículo y el nombre junto a él es el nombre del artículo.\n"][user_lang] + self.get_list("back", page)
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list("back", page)
             embed.set_footer(text=["{} / 8 ページを表示中", "current page {} / 8 ", "{} / 8 페이를보기", "{} / 8 Página de visualización"][user_lang].format(page))
             await message.edit(embed=embed)
 
