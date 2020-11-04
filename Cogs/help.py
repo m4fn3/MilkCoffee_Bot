@@ -1,6 +1,10 @@
-import asyncio, discord
+import asyncio
+import discord
+
 from discord.ext import commands
-from multilingual import *
+
+from ..Tools.multilingual import *
+
 
 class Help(commands.HelpCommand):
     def __init__(self):
@@ -27,7 +31,8 @@ class Help(commands.HelpCommand):
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
         cogs = ["Language", "Notify", "Costume", "Information"]
         if self.context.bot.database[str(self.context.author.id)]["language"] != LanguageCode.REGION:
-            cogs.remove("Language"); cogs.append("Language")
+            cogs.remove("Language");
+            cogs.append("Language")
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
@@ -66,7 +71,9 @@ class Help(commands.HelpCommand):
                     embed.add_field(name=["[引数]", "[argument]", "인수", "argumento"][user_lang], value=["__**必須**__の引数だよ", "__**required**__ argument", "__**필수**__ 인수야", "__**requerido**__ argumento"][user_lang], inline=False)
                     embed.add_field(name=["(引数)", "(argument)", "인수", "argumento"][user_lang], value=["__**オプション**__の引数だよ", "__**option**__", "__**옵션**__ 인수야", "__**opción**__ argumento"][user_lang], inline=False)
                     embed.add_field(name="[A|B]", value=["AまたはBのいずれかを指定してね", "either A or B", "A 또는 B 중 하나를 지정주세요", "especificar A o B"][user_lang], inline=False)
-                    embed.add_field(name=["'種類'", "'type'", "'종류'", "'tipo'"][user_lang], value=["base(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾) のいずれかを指定してね(例: base)", "Specify one of base (black and white) / character (character) / weapon (weapon) / head (head decoration) / body (body decoration) / back (back decoration)! (example: base)", "base (밀크, 초코) / character (캐릭터) / weapon (무기) / head (머리 코스튬) / body (몸 코스튬) / back (등 코스튬) 중 하나를 지정하세요 (예 : base)", "base (milk o choco) / character (personaje) / weapon (arma) / head (decoración de la cabeza) / body (decoración del cuerpo/traje) / back (decoración de la espalda). Especifique (Por ejemplo: base)"][user_lang], inline=False)
+                    embed.add_field(name=["'種類'", "'type'", "'종류'", "'tipo'"][user_lang], value=["base(白黒)/character(キャラ)/weapon(武器)/head(頭装飾)/body(体装飾)/back(背中装飾) のいずれかを指定してね(例: base)", "Specify one of base (black and white) / character (character) / weapon (weapon) / head (head decoration) / body (body decoration) / back (back decoration)! (example: base)",
+                                                                                                 "base (밀크, 초코) / character (캐릭터) / weapon (무기) / head (머리 코스튬) / body (몸 코스튬) / back (등 코스튬) 중 하나를 지정하세요 (예 : base)",
+                                                                                                 "base (milk o choco) / character (personaje) / weapon (arma) / head (decoración de la cabeza) / body (decoración del cuerpo/traje) / back (decoración de la espalda). Especifique (Por ejemplo: base)"][user_lang], inline=False)
                     embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
                     await message.edit(embed=embed)
                     continue
@@ -175,7 +182,8 @@ class Help(commands.HelpCommand):
     def subcommand_not_found(self, cmd, string):
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
         if isinstance(cmd, commands.Group) and len(cmd.all_commands) > 0:
-            return ["`{1}` に `{0}` というサブコマンドは登録されていないよ。`{2}help {1}` で使い方を確認してね！", "The subcommand `{0}` is not registered in `{1}`. Please check the usage with `{2}help {1}`!", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"][user_lang].format(string, cmd.qualified_name, self.context.bot.PREFIX)
+            return ["`{1}` に `{0}` というサブコマンドは登録されていないよ。`{2}help {1}` で使い方を確認してね！", "The subcommand `{0}` is not registered in `{1}`. Please check the usage with `{2}help {1}`!", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"][user_lang].format(string, cmd.qualified_name,
+                                                                                                                                                                                                                                                                                                                                                                 self.context.bot.PREFIX)
         return ["`{0}` にサブコマンドは登録されていないよ。`{1}help {0}` で使い方を確認してね！", "No subcommands are registered in `{0}`. Please check the usage with `{1}help {0}`!", "`{0}`에 등록 된 하위 명령이 없습니다.`{1}help {0}`로 사용법을 확인하세요!", "No hay subcomandos registrados en `{0}`.¡Compruebe el uso con la `{1}help {0}`!"][user_lang].format(cmd.qualified_name, self.context.bot.PREFIX)
 
     async def new_user(self):

@@ -4,7 +4,7 @@ import string, json
 numbers = "0123456789"
 alphabets = string.ascii_letters
 characters = numbers + alphabets
-with open('./assets/item_info.json') as f:
+with open('./Assets/item_info.json') as f:
     item_info = json.load(f)
 
 

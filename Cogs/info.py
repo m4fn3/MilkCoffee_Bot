@@ -1,16 +1,21 @@
+import datetime
+import discord
+import time
 from discord.ext import commands
-import discord, datetime, time
-from multilingual import *
+
+from ..Tools.multilingual import *
 
 
 class Information(commands.Cog):
     """色々な情報の設定をするよ!^For various information!^다양한 정보를 설정하는것입니다!^¡Estableceré diversa información!"""
+
     def __init__(self, bot):
         self.bot = bot  # type: commands.Bot
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
+            await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][
+                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
             raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
@@ -21,13 +26,15 @@ class Information(commands.Cog):
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
+            await ctx.send(["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"][user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang],
+                                                                                                                                                                                                                                                                                                                                             ctx.command.qualified_name))
         else:
             await ctx.send(["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"][user_lang].format(error))
 
     @commands.command(aliases=["inv"], usage="invite^invite^invite^invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。^Send you the BOT invitation link! Please invite me to the new server!^봇의 초대링크를 표시합니다! 여러 서버에 초대주세요!^¡Te mostraré el enlace de invitación BOT! ¡Invítame a varios servidores!")
     async def invite(self, ctx):
-        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['invite'], self.bot.datas['server'])
+        text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(
+            self.bot.datas['invite'], self.bot.datas['server'])
         await ctx.send(text)
 
     @commands.command(aliases=["about"], usage="info^info^info^info", description="BOTに関する情報を表示するよ!。^Show information about BOT !.^봇에 대한 정보를 표시합니다!.^Muestra información sobre BOT!.")
@@ -54,7 +61,7 @@ class Information(commands.Cog):
 
     @commands.command(aliases=["pg"], usage="ping^ping^ping^ping", description="BOTの反応速度を計測するよ!。^Measure the reaction speed of BOT!^봇의 반응 속도를 측정하는것입니다!^¡Mediré la velocidad de reacción de BOT!")
     async def ping(self, ctx):
-        await ctx.send(["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(int(self.bot.latency*1000)))
+        await ctx.send(["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(int(self.bot.latency * 1000)))
 
     @commands.command(usage="tos^tos^tos^tos", description="BOTの利用規約を表示するよ!^Show the terms of service of BOT!^봇의 이용약관을 표시합니다!^¡Mostraré los términos de uso de BOT!")
     async def tos(self, ctx):
@@ -154,6 +161,7 @@ Discord内のMilkCoffeeBOT及び公式サイト,公式サーバーで提供さ�
         embed.add_field(name="JoinedAt", value=f"{ctx.author.joined_at.strftime('%Y/%m/%d %H:%M:%S')}", inline=False)
         embed.add_field(name="Status", value=f"Mobile: {make_status_text(ctx.author.mobile_status)} | Web: {make_status_text(ctx.author.web_status)} | Desktop: {make_status_text(ctx.author.desktop_status)}", inline=False)
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Information(bot))

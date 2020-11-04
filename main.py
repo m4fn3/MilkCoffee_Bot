@@ -1,10 +1,15 @@
-from discord.ext import commands, tasks
-import discord, logging, os, json, io, time
 from os.path import join, dirname
-from dotenv import load_dotenv
-from multilingual import *
 
-from help import Help
+import discord
+import json
+import logging
+import os
+import time
+from discord.ext import commands
+from dotenv import load_dotenv
+
+from .Cogs.help import Help
+from .Tools.multilingual import *
 
 load_dotenv(verbose=True)
 load_dotenv(join(dirname(__file__), '.env'))
@@ -22,16 +27,15 @@ class Bot(commands.Bot):
     def __init__(self, command_prefix, help_command, status, activity, intents):
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
         self.bot_cogs = ["language", "costume", "developer", "info", "notify"]
-        self.PREFIX = PREFIX
-        for cog in self.bot_cogs:
+        self.PREFIX = PREFIX  # メインPREFIXを設定
+        for cog in self.bot_cogs:  # Cog読み込み
             self.load_extension(cog)
-        self.database = {}
-        self.ADMIN = {}
-        self.BAN = {}
-        self.Contributor = {}
-        self.maintenance = "Starting..."
-        self.invites = []
-        self.GM_update = {
+        self.database = {}  # TODO: db化
+        self.ADMIN = {}  # TODO: db化
+        self.BAN = {}  # TODO: db化
+        self.Contributor = {}  # TODO: db化
+        self.maintenance = "Starting..."  # NOTE: maintenanceをどうするか
+        self.GM_update = {  # TODO: db化
             "twitter": [],
             "youtube": [],
             "facebook_jp": [],
@@ -113,7 +117,9 @@ class Bot(commands.Bot):
         elif message.author.bot:
             return
         elif message.content == f"<@!{self.user.id}>":
-            return await message.channel.send(["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."][get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
+            return await message.channel.send(
+                ["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."][get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX,
+                                                                                                                                                                                                                                                                                                                                                                                                   self.PREFIX))
         else:
             await self.process_commands(message)
 
@@ -162,7 +168,6 @@ class Bot(commands.Bot):
     #     database_channel = self.get_channel(self.datas["database_channel"])
     #     db_bytes = json.dumps(db_dict, indent=2)
     #     await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
-
 
 
 if __name__ == '__main__':
