@@ -112,7 +112,7 @@ class Notify(commands.Cog):
         if len(cmd) == 1 or (len(cmd) == 2 and cmd[1] not in ["twitter", "facebook", "youtube"]):
             embed = discord.Embed(title=self.bot.text.notice_title[user_lang])
             embed.description = f"""
-{self.bot.text.notice_descprition[user_lang]}
+{self.bot.text.notice_description[user_lang]}
 {self.emoji["notify"]["twitter"]} ... Twitter
 {self.emoji["notify"]["facebook"]} ... FaceBook
 {self.emoji["notify"]["youtube"]} ... YouTube
