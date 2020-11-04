@@ -23,7 +23,7 @@ class Notify(commands.Cog):
             raise Exception("maintenance-error")
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][
-                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
+                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.data.appeal_channel))
             raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
@@ -32,42 +32,42 @@ class Notify(commands.Cog):
             await self.bot.get_cog("Language").language_selector(ctx)
 
     async def on_GM_update(self, message):
-        if message.channel.id == self.bot.datas["GM_update_channel"][0]:  # Twitter
+        if message.channel.id == self.bot.data.GM_update_channel[0]:  # Twitter
             for channel_id in self.bot.GM_update["twitter"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["twitter"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][1]:  # FaceBookJP
+        elif message.channel.id == self.bot.data.GM_update_channel[1]:  # FaceBookJP
             for channel_id in self.bot.GM_update["facebook_jp"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_jp"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][2]:  # FaceBookEN
+        elif message.channel.id == self.bot.data.GM_update_channel[2]:  # FaceBookEN
             for channel_id in self.bot.GM_update["facebook_en"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_en"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][3]:  # FaceBookKR
+        elif message.channel.id == self.bot.data.GM_update_channel[3]:  # FaceBookKR
             for channel_id in self.bot.GM_update["facebook_kr"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_kr"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][4]:  # FaceBookES
+        elif message.channel.id == self.bot.data.GM_update_channel[4]:  # FaceBookES
             for channel_id in self.bot.GM_update["facebook_es"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_es"].remove(channel_id)
-        elif message.channel.id == self.bot.datas["GM_update_channel"][5]:  # YouTube
+        elif message.channel.id == self.bot.data.GM_update_channel[5]:  # YouTube
             for channel_id in self.bot.GM_update["youtube"]:
                 try:
                     self.bot.get_channel(channel_id)
@@ -93,12 +93,12 @@ class Notify(commands.Cog):
         else:
             target_channel = ctx.channel
         if target_channel.permissions_for(ctx.guild.me).manage_webhooks:
-            await self.bot.get_channel(self.bot.datas['notice_channel']).follow(destination=target_channel)
+            await self.bot.get_channel(self.bot.data.announce_channel).follow(destination=target_channel)
             await ctx.send(["{}で公式サーバーのBOTお知らせ用チャンネルをフォローしました。", "I followed the BOT notification channel at {}!", "{}에서 BOT 알림 채널을 따라갔습니다!", "Seguí el canal de notificación BOT en {}."][user_lang].format(target_channel.mention))
         else:
             await ctx.send(
                 ["`manage_webhooks(webhookの管理)`権限が不足しています。\n代わりに公式サーバーの<#{}>を手動でフォローすることもできます。", "Missing `manage_webhooks` permissions.\nYou can also manually follow <#{}> on the official server instead.", "`manage_webhooks` 권한이 없습니다. \n 공식 서버에서 수동으로 <#{}> 팔로우 할 수도 있습니다.", "`manage_webhooks` No tiene permisos. \nTambién puede seguir manualmente <#{}> en el servidor oficial."][user_lang].format(
-                    self.bot.datas['notice_channel']))
+                    self.bot.data.announce_channel))
 
     @commands.command(usage="notice (チャンネル)^notice (channel)^notice (채널)^notice (canal)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!^Receive MilkChoco updates on your server's channel!^밀크초코 운영의 업데이트 정보를 당신의 서버의 채널에 제공합니다!^¡Lo mantendremos informado sobre las operaciones de MilkChoco en su canal de servidor!")
     async def notice(self, ctx):

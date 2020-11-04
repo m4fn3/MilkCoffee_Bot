@@ -3,6 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from .bot import MilkCoffee
 from .utils.multilingual import *
 
 
@@ -36,7 +37,7 @@ class Help(commands.HelpCommand):
         cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
         cmds = cog.get_commands()
         embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-        embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.datas["server"])
+        embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.data.server)
         for cmd in await self.filter_commands(cmds, sort=True):
             embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{cmd.description.split('^')[user_lang]}```", inline=False)
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
@@ -67,7 +68,7 @@ class Help(commands.HelpCommand):
                         page -= 1
                 elif str(reaction.emoji) == "❔":
                     embed = discord.Embed(title=["コマンド説明の見方", "How to read the command description", "명령 설명 견해", "Cómo leer la descripción del comando"][user_lang], color=0x00ff00)
-                    embed.description = f"{['メッセージ下にあるリアクションを押してページ移動できるよ！', 'You can move the page by pressing the reaction below the message', '메시지의 반응을 눌러 페이지 이동 할 수 있어!', '¡Puede leer más acerca del comando presionando la reacción debajo del mensaje!'][user_lang]}\n{self.description_message[user_lang].format(self.context.bot.datas['server'])}"
+                    embed.description = f"{['メッセージ下にあるリアクションを押してページ移動できるよ！', 'You can move the page by pressing the reaction below the message', '메시지의 반응을 눌러 페이지 이동 할 수 있어!', '¡Puede leer más acerca del comando presionando la reacción debajo del mensaje!'][user_lang]}\n{self.description_message[user_lang].format(self.context.bot.data.server)}"
                     embed.add_field(name=["[引数]", "[argument]", "인수", "argumento"][user_lang], value=["__**必須**__の引数だよ", "__**required**__ argument", "__**필수**__ 인수야", "__**requerido**__ argumento"][user_lang], inline=False)
                     embed.add_field(name=["(引数)", "(argument)", "인수", "argumento"][user_lang], value=["__**オプション**__の引数だよ", "__**option**__", "__**옵션**__ 인수야", "__**opción**__ argumento"][user_lang], inline=False)
                     embed.add_field(name="[A|B]", value=["AまたはBのいずれかを指定してね", "either A or B", "A 또는 B 중 하나를 지정주세요", "especificar A o B"][user_lang], inline=False)
@@ -81,7 +82,7 @@ class Help(commands.HelpCommand):
                 cog = discord.utils.get(mapping, qualified_name=cogs[page - 1])
                 cmds = cog.get_commands()
                 embed = discord.Embed(title=cog.qualified_name, color=0x00ff00)
-                embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.datas["server"])
+                embed.description = cog.description.split("^")[user_lang] + self.description_message[user_lang].format(self.context.bot.data.server)
                 for cmd in await self.filter_commands(cmds, sort=True):
                     description = cmd.brief.split('^')[user_lang] if cmd.brief is not None else cmd.description.split('^')[user_lang]
                     embed.add_field(name=f"{self.context.bot.PREFIX}{cmd.usage.split('^')[user_lang]}", value=f"```{description}```", inline=False)

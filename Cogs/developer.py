@@ -78,7 +78,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをADMINにしました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がADMINになりました。", color=0xffa500)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command()
     async def deadmin(self, ctx, user_id, *, reason):
@@ -98,7 +98,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをADMINから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がADMINから削除されました。", color=0xc71585)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command()
     async def is_admin(self, ctx, user_id):
@@ -135,7 +135,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをContributorにしました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がContributorになりました。", color=0xe6e6fa)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command(aliases=["decon"])
     async def decontributor(self, ctx, user_id, *, reason):
@@ -155,7 +155,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをContributorから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がContributorから削除されました。", color=0xffe4e1)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command(aliases=["is_con"])
     async def is_contributor(self, ctx, user_id):
@@ -192,7 +192,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをBANしました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がBANされました。", color=0xdc143c)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command()
     async def unban(self, ctx, user_id, *, reason):
@@ -212,7 +212,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         await ctx.send(f"該当ユーザーをBAN解除しました。(ユーザー情報: {str(user)} ({user.id}))")
         embed = discord.Embed(title=f"{user.name} がBAN解除されました。", color=0x4169e1)
         embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.datas["log_channel"]).send(embed=embed)
+        await self.bot.get_channel(self.bot.data.log_channel).send(embed=embed)
 
     @commands.command(aliases=["banned", "baned"])
     async def is_ban(self, ctx, user_id):

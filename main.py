@@ -19,6 +19,6 @@ PREFIX = "m!"
 PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
 
 if __name__ == '__main__':
-    bot_intents = discord.Intents.default()
-    bot = MilkCoffee(PREFIX, command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=bot_intents)
+    intents = discord.Intents.default()
+    bot = MilkCoffee(PREFIX, command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
     bot.run(TOKEN)

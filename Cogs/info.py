@@ -17,7 +17,7 @@ class Information(commands.Cog):
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
             await ctx.send(["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."][
-                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.datas['appeal_channel']))
+                               get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.data.appeal_channel))
             raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
@@ -36,7 +36,7 @@ class Information(commands.Cog):
     @commands.command(aliases=["inv"], usage="invite^invite^invite^invite", description="BOTの招待リンクを表示するよ!是非いろんなサーバーに招待してね!。^Send you the BOT invitation link! Please invite me to the new server!^봇의 초대링크를 표시합니다! 여러 서버에 초대주세요!^¡Te mostraré el enlace de invitación BOT! ¡Invítame a varios servidores!")
     async def invite(self, ctx):
         text = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(
-            self.bot.datas['invite'], self.bot.datas['server'])
+            self.bot.data.invite, self.bot.data.server)
         await ctx.send(text)
 
     @commands.command(aliases=["about"], usage="info^info^info^info", description="BOTに関する情報を表示するよ!。^Show information about BOT !.^봇에 대한 정보를 표시합니다!.^Muestra información sobre BOT!.")
@@ -52,12 +52,12 @@ class Information(commands.Cog):
             "Thank you for using BOT!\nThis BOT was created by `{0}` for the Discord server of MilkChoco players.\nFor detailed usage, see `{1}help`\nWe will respond to function requests as much as possible!",
             "봇을 사용해 주셔서 감사합니다!\n이 봇은 밀크초코를 플레이하는 사람들의 디스코드 서버의 `{0}` 에 의해 작성되었습니다.\n자세한 사용법은 `{1}help` 에서 확인하십시오.\n기능 추가에도 가능한 한 대응하겠습니다!",
             "¡Gracias por usar BOT! \nEste BOT fue creado por `{0}` para el servidor de Discord de aquellos que juegan Milk Choco.\nPara obtener detalles sobre cómo usarlo, consulte `{1}help`.\n¡Responderemos a las solicitudes de funciones tanto como sea posible!"
-        ][user_lang].format(self.bot.datas["author"], self.bot.PREFIX)
+        ][user_lang].format(self.bot.get_user(self.bot.data.author), self.bot.PREFIX)
         embed.add_field(name=["ステータス", "status", "상태", "estado"][user_lang],
                         value=["```導入サーバー数: {0}\nBOTが認識しているユーザー数:{1}```", "```Number of installed servers: {0}\nNumber of users recognized by BOT: {1}```", "```도입 서버 수 : {0}\nBOT가 인식하고있는 사용자 수 : {1}```", "```Número de servidores instalados: {0}\nNúmero de usuarios reconocidos por BOT: {1} ```"][user_lang].format(len(self.bot.guilds), len(self.bot.users)), inline=False)
         embed.add_field(name=["稼働時間", "uptime", "가동 시간", "uptime"][user_lang], value=["{0}日 {1}時間 {2}分 {3}秒", "{0} days {1} hours {2} minutes {3} seconds", "{0} 일 {1} 시간 {2} 분 {3} 초", "{0} días {1} horas {2} minutos {3} segundos"][user_lang].format(d, h, m, s), inline=False)
         embed.add_field(name=["各種URL", "URLs", "각종 URL", "URLs"][user_lang],
-                        value=["[BOT招待用URL]({0}) | [サポート用サーバー]({1}) | [公式サイト]({2})", "[BOT invitation URL]({0}) | [Support server]({1}) | [Official Site]({2}) ", "[봇 초대 링크]({0}) | [지원용 서버]({1}) | [공식 사이트]({2})", "[URL de invitación BOT]({0}) | [Servidor de asistencia]({1}) | [Sitio oficial]({2}) "][user_lang].format(self.bot.datas['invite'], self.bot.datas['server'], self.bot.datas['web']),
+                        value=["[BOT招待用URL]({0}) | [サポート用サーバー]({1}) | [公式サイト]({2})", "[BOT invitation URL]({0}) | [Support server]({1}) | [Official Site]({2}) ", "[봇 초대 링크]({0}) | [지원용 서버]({1}) | [공식 사이트]({2})", "[URL de invitación BOT]({0}) | [Servidor de asistencia]({1}) | [Sitio oficial]({2}) "][user_lang].format(self.bot.data.invite, self.bot.data.server, self.bot.data.web),
                         inline=False)
         await ctx.send(embed=embed)
 
