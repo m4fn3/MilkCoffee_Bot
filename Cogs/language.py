@@ -105,7 +105,8 @@ class Language(commands.Cog):
                 self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
                 await ctx.send(":flag_es: Establecer idioma en __Español__!")
             else:
-                await ctx.send(["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."][get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)])
+                await ctx.send(self.bot.text.lang_not_found[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)])
+
 
 
 def setup(bot):

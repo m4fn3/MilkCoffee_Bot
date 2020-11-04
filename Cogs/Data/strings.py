@@ -52,6 +52,8 @@ class Strings:
     # info.py
     reaction_rate = ["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"]
     invite_links = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"]
+    # language.py
+    lang_not_found = ["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."]
 
 
 
