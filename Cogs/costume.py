@@ -16,7 +16,7 @@ class Costume(commands.Cog):
     """装飾シミュレータを操作できるよ！好みの組合せを探そう！^You can operate the costume simulator! Find your favorite combination!^코스튬 시뮬레이터를 조작 할 수 있어! 원하는 조합을 찾자!^¡Bienvenido al simulador de drisfraces!"""
 
     def __init__(self, bot):
-        self.bot = bot  # type: commands.Bot
+        self.bot = bot  # type: commands.MilkCoffee
         with open('./Assets/emoji_data.json', 'r', encoding="utf-8") as f:
             self.emoji = json.load(f)
         with open('./Assets/name_data.json', 'r', encoding="utf-8") as f:

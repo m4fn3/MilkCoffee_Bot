@@ -13,7 +13,7 @@ else:
 class Developer(commands.Cog, command_attrs=dict(hidden=True)):
     """BOTのシステムを管理します。(ADMIN以上の権限が必要です)"""
     def __init__(self, bot):
-        self.bot = bot  # type: commands.Bot
+        self.bot = bot  # type: commands.MilkCoffee
         self._last_result = None
         try:
             import psutil

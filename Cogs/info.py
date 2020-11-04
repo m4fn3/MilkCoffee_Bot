@@ -10,7 +10,7 @@ class Information(commands.Cog):
     """色々な情報の設定をするよ!^For various information!^다양한 정보를 설정하는것입니다!^¡Estableceré diversa información!"""
 
     def __init__(self, bot):
-        self.bot = bot  # type: commands.Bot
+        self.bot = bot  # type: commands.MilkCoffee
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:

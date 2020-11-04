@@ -22,11 +22,11 @@ PREFIX = "m!"
 PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
 
 
-class Bot(commands.Bot):
+class MilkCoffee(commands.Bot):
 
     def __init__(self, command_prefix, help_command, status, activity, intents):
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
-        self.bot_cogs = ["language", "costume", "developer", "info", "notify"]
+        self.bot_cogs = ["Cog.language", "Cog.costume", "Cog.developer", "Cog.info", "Cog.notify"]
         self.PREFIX = PREFIX  # メインPREFIXを設定
         for cog in self.bot_cogs:  # Cog読み込み
             self.load_extension(cog)
@@ -171,6 +171,6 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    intents = discord.Intents.default()
-    bot = Bot(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
+    bot_intents = discord.Intents.default()
+    bot = MilkCoffee(command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=bot_intents)
     bot.run(TOKEN)
