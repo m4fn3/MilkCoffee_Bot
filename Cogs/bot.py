@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from Cogs.utils.multilingual import *
 from Cogs.Data.static_data import StaticData
+from Cogs.Data.strings import Strings
 
 class MilkCoffee(commands.Bot):
 
@@ -13,6 +14,8 @@ class MilkCoffee(commands.Bot):
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
         self.bot_cogs = ["Cogs.language", "Cogs.costume", "Cogs.developer", "Cogs.info", "Cogs.notify"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
+        self.data = StaticData()  # 固定データを読み込み
+        self.text = Strings()
         for cog in self.bot_cogs:  # Cog読み込み
             self.load_extension(cog)
         self.database = {}  # TODO: db
@@ -28,7 +31,6 @@ class MilkCoffee(commands.Bot):
             "facebook_es": []
         }
         self.uptime = time.time()
-        self.data = StaticData()  # 固定データを読み込み
 
     async def on_ready(self):
         """キャッシュ準備完了"""
@@ -47,8 +49,7 @@ class MilkCoffee(commands.Bot):
             return
         elif message.content == f"<@!{self.user.id}>":  # BOTがメンションされた時
             # TODO: eb
-            return await message.channel.send(["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."][get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX,
-                                                                                                                                                                                                                                                                                                                                                                                                   self.PREFIX))
+            return await message.channel.send(self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
         else:  # コマンドとして処理
             await self.process_commands(message)
 
