@@ -228,7 +228,7 @@ class Costume(commands.Cog):
         try:
             # 言語を取得
             user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-            code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化
+            code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化 - db
             items = code_to_list(code)  # 装飾コードから各部位の番号を取得
             # breakで終了するまで継続
             while True:
