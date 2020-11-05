@@ -18,6 +18,9 @@ logging.basicConfig(level=logging.INFO)
 PREFIX = "m!"
 PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
 
+# NOTE: テスト
+PREFIXES += ["m?"]
+
 if __name__ == '__main__':
     intents = discord.Intents.default()
     bot = MilkCoffee(PREFIX, command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
