@@ -5,6 +5,7 @@ import random
 import re
 
 import discord
+import traceback2
 from PIL import Image
 from discord.ext import commands
 
@@ -12,6 +13,9 @@ from .bot import MilkCoffee
 from .utils.item_parser import *
 from .utils.messenger import error_embed, success_embed, normal_embed
 from .utils.multilingual import *
+from .data.item_data import ItemData
+
+from typing import Any
 
 
 class Costume(commands.Cog):
@@ -19,14 +23,7 @@ class Costume(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot  # type: MilkCoffee
-        with open('./Assets/emoji_data.json', 'r', encoding="utf-8") as f:
-            self.emoji = json.load(f)
-        with open('./Assets/name_data.json', 'r', encoding="utf-8") as f:
-            self.name = json.load(f)
-        with open('./Assets/name_regular_expression.json', 'r', encoding="utf-8") as f:
-            self.name_re = json.load(f)
-        with open('./Assets/item_info.json') as f:
-            self.item_info = json.load(f)
+        self.item = ItemData()
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """
@@ -226,6 +223,41 @@ class Costume(commands.Cog):
             await message.remove_reaction("▶️", self.bot.user)
             return 0, None
 
+    @commands.command()
+    async def menu(self, ctx):
+        try:
+            # 言語を取得
+            user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+            code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化
+            items = code_to_list(code)  # 装飾コードから各部位の番号を取得
+            # breakで終了するまで継続
+            while True:
+                # メニュー本体を作成
+                embed = discord.Embed()
+                desc = "最上部テキスト(仮)\n"
+                desc += self.item.base.icon + " " + self.bot.text.menu_base[user_lang] + f"{str(items[0]).rjust(3)}` {getattr(self.item.base.emoji, 'e'+str(items[0]))} {getattr(self.item.base.name, 'n'+str(items[0]))}\n"
+                desc += self.item.character.icon + " " + self.bot.text.menu_character[user_lang] + f"{str(items[1]).rjust(3)}` {getattr(self.item.character.emoji, 'e'+str(items[1]))} {getattr(self.item.character.name, 'n'+str(items[1]))}\n"
+                desc += self.item.weapon.icon + " " + self.bot.text.menu_weapon[user_lang] + f"{str(items[2]).rjust(3)}` {getattr(self.item.weapon.emoji, 'e'+str(items[2]))} {getattr(self.item.weapon.name, 'n'+str(items[2]))}\n"
+                desc += self.item.head.icon + " " + self.bot.text.menu_head[user_lang] + f"{str(items[3]).rjust(3)}` {getattr(self.item.head.emoji, 'e'+str(items[3]))} {getattr(self.item.head.name, 'n'+str(items[3]))}\n"
+                desc += self.item.body.icon + " " + self.bot.text.menu_body[user_lang] + f"{str(items[4]).rjust(3)}` {getattr(self.item.body.emoji, 'e'+str(items[4]))} {getattr(self.item.body.name, 'n'+str(items[4]))}\n"
+                desc += self.item.back.icon + " " + self.bot.text.menu_back[user_lang] + f"{str(items[5]).rjust(3)}` {getattr(self.item.back.emoji, 'e'+str(items[5]))} {getattr(self.item.back.name, 'n'+str(items[5]))}\n"
+                embed.description = desc
+                msg = await ctx.send(embed=embed)
+                await asyncio.gather(
+                    msg.add_reaction(self.item.base.icon),
+                    msg.add_reaction(self.item.character.icon),
+                    msg.add_reaction(self.item.weapon.icon),
+                    msg.add_reaction(self.item.head.icon),
+                    msg.add_reaction(self.item.body.icon),
+                    msg.add_reaction(self.item.back.icon)
+                )
+                break
+        except:
+            print(traceback2.format_exc())
+
+
+
+
     @commands.command(usage="set [装飾コード|各装飾の番号]^set [decoration code | number of each decoration]^set [장식 코드 | 각 장식 번호]^set [código de decoración | número de cada decoración]",
                       description="装飾コードまたは各装飾の番号で設定できるよ!^You can set it with the decoration code or the number of each decoration!^코스튬 코드 또는 각 코스튬의 번호로 설정할 수 있어!^¡Puedes configurarlo con el código de decoración o el número de cada decoración!",
                       help="この二つのコマンドは両方ミルクアサルト初期武器(装飾無し)になるよ!。\n`{0}set 1o4s3k` ... 装飾コード1o4s3kで設定\n`{0}set 0 1 1 0 0 0` ... 各アイテムの番号で設定\n装飾コードは他の人の装飾を真似する際に便利だよ!^Both of these commands will be Milk Assault initial weapons (no decoration)!\n`{0}set 1o4s3k` ... Set with decoration code 1o4s3k\n`{0}set 0 1 1 0 0 0` ... Set by the number of each item\nThe decoration code is useful for imitating other people's decorations!^이 두 명령은 모두 밀크팀, 기본총(코스튬 없음)일거야!\n`{0}set 1o4s3k` ... 장식 코드 1o4s3k로 설정\n`{0}set 0 1 1 0 0 0` ... 각 항목의 번호로 설정\n장식 코드는 다른 사람의 코사튬을 따라하는데 유용할거야!^¡Ambos comandos serán armas iniciales de Milk Assault (sin decoración)!\n`{0}set 1o4s3k` ... Set con código de decoración 1o4s3k\n`{0}set 0 1 1 0 0 0` ... Establecido por el número de cada elemento\n¡El código de decoración es útil para imitar la decoración de otras personas!")
@@ -289,7 +321,7 @@ class Costume(commands.Cog):
                     item_index = used_name_list.index(index)
                 else:
                     return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-            item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["Data"]
+            item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         items = parse_item_code_to_list(item_code)
         await self.make_image(ctx, items[0], items[1], items[2], items[3], items[4], items[5])
 
@@ -323,7 +355,7 @@ class Costume(commands.Cog):
                 item_index = used_name_list.index(index)
             else:
                 return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-        self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["Data"]
+        self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
         await error_embed(ctx, self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
 
     @commands.command(usage="save (保存名称)^save (save name)^save (저장 명칭)^save (guardar nombre)", brief="現在の装飾を保存できるよ!^Save the current decoration!^현재의 장식을 저장 할 수 있어!^¡Puede guardar la decoración actual!",
@@ -362,7 +394,7 @@ class Costume(commands.Cog):
         self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
             {
                 "name": name,
-                "Data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
+                "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
         await error_embed(ctx, self.bot.text.saved_work[user_lang].format(name))
@@ -397,7 +429,7 @@ class Costume(commands.Cog):
         for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
             if index > item_count:
                 break
-            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["Data"]
+            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
             item_list = parse_item_code_to_list(item_id)
             text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
             embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
@@ -414,7 +446,7 @@ class Costume(commands.Cog):
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
                 if index > item_count:
                     break
-                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["Data"]
+                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
                 item_list = parse_item_code_to_list(item_id)
                 text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)

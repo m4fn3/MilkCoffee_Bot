@@ -3,9 +3,9 @@ import time
 import discord
 from discord.ext import commands
 
-from Cogs.Data.static_data import StaticData
-from Cogs.Data.strings import Strings
-from Cogs.utils.multilingual import *
+from .data.static_data import StaticData
+from .data.strings import Strings
+from .utils.multilingual import *
 from .utils.messenger import normal_embed
 
 
@@ -20,7 +20,8 @@ class MilkCoffee(commands.Bot):
         for cog in self.bot_cogs:  # Cog読み込み
             self.load_extension(cog)
         self.database = {}  # TODO: db
-        self.ADMIN = {}  # TODO: db
+        # NOTE: ADMIN一時的に追加
+        self.ADMIN = {"513136168112750593": "1", "519760564755365888": "2"}  # TODO: db
         self.BAN = {}  # TODO: db
         self.Contributor = {}  # TODO: db
         self.GM_update = {  # TODO: db

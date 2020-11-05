@@ -231,56 +231,24 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         else:
             await ctx.send(f"このユーザーはBANされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.BAN[user_id]}")
 
-    @commands.group(aliases=["sys"])
-    async def system(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send("reload <Cog> | restart | quit")
-
-    @system.command(aliases=["rl"])
+    @commands.command(aliases=["rl"])
     async def reload(self, ctx, text):
-        if text in self.bot.bot_cogs:
-            try:
-                self.bot.reload_extension(text)
-            except:
-                await ctx.send(f"{text}の再読み込みに失敗しました\n{traceback2.format_exc()}.")
-            else:
-                await ctx.send(f"{text}の再読み込みに成功しました.")
-            if text == "global_chat":
-                await self.bot.get_cog("GlobalChat").initialize_cog()
+        try:
+            self.bot.reload_extension(text)
+        except:
+            await ctx.send(f"{text}の再読み込みに失敗しました\n{traceback2.format_exc()}.")
         else:
-            await ctx.send("存在しない名前です.")
+            await ctx.send(f"{text}の再読み込みに成功しました.")
+        if text == "global_chat":
+            await self.bot.get_cog("GlobalChat").initialize_cog()
 
-    @system.command(aliases=["l"])
-    async def load(self, ctx, text):
-        if text in self.bot.bot_cogs:
-            try:
-                self.bot.load_extension(text)
-            except:
-                await ctx.send(f"{text}の読み込みに失敗しました\n{traceback2.format_exc()}.")
-            else:
-                await ctx.send(f"{text}の読み込みに成功しました.")
-        else:
-            await ctx.send("存在しない名前です.")
-
-    @system.command(aliases=["u"])
-    async def unload(self, ctx, text):
-        if text in self.bot.bot_cogs:
-            try:
-                self.bot.unload_extension(text)
-            except:
-                await ctx.send(f"{text}の切り離しに失敗しました\n{traceback2.format_exc()}.")
-            else:
-                await ctx.send(f"{text}の切り離しに成功しました.")
-        else:
-            await ctx.send("存在しない名前です.")
-
-    @system.command(aliases=["re"])
+    @commands.command(aliases=["re"])
     async def restart(self, ctx):
         await ctx.send(":closed_lock_with_key:BOTを再起動します.")
         python = sys.executable
         os.execl(python, python, *sys.argv)
 
-    @system.command(aliases=["q"])
+    @commands.command(aliases=["q"])
     async def quit(self, ctx):
         await ctx.send(":closed_lock_with_key:BOTを停止します.")
         sys.exit()
