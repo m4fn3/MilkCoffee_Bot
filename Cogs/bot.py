@@ -1,14 +1,13 @@
-import json
 import time
 
 import discord
 from discord.ext import commands
 
-from Cogs.utils.multilingual import *
 from Cogs.Data.static_data import StaticData
 from Cogs.Data.strings import Strings
+from Cogs.utils.multilingual import *
+from .utils.messenger import normal_embed
 
-from .utils.messenger import normal
 
 class MilkCoffee(commands.Bot):
 
@@ -51,7 +50,7 @@ class MilkCoffee(commands.Bot):
             return
         elif message.content == f"<@!{self.user.id}>":  # BOTがメンションされた時
             # TODO: 言語未登録時にエラー
-            return await normal(message.channel, self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
+            return await normal_embed(message.channel, self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
         else:  # コマンドとして処理
             await self.process_commands(message)
 
