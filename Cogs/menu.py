@@ -85,7 +85,7 @@ class Menu:
 
     async def emoji_task(self, emoji):
         """各絵文字に対する挙動"""
-        flag: int
+        flag = 1
         if emoji == self.data.emoji.base:
             flag = await self.selector("base")
         elif emoji == self.data.emoji.char:
@@ -99,7 +99,7 @@ class Menu:
         elif emoji == self.data.emoji.back:
             flag = await self.selector("back")
         elif emoji == self.data.emoji.search:
-            pass
+            pass  # TODO: 検索モード実装
         elif emoji == self.data.emoji.exit:
             return False
         if flag == 1:  # タイムアウト
@@ -161,7 +161,7 @@ class Menu:
                     await self.ctx.send("item not found <-re->")
                 else:
                     self.item[getattr(self.data, result[0]).index] = int(result[1])
-                    # TODO: db にコードを保存
+                    #TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
