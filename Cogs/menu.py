@@ -99,7 +99,7 @@ class Menu:
         elif emoji == self.data.emoji.back:
             flag = await self.selector("back")
         elif emoji == self.data.emoji.search:
-            pass  # TODO: 検索モード実装
+            flag = await self.searcher()
         elif emoji == self.data.emoji.exit:
             return False
         if flag == 1:  # タイムアウト
@@ -161,7 +161,7 @@ class Menu:
                     await self.ctx.send("item not found <-re->")
                 else:
                     self.item[getattr(self.data, result[0]).index] = int(result[1])
-                    #TODO: db にコードを保存
+                    # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
@@ -171,6 +171,44 @@ class Menu:
     async def add_selector_emoji(self, msg, emoji_list):
         for emoji in emoji_list:
             await msg.add_reaction(emoji)
+
+    async def searcher(self):
+        """名前からアイテムを検索"""
+        embed = discord.Embed(title="アイテム検索")
+        embed.description = "アイテム名を入力してください"
+        msg = await self.ctx.send(embed=embed)
+        searcher_emoji = [self.data.emoji.goback]
+        self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
+        # 入力待機
+        flag: int
+        page = 1
+        while True:
+            react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in searcher_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
+            msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
+            done, _ = await asyncio.wait({react_task, msg_task}, return_when=asyncio.FIRST_COMPLETED)
+            done_task = list(done)[0]
+            react_task.cancel()
+            msg_task.cancel()
+            if isinstance(done_task.exception(), asyncio.TimeoutError):
+                flag = 1  # タイムアウト
+                break
+            elif done_task.get_name() == "react":
+                flag = 2  # back
+                break
+            elif done_task.get_name() == "msg":
+                rmsg = done_task.result()
+                code, result = self.find_item(rmsg.content)
+                if code == 0:
+                    # アイテムが見つかりませんでした
+                    await self.ctx.send("item not found <-re->")
+                else:
+                    self.item[getattr(self.data, result[0]).index] = int(result[1])
+                    # TODO: db にコードを保存
+                    # 新版で画像を生成してメニューを新しく表示
+                    flag = 2
+                    break
+        await msg.delete()
+        return flag
 
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""
