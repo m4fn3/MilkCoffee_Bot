@@ -11,7 +11,6 @@ class Base:
     min = 0
     max = 1
     len = 2
-    icon = "<:base:773913727678021672>"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -22,7 +21,6 @@ class Character:
     min = 0
     max = 20
     len = 21
-    icon = "<:char:773913711093350430>"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -33,7 +31,6 @@ class Weapon:
     min = 1
     max = 34
     len = 34
-    icon = "<:weapon:773910067954057269>"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -44,7 +41,6 @@ class Head:
     min = 0
     max = 74
     len = 75
-    icon = "<:head:773910068256440380>"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -55,7 +51,6 @@ class Body:
     min = 0
     max = 87
     len = 88
-    icon = "<:body:773910068118814720>"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -66,8 +61,19 @@ class Back:
     min = 0
     max = 79
     len = 80
-    icon = "<:back:773910068097712149>"
 
+@dataclasses.dataclass(frozen=True)
+class Emoji:
+    base = "<:base:773913727678021672>"
+    char = "<:char:773913711093350430>"
+    weapon = "<:weapon:773910067954057269>"
+    head = "<:head:773910068256440380>"
+    body = "<:body:773910068118814720>"
+    back = "<:back:773910068097712149>"
+    search = "<:search:774149798102040577>"
+    exit = "<:exit:774149798730530826>"
+    goback = "<:goback:774149798747963402>"
+    limited = "<:limited:774149798286065694>"
 
 @dataclasses.dataclass(frozen=True)
 class ItemData:
@@ -77,3 +83,4 @@ class ItemData:
     head = Head()
     body = Body()
     back = Back()
+    emoji = Emoji()

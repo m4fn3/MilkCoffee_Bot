@@ -235,21 +235,23 @@ class Costume(commands.Cog):
                 # メニュー本体を作成
                 embed = discord.Embed()
                 desc = "最上部テキスト(仮)\n"
-                desc += self.item.base.icon + " " + self.bot.text.menu_base[user_lang] + f"{str(items[0]).rjust(3)}` {getattr(self.item.base.emoji, 'e'+str(items[0]))} {getattr(self.item.base.name, 'n'+str(items[0]))}\n"
-                desc += self.item.character.icon + " " + self.bot.text.menu_character[user_lang] + f"{str(items[1]).rjust(3)}` {getattr(self.item.character.emoji, 'e'+str(items[1]))} {getattr(self.item.character.name, 'n'+str(items[1]))}\n"
-                desc += self.item.weapon.icon + " " + self.bot.text.menu_weapon[user_lang] + f"{str(items[2]).rjust(3)}` {getattr(self.item.weapon.emoji, 'e'+str(items[2]))} {getattr(self.item.weapon.name, 'n'+str(items[2]))}\n"
-                desc += self.item.head.icon + " " + self.bot.text.menu_head[user_lang] + f"{str(items[3]).rjust(3)}` {getattr(self.item.head.emoji, 'e'+str(items[3]))} {getattr(self.item.head.name, 'n'+str(items[3]))}\n"
-                desc += self.item.body.icon + " " + self.bot.text.menu_body[user_lang] + f"{str(items[4]).rjust(3)}` {getattr(self.item.body.emoji, 'e'+str(items[4]))} {getattr(self.item.body.name, 'n'+str(items[4]))}\n"
-                desc += self.item.back.icon + " " + self.bot.text.menu_back[user_lang] + f"{str(items[5]).rjust(3)}` {getattr(self.item.back.emoji, 'e'+str(items[5]))} {getattr(self.item.back.name, 'n'+str(items[5]))}\n"
+                desc += self.item.emoji.base + " " + self.bot.text.menu_base[user_lang] + f"{str(items[0]).rjust(3)}` {getattr(self.item.base.emoji, 'e'+str(items[0]))} {getattr(self.item.base.name, 'n'+str(items[0]))}\n"
+                desc += self.item.emoji.char + " " + self.bot.text.menu_character[user_lang] + f"{str(items[1]).rjust(3)}` {getattr(self.item.character.emoji, 'e'+str(items[1]))} {getattr(self.item.character.name, 'n'+str(items[1]))}\n"
+                desc += self.item.emoji.weapon + " " + self.bot.text.menu_weapon[user_lang] + f"{str(items[2]).rjust(3)}` {getattr(self.item.weapon.emoji, 'e'+str(items[2]))} {getattr(self.item.weapon.name, 'n'+str(items[2]))}\n"
+                desc += self.item.emoji.head + " " + self.bot.text.menu_head[user_lang] + f"{str(items[3]).rjust(3)}` {getattr(self.item.head.emoji, 'e'+str(items[3]))} {getattr(self.item.head.name, 'n'+str(items[3]))}\n"
+                desc += self.item.emoji.body + " " + self.bot.text.menu_body[user_lang] + f"{str(items[4]).rjust(3)}` {getattr(self.item.body.emoji, 'e'+str(items[4]))} {getattr(self.item.body.name, 'n'+str(items[4]))}\n"
+                desc += self.item.emoji.back + " " + self.bot.text.menu_back[user_lang] + f"{str(items[5]).rjust(3)}` {getattr(self.item.back.emoji, 'e'+str(items[5]))} {getattr(self.item.back.name, 'n'+str(items[5]))}\n"
                 embed.description = desc
                 msg = await ctx.send(embed=embed)
-                await asyncio.gather(
-                    msg.add_reaction(self.item.base.icon),
-                    msg.add_reaction(self.item.character.icon),
-                    msg.add_reaction(self.item.weapon.icon),
-                    msg.add_reaction(self.item.head.icon),
-                    msg.add_reaction(self.item.body.icon),
-                    msg.add_reaction(self.item.back.icon)
+                await asyncio.gather(  # TODO: 別タスクに
+                    msg.add_reaction(self.item.emoji.base),
+                    msg.add_reaction(self.item.emoji.char),
+                    msg.add_reaction(self.item.emoji.weapon),
+                    msg.add_reaction(self.item.emoji.head),
+                    msg.add_reaction(self.item.emoji.body),
+                    msg.add_reaction(self.item.emoji.back),
+                    msg.add_reaction(self.item.emoji.search),
+                    msg.add_reaction(self.item.emoji.exit),
                 )
                 break
         except:

@@ -29,3 +29,8 @@ def parse_to_36(tmp: int):
         tmp = int(tmp / 36)
     idx = tmp % 36
     return characters[idx] + result
+
+
+
+def update_code(code: str):
+    """旧形式の装飾コードを新形式に変換"""
