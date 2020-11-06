@@ -128,6 +128,7 @@ class Costume(commands.Cog):
             }
             await self.process_new_user(ctx.message)
 
+
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
@@ -657,7 +658,7 @@ class Costume(commands.Cog):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         embed = discord.Embed(title=self.bot.text.list_base_title[user_lang])
         embed.description = self.bot.text.list_description[user_lang] + self.get_list("base", 1)
-        embed.set_footer(text=self.bot.text.showing_page[user_lang].format("1"))
+        embed.set_footer(text=self.bot.text.showing_page_1[user_lang].format("1"))
         await ctx.send(embed=embed)
 
     @list.command(name="weapon", aliases=["w", "wp", "weap"], usage="list weapon^list weapon^list weapon^list weapon", description="武器のリストを表示するよ!^Show a list of weapons!^무기의 목록을 표시합니다!^¡Muestra una lista de armas!", help="`{0}list weapon` ... 武器のリストを表示します^`{0}list weapon` ... Shows a list of weapons^`{0}list weapon` ... 무기의 목록을 표시합니다^`{0}list weapon` ... Muestra una lista de armas")
@@ -684,7 +685,7 @@ class Costume(commands.Cog):
             return await error_embed(ctx, self.bot.text.page_number_between[user_lang])
         embed = discord.Embed(title=self.bot.text.list_weapon_title[user_lang])
         embed.description = self.bot.text.list_description[user_lang] + self.get_list("weapon", page)
-        embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page))
+        embed.set_footer(text=self.bot.text.showing_page_1[user_lang].format(page))
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
@@ -694,7 +695,7 @@ class Costume(commands.Cog):
                 break
             page = new_page
             embed.description = self.bot.text.list_description[user_lang] + self.get_list("weapon", page)
-            embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page))
+            embed.set_footer(text=self.bot.text.showing_page_1[user_lang].format(page))
             await message.edit(embed=embed)
 
     @list.command(name="character", aliases=["c", "ch", "char"], usage="list character^list character^list character^list character", description="キャラクターのリストを表示するよ!^Show the list of characters!^캐릭터의 목록을 표시합니다!^¡Muestre la lista de personajes!",

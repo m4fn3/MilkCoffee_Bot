@@ -7,60 +7,66 @@ from .part.regex_data import *
 class Base:
     emoji = BaseEmoji()
     name = BaseName()
-    regex = BaseRegex()
     min = 0
     max = 1
     len = 2
+    index = 0
+    page = 1
 
 
 @dataclasses.dataclass(frozen=True)
 class Character:
     emoji = CharacterEmoji()
     name = CharacterName()
-    regex = CharacterRegex()
     min = 0
     max = 20
     len = 21
+    index = 1
+    page = 3
 
 
 @dataclasses.dataclass(frozen=True)
 class Weapon:
     emoji = WeaponEmoji()
     name = WeaponName()
-    regex = WeaponRegex()
     min = 1
     max = 34
     len = 34
+    index = 2
+    page = 4
 
 
 @dataclasses.dataclass(frozen=True)
 class Head:
     emoji = HeadEmoji()
     name = HeadName()
-    regex = HeadRegex()
     min = 0
     max = 74
     len = 75
+    index = 3
+    page = 8
 
 
 @dataclasses.dataclass(frozen=True)
 class Body:
     emoji = BodyEmoji()
     name = BodyName()
-    regex = BodyRegex()
     min = 0
     max = 87
     len = 88
+    index = 4
+    page = 9
 
 
 @dataclasses.dataclass(frozen=True)
 class Back:
     emoji = BackEmoji()
     name = BackName()
-    regex = BackRegex()
     min = 0
     max = 79
     len = 80
+    index = 5
+    page = 8
 
 @dataclasses.dataclass(frozen=True)
 class Emoji:
@@ -84,3 +90,4 @@ class ItemData:
     body = Body()
     back = Back()
     emoji = Emoji()
+    regex = ItemRegex().regex

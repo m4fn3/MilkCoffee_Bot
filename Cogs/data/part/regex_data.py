@@ -2,321 +2,315 @@ import dataclasses
 
 
 @dataclasses.dataclass(frozen=True)
-class BaseRegex:
-    r0 = "(?P<base_0>milk|ミルク|白)"
-    r1 = "(?P<base_1>choco|チョコ|黒)"
-
-
-@dataclasses.dataclass(frozen=True)
-class CharacterRegex:
-    r0 = "(?P<character_0>Battle(\\s|-|ー|.)?Royle|バトロワ|バトルロ(ワ|ア)イヤル)"
-    r1 = "(?P<character_1>assault|アサルト)"
-    r2 = "(?P<character_2>medic|メディ(ック)?)"
-    r3 = "(?P<character_3>bomber|ボマー)"
-    r4 = "(?P<character_4>recon|リーコン)"
-    r5 = "(?P<character_5>ghost|ゴースト|ゴス)"
-    r6 = "(?P<character_6>shield|シールド)"
-    r7 = "(?P<character_7>launcher|ランチャー)"
-    r8 = "(?P<character_8>invisible|インビ(ジブル)?)"
-    r9 = "(?P<character_9>hook|フック)"
-    r10 = "(?P<character_10>desperado|デスペ(ラ(ード)?)?)"
-    r11 = "(?P<character_11>myocat|(ミオ)?キャット|猫|ねこ|ネコ)"
-    r12 = "(?P<character_12>iron|アイアン)"
-    r13 = "(?P<character_13>carog|ケログ|カエル|蛙|かえる)"
-    r14 = "(?P<character_14>wheeleg|ホイール(レ(ッ)?グ)?|ホイレ|豚|ぶた|ブタ)"
-    r15 = "(?P<character_15>creamy|クリーミー|クリーム|うん(こ|ち)|クリミ|くりみ)"
-    r16 = "(?P<character_16>air|エア(ー)?)"
-    r17 = "(?P<character_17>electric|エレ(ク|キ)(トリック)?|雷)"
-    r18 = "(?P<character_18>blade|ブレード|侍)"
-    r19 = "(?P<character_19>swin{1:2}y|スイニ(ィ)?(ー)?|ウサギ|うさぎ|兎)"
-    r20 = "(?P<character_20>mago|マゴ|まご|孫)"
-
-
-@dataclasses.dataclass(frozen=True)
-class WeaponRegex:
-    r1 = "(?P<weapon_1>at(-|ー|.|\\s)?(43)?|初期武器)"
-    r2 = "(?P<weapon_2>srg(-|ー|.|\\s)?(17)?)"
-    r3 = "(?P<weapon_3>sb(-|ー|.|\\s)?(18)?)"
-    r4 = "(?P<weapon_4>gg(-|ー|.|\\s)?(5)?)"
-    r5 = "(?P<weapon_5>ugg(-|ー|.|\\s)?(01)?)"
-    r6 = "(?P<weapon_6>ap(-|ー|.|\\s)?(45)?)"
-    r7 = "(?P<weapon_7>rb(-|ー|.|\\s)?(15)?)"
-    r8 = "(?P<weapon_8>rs(-|ー|.|\\s)?(11)?)"
-    r9 = "(?P<weapon_9>foson)"
-    r10 = "(?P<weapon_10>r4(-|ー|.|\\s)?(k1)?)"
-    r11 = "(?P<weapon_11>bc(-|ー|.|\\s)?(901)?)"
-    r12 = "(?P<weapon_12>bordeal)"
-    r13 = "(?P<weapon_13>bvm|び(ー|-)ぶいえむ|ビ(ー|-)ブイエム)"
-    r14 = "(?P<weapon_14>bb5(-|ー|.|\\s)?(aim)?)"
-    r15 = "(?P<weapon_15>bb(-|ー|.|\\s)?7)"
-    r16 = "(?P<weapon_16>agg(-|ー|.|\\s)?(10)?)"
-    r17 = "(?P<weapon_17>eag)"
-    r18 = "(?P<weapon_18>gefield|ジ(ー|-)フ(ィ|イ)(ー)?(ルド)?|じ(ー|-)ふ(ぃ|い)(ー)?(るど)?)"
-    r19 = "(?P<weapon_19>urre|ウ(ー|-)(リ|レ)(ー|-)?|う(ー|-)(り|れ)(ー|-)?)"
-    r20 = "(?P<weapon_20>chris|クリス|くりす)"
-    r21 = "(?P<weapon_21>collado|コラド|こらど)"
-    r22 = "(?P<weapon_22>rd(-|ー|.|\\s)?(10)?)"
-    r23 = "(?P<weapon_23>kdsg(-|ー|.|\\s)?(11)?|クラ(ン)?(ショ(ットガン)?|SG)|くらしょ)"
-    r24 = "(?P<weapon_24>spyra|ス(パイ|ピ)ラ|クラ(砂|スナ)|くら(すな|砂))"
-    r25 = "(?P<weapon_25>cato|加藤)"
-    r26 = "(?P<weapon_26>zigue|ジグエ|じぐえ)"
-    r27 = "(?P<weapon_27>crossbow)"
-    r28 = "(?P<weapon_28>command(o)?)"
-    r29 = "(?P<weapon_29>r4k1(-|ー|.|\\s)?aim)"
-    r30 = "(?P<weapon_30>rg(-|ー|.|\\s)?(44)?)"
-    r31 = "(?P<weapon_31>bf(-|ー|.|\\s)?(66)?)"
-    r32 = "(?P<weapon_32>syl(-|ー|.|\\s)?(724)?)"
-    r33 = "(?P<weapon_33>macsmash|マックスマ(ッ)?シュ)"
-    r34 = "(?P<weapon_34>gp(-|ー|.|\\s)?(01)?|(新|シン|しん)(砂|すな|スナ|SR))"
-
-
-@dataclasses.dataclass(frozen=True)
-class HeadRegex:
-    r1 = "(?P<head_1>monoculus)"
-    r2 = "(?P<head_2>m(-|ー|.|\\s)mouse)"
-    r3 = "(?P<head_3>ns(-|ー|.|\\s)glasses)"
-    r4 = "(?P<head_4>dumpling)"
-    r5 = "(?P<head_5>s(-|ー|.|\\s)n-frog)"
-    r6 = "(?P<head_6>h(-|ー|.|\\s)navy)"
-    r7 = "(?P<head_7>m(-|ー|.|\\s)kitsune)"
-    r8 = "(?P<head_8>microscope)"
-    r9 = "(?P<head_9>m(-|ー|.|\\s)chiken)"
-    r10 = "(?P<head_10>m(-|ー|.|\\s)gas)"
-    r11 = "(?P<head_11>h(-|ー|.|\\s)nurse)"
-    r12 = "(?P<head_12>monocle)"
-    r13 = "(?P<head_13>p(-|ー|.|\\s)crown)"
-    r14 = "(?P<head_14>c(-|ー|.|\\s)d(-|ー|.|\\s)cheek)"
-    r15 = "(?P<head_15>2nd(-|ー|.|\\s)h(-|ー|.|\\s)band)"
-    r16 = "(?P<head_16>band)"
-    r17 = "(?P<head_17>a(-|ー|.|\\s)mask)"
-    r18 = "(?P<head_18>r(-|ー|.|\\s)mask)"
-    r19 = "(?P<head_19>r(-|ー|.|\\s)angel)"
-    r20 = "(?P<head_20>d(-|ー|.|\\s)horn)"
-    r21 = "(?P<head_21>r(-|ー|.|\\s)muffs)"
-    r22 = "(?P<head_22>g(-|ー|.|\\s)goggle)"
-    r23 = "(?P<head_23>p(-|ー|.|\\s)mask)"
-    r24 = "(?P<head_24>k(-|ー|.|\\s)mask)"
-    r25 = "(?P<head_25>half(-|ー|.|\\s)mask)"
-    r26 = "(?P<head_26>flush)"
-    r27 = "(?P<head_27>black(-|ー|.|\\s)mk)"
-    r28 = "(?P<head_28>galien)"
-    r29 = "(?P<head_29>cyclops)"
-    r30 = "(?P<head_30>sp(-|ー|.|\\s)glasses)"
-    r31 = "(?P<head_31>hearts)"
-    r32 = "(?P<head_32>c(-|ー|.|\\s)hset)"
-    r33 = "(?P<head_33>red(-|ー|.|\\s)rella)"
-    r34 = "(?P<head_34>black(-|ー|.|\\s)patch)"
-    r35 = "(?P<head_35>a(-|ー|.|\\s)glasses)"
-    r36 = "(?P<head_36>snowcool)"
-    r37 = "(?P<head_37>blue(-|ー|.|\\s)hset)"
-    r38 = "(?P<head_38>pacifer)"
-    r39 = "(?P<head_39>spy)"
-    r40 = "(?P<head_40>jason(-|ー|.|\\s)b)"
-    r41 = "(?P<head_41>captain(-|ー|.|\\s)k)"
-    r42 = "(?P<head_42>sky(-|ー|.|\\s)rock)"
-    r43 = "(?P<head_43>ora(-|ー|.|\\s)goggle)"
-    r44 = "(?P<head_44>paris(-|ー|.|\\s)hil)"
-    r45 = "(?P<head_45>superstar)"
-    r46 = "(?P<head_46>black)"
-    r47 = "(?P<head_47>desert)"
-    r48 = "(?P<head_48>marine.b)"
-    r49 = "(?P<head_49>kt(-|ー|.|\\s)hset)"
-    r50 = "(?P<head_50>orange)"
-    r51 = "(?P<head_51>nose(-|ー|.|\\s)cool)"
-    r52 = "(?P<head_52>l(-|ー|.|\\s)glasses)"
-    r53 = "(?P<head_53>c(-|ー|.|\\s)beard)"
-    r54 = "(?P<head_54>m(-|ー|.|\\s)wrestler)"
-    r55 = "(?P<head_55>sp(-|ー|.|\\s)goggle)"
-    r56 = "(?P<head_56>i(-|ー|.|\\s)crown)"
-    r57 = "(?P<head_57>s(-|ー|.|\\s)beard)"
-    r58 = "(?P<head_58>f(-|ー|.|\\s)ghost)"
-    r59 = "(?P<head_59>bat(-|ー|.|\\s)glasses)"
-    r60 = "(?P<head_60>h(-|ー|.|\\s)pumpkin)"
-    r61 = "(?P<head_61>m(-|ー|.|\\s)joker)"
-    r62 = "(?P<head_62>f(-|ー|.|\\s)i(-|ー|.|\\s)love)"
-    r63 = "(?P<head_63>g(-|ー|.|\\s)pig)"
-    r64 = "(?P<head_64>c(-|ー|.|\\s)tree)"
-    r65 = "(?P<head_65>p(-|ー|.|\\s)muffs)"
-    r66 = "(?P<head_66>h(-|ー|.|\\s)solider)"
-    r67 = "(?P<head_67>m(-|ー|.|\\s)rudolph)"
-    r68 = "(?P<head_68>m(-|ー|.|\\s)frank)"
-    r69 = "(?P<head_69>talisman)"
-    r70 = "(?P<head_70>m(-|ー|.|\\s)skul)"
-    r71 = "(?P<head_71>antlers)"
-    r72 = "(?P<head_72>santahat)"
-    r73 = "(?P<head_73>snose)"
-    r74 = "(?P<head_74>dracula)"
-
-
-@dataclasses.dataclass(frozen=True)
-class BodyRegex:
-    r1 = "(?P<body_1>baldur)"
-    r2 = "(?P<body_2>s(-|ー|.|\\s)heart)"
-    r3 = "(?P<body_3>c(-|ー|.|\\s)duffle)"
-    r4 = "(?P<body_4>hoodie)"
-    r5 = "(?P<body_5>n(-|ー|.|\\s)s(-|ー|.|\\s)suit)"
-    r6 = "(?P<body_6>u(-|ー|.|\\s)basket)"
-    r7 = "(?P<body_7>u(-|ー|.|\\s)military)"
-    r8 = "(?P<body_8>j(-|ー|.|\\s)rider)"
-    r9 = "(?P<body_9>qipao)"
-    r10 = "(?P<body_10>s(-|ー|.|\\s)hawaii)"
-    r11 = "(?P<body_11>commander)"
-    r12 = "(?P<body_12>n(-|ー|.|\\s)clow)"
-    r13 = "(?P<body_13>jumpsuit)"
-    r14 = "(?P<body_14>ec(-|ー|.|\\s)armor)"
-    r15 = "(?P<body_15>f(-|ー|.|\\s)suit)"
-    r16 = "(?P<body_16>s(-|ー|.|\\s)nurse)"
-    r17 = "(?P<body_17>prince)"
-    r18 = "(?P<body_18>alice)"
-    r19 = "(?P<body_19>b(-|ー|.|\\s)suit)"
-    r20 = "(?P<body_20>e(-|ー|.|\\s)robe)"
-    r21 = "(?P<body_21>olympus)"
-    r22 = "(?P<body_22>d(-|ー|.|\\s)cloak)"
-    r23 = "(?P<body_23>y(-|ー|.|\\s)training)"
-    r24 = "(?P<body_24>ffg)"
-    r25 = "(?P<body_25>m(-|ー|.|\\s)cow\\(b\\))"
-    r26 = "(?P<body_26>tiger)"
-    r27 = "(?P<body_27>dress)"
-    r28 = "(?P<body_28>tuxedo)"
-    r29 = "(?P<body_29>s(-|ー|.|\\s)uniform\\(w\\))"
-    r30 = "(?P<body_30>s(-|ー|.|\\s)uniform\\(m\\))"
-    r31 = "(?P<body_31>baby(-|ー|.|\\s)dress)"
-    r32 = "(?P<body_32>baby(-|ー|.|\\s)bear)"
-    r33 = "(?P<body_33>1st(-|ー|.|\\s)top)"
-    r34 = "(?P<body_34>blue(-|ー|.|\\s)jama)"
-    r35 = "(?P<body_35>ch(-|ー|.|\\s)belt)"
-    r36 = "(?P<body_36>rb(-|ー|.|\\s)crown)"
-    r37 = "(?P<body_37>police)"
-    r38 = "(?P<body_38>car(-|ー|.|\\s)t)"
-    r39 = "(?P<body_39>sailor(-|ー|.|\\s)a)"
-    r40 = "(?P<body_40>aladin)"
-    r41 = "(?P<body_41>redflower)"
-    r42 = "(?P<body_42>hawaiian)"
-    r43 = "(?P<body_43>ranch)"
-    r44 = "(?P<body_44>life(-|ー|.|\\s)jacket)"
-    r45 = "(?P<body_45>penguin)"
-    r46 = "(?P<body_46>t(-|ー|.|\\s)skull)"
-    r47 = "(?P<body_47>boom)"
-    r48 = "(?P<body_48>emer(-|ー|.|\\s)bag)"
-    r49 = "(?P<body_49>c(-|ー|.|\\s)guevara)"
-    r50 = "(?P<body_50>btj)"
-    r51 = "(?P<body_51>p08)"
-    r52 = "(?P<body_52>gign)"
-    r53 = "(?P<body_53>devgru)"
-    r54 = "(?P<body_54>sas)"
-    r55 = "(?P<body_55>sahara)"
-    r56 = "(?P<body_56>doctor-h)"
-    r57 = "(?P<body_57>mustard)"
-    r58 = "(?P<body_58>red(-|ー|.|\\s)inner)"
-    r59 = "(?P<body_59>popi(-|ー|.|\\s)popi)"
-    r60 = "(?P<body_60>r(-|ー|.|\\s)muffler)"
-    r61 = "(?P<body_61>apron)"
-    r62 = "(?P<body_62>s(-|ー|.|\\s)surfing)"
-    r63 = "(?P<body_63>w(-|ー|.|\\s)robe)"
-    r64 = "(?P<body_64>i(-|ー|.|\\s)prince)"
-    r65 = "(?P<body_65>hoodie)"
-    r66 = "(?P<body_66>n(-|ー|.|\\s)santa)"
-    r67 = "(?P<body_67>u(-|ー|.|\\s)doctor)"
-    r68 = "(?P<body_68>pirate)"
-    r69 = "(?P<body_69>royalrobe)"
-    r70 = "(?P<body_70>b(-|ー|.|\\s)santa)"
-    r71 = "(?P<body_71>h(-|ー|.|\\s)soldier)"
-    r72 = "(?P<body_72>rudolph)"
-    r73 = "(?P<body_73>b(-|ー|.|\\s)frank)"
-    r74 = "(?P<body_74>ksw)"
-    r75 = "(?P<body_75>b(-|ー|.|\\s)skull)"
-    r76 = "(?P<body_76>m(-|ー|.|\\s)cow\\(w\\))"
-    r77 = "(?P<body_77>tiger\\(w\\))"
-    r78 = "(?P<body_78>pink)"
-    r79 = "(?P<body_79>pink)"
-    r80 = "(?P<body_80>r(-|ー|.|\\s)uniform\\(w\\))"
-    r81 = "(?P<body_81>r(-|ー|.|\\s)uniform\\(m\\))"
-    r82 = "(?P<body_82>pink(-|ー|.|\\s)jama)"
-    r83 = "(?P<body_83>raind(-|ー|.|\\s)bell)"
-    r84 = "(?P<body_84>xmas(-|ー|.|\\s)robe)"
-    r85 = "(?P<body_85>santa)"
-    r86 = "(?P<body_86>sman(-|ー|.|\\s)scarf)"
-    r87 = "(?P<body_87>robe)"
-
-
-@dataclasses.dataclass(frozen=True)
-class BackRegex:
-    r1 = "(?P<back_1>dantalion)"
-    r2 = "(?P<back_2>c(-|ー|.|\\s)backpack)"
-    r3 = "(?P<back_3>b(-|ー|.|\\s)mouse)"
-    r4 = "(?P<back_4>ss(-|ー|.|\\s)board)"
-    r5 = "(?P<back_5>heli(-|ー|.|\\s)fan)"
-    r6 = "(?P<back_6>kentauros)"
-    r7 = "(?P<back_7>w(-|ー|.|\\s)mechanic)"
-    r8 = "(?P<back_8>t(-|ー|.|\\s)unicorn)"
-    r9 = "(?P<back_9>scroll)"
-    r10 = "(?P<back_10>radio)"
-    r11 = "(?P<back_11>spanner)"
-    r12 = "(?P<back_12>e(-|ー|.|\\s)egg\\(d\\))"
-    r13 = "(?P<back_13>injector)"
-    r14 = "(?P<back_14>s(-|ー|.|\\s)rose)"
-    r15 = "(?P<back_15>pape)"
-    r16 = "(?P<back_16>p(-|ー|.|\\s)watch)"
-    r17 = "(?P<back_17>g(-|ー|.|\\s)bottle)"
-    r18 = "(?P<back_18>d(-|ー|.|\\s)blade)"
-    r19 = "(?P<back_19>m(-|ー|.|\\s)moon)"
-    r20 = "(?P<back_20>m(-|ー|.|\\s)sun)"
-    r21 = "(?P<back_21>a(-|ー|.|\\s)arrow)"
-    r22 = "(?P<back_22>coffin)"
-    r23 = "(?P<back_23>carrot)"
-    r24 = "(?P<back_24>sharkbag)"
-    r25 = "(?P<back_25>hotdog)"
-    r26 = "(?P<back_26>multi(-|ー|.|\\s)bag)"
-    r27 = "(?P<back_27>popsicle)"
-    r28 = "(?P<back_28>burger)"
-    r29 = "(?P<back_29>kenstick)"
-    r30 = "(?P<back_30>donut)"
-    r31 = "(?P<back_31>l(-|ー|.|\\s)tube)"
-    r32 = "(?P<back_32>pinky(-|ー|.|\\s)bear)"
-    r33 = "(?P<back_33>duck(-|ー|.|\\s)shoes)"
-    r34 = "(?P<back_34>parrot)"
-    r35 = "(?P<back_35>baby(-|ー|.|\\s)b)"
-    r36 = "(?P<back_36>surfing)"
-    r37 = "(?P<back_37>ducktube)"
-    r38 = "(?P<back_38>super(-|ー|.|\\s)b)"
-    r39 = "(?P<back_39>caribbean)"
-    r40 = "(?P<back_40>warrior)"
-    r41 = "(?P<back_41>oxygen)"
-    r42 = "(?P<back_42>fireman)"
-    r43 = "(?P<back_43>m(-|ー|.|\\s)bag)"
-    r44 = "(?P<back_44>f(-|ー|.|\\s)bag)"
-    r45 = "(?P<back_45>w(-|ー|.|\\s)talkie)"
-    r46 = "(?P<back_46>l(-|ー|.|\\s)bag)"
-    r47 = "(?P<back_47>s(-|ー|.|\\s)bag)"
-    r48 = "(?P<back_48>devil(-|ー|.|\\s)b)"
-    r49 = "(?P<back_49>angel(-|ー|.|\\s)w)"
-    r50 = "(?P<back_50>cupid(-|ー|.|\\s)wing)"
-    r51 = "(?P<back_51>line(-|ー|.|\\s)bprack)"
-    r52 = "(?P<back_52>po(-|ー|.|\\s)stick)"
-    r53 = "(?P<back_53>g(-|ー|.|\\s)b(-|ー|.|\\s)cookie)"
-    r54 = "(?P<back_54>mandolin)"
-    r55 = "(?P<back_55>f(-|ー|.|\\s)wing|赤羽)"
-    r56 = "(?P<back_56>shark(-|ー|.|\\s)surf)"
-    r57 = "(?P<back_57>b(-|ー|.|\\s)rudolph)"
-    r58 = "(?P<back_58>w(-|ー|.|\\s)crystal)"
-    r59 = "(?P<back_59>h(-|ー|.|\\s)scythe)"
-    r60 = "(?P<back_60>momo)"
-    r61 = "(?P<back_61>e(-|ー|.|\\s)egg\\(f\\))"
-    r62 = "(?P<back_62>e(-|ー|.|\\s)egg\\(s\\))"
-    r63 = "(?P<back_63>b(-|ー|.|\\s)wing\\(g\\))"
-    r64 = "(?P<back_64>b(-|ー|.|\\s)snowman)"
-    r65 = "(?P<back_65>i(-|ー|.|\\s)crystal)"
-    r66 = "(?P<back_66>s(-|ー|.|\\s)spring)"
-    r67 = "(?P<back_67>w(-|ー|.|\\s)wing\\(g\\))"
-    r68 = "(?P<back_68>w(-|ー|.|\\s)skull)"
-    r69 = "(?P<back_69>t(-|ー|.|\\s)w(-|ー|.|\\s)ice)"
-    r70 = "(?P<back_70>shibabag)"
-    r71 = "(?P<back_71>bouquet)"
-    r72 = "(?P<back_72>beige(-|ー|.|\\s)bag)"
-    r73 = "(?P<back_73>heart(-|ー|.|\\s)box)"
-    r74 = "(?P<back_74>xmas(-|ー|.|\\s)box)"
-    r75 = "(?P<back_75>xmas(-|ー|.|\\s)tree)"
-    r76 = "(?P<back_76>xmas(-|ー|.|\\s)bag)"
-    r77 = "(?P<back_77>burger)"
-    r78 = "(?P<back_78>broomstick)"
-    r79 = "(?P<back_79>pumpkin)"
+class ItemRegex:
+    regex = {
+        "base": {
+            "0": "milk|ミルク|白",
+            "1": "choco|チョコ|黒"
+        },
+        "character": {
+            "0": "Battle(\\s|-|ー|.)?Royle|バトロワ|バトルロ(ワ|ア)イヤル",
+            "1": "assault|アサルト",
+            "2": "medic|メディ(ック)?",
+            "3": "bomber|ボマー",
+            "4": "recon|リーコン",
+            "5": "ghost|ゴースト|ゴス",
+            "6": "shield|シールド",
+            "7": "launcher|ランチャー",
+            "8": "invisible|インビ(ジブル)?",
+            "9": "hook|フック",
+            "10": "desperado|デスペ(ラ(ード)?)?",
+            "11": "myocat|(ミオ)?キャット|猫|ねこ|ネコ",
+            "12": "iron|アイアン",
+            "13": "carog|ケログ|カエル|蛙|かえる",
+            "14": "wheeleg|ホイール(レ(ッ)?グ)?|ホイレ|豚|ぶた|ブタ",
+            "15": "creamy|クリーミー|クリーム|うん(こ|ち)|クリミ|くりみ",
+            "16": "air|エア(ー)?",
+            "17": "electric|エレ(ク|キ)(トリック)?|雷",
+            "18": "blade|ブレード|侍",
+            "19": "swin{1:2}y|スイニ(ィ)?(ー)?|ウサギ|うさぎ|兎",
+            "20": "mago|マゴ|まご|孫"
+        },
+        "weapon": {
+            "1": "at(-|ー|.|\\s)?(43)?|初期武器",
+            "2": "srg(-|ー|.|\\s)?(17)?",
+            "3": "sb(-|ー|.|\\s)?(18)?",
+            "4": "gg(-|ー|.|\\s)?(5)?",
+            "5": "ugg(-|ー|.|\\s)?(01)?",
+            "6": "ap(-|ー|.|\\s)?(45)?",
+            "7": "rb(-|ー|.|\\s)?(15)?",
+            "8": "rs(-|ー|.|\\s)?(11)?",
+            "9": "foson",
+            "10": "r4(-|ー|.|\\s)?(k1)?",
+            "11": "bc(-|ー|.|\\s)?(901)?",
+            "12": "bordeal",
+            "13": "bvm|び(ー|-)ぶいえむ|ビ(ー|-)ブイエム",
+            "14": "bb5(-|ー|.|\\s)?(aim)?",
+            "15": "bb(-|ー|.|\\s)?7",
+            "16": "agg(-|ー|.|\\s)?(10)?",
+            "17": "eag",
+            "18": "gefield|ジ(ー|-)フ(ィ|イ)(ー)?(ルド)?|じ(ー|-)ふ(ぃ|い)(ー)?(るど)?",
+            "19": "urre|ウ(ー|-)(リ|レ)(ー|-)?|う(ー|-)(り|れ)(ー|-)?",
+            "20": "chris|クリス|くりす",
+            "21": "collado|コラド|こらど",
+            "22": "rd(-|ー|.|\\s)?(10)?",
+            "23": "kdsg(-|ー|.|\\s)?(11)?|クラ(ン)?(ショ(ットガン)?|SG)|くらしょ",
+            "24": "spyra|ス(パイ|ピ)ラ|クラ(砂|スナ)|くら(すな|砂)",
+            "25": "cato|加藤",
+            "26": "zigue|ジグエ|じぐえ",
+            "27": "crossbow",
+            "28": "command(o)?",
+            "29": "r4k1(-|ー|.|\\s)?aim",
+            "30": "rg(-|ー|.|\\s)?(44)?",
+            "31": "bf(-|ー|.|\\s)?(66)?",
+            "32": "syl(-|ー|.|\\s)?(724)?",
+            "33": "macsmash|マックスマ(ッ)?シュ",
+            "34": "gp(-|ー|.|\\s)?(01)?|(新|シン|しん)(砂|すな|スナ|SR)"
+        },
+        "head": {
+            "1": "monoculus",
+            "2": "m(-|ー|.|\\s)mouse",
+            "3": "ns(-|ー|.|\\s)glasses",
+            "4": "dumpling",
+            "5": "s(-|ー|.|\\s)n-frog",
+            "6": "h(-|ー|.|\\s)navy",
+            "7": "m(-|ー|.|\\s)kitsune",
+            "8": "microscope",
+            "9": "m(-|ー|.|\\s)chiken",
+            "10": "m(-|ー|.|\\s)gas",
+            "11": "h(-|ー|.|\\s)nurse",
+            "12": "monocle",
+            "13": "p(-|ー|.|\\s)crown",
+            "14": "c(-|ー|.|\\s)d(-|ー|.|\\s)cheek",
+            "15": "2nd(-|ー|.|\\s)h(-|ー|.|\\s)band",
+            "16": "band",
+            "17": "a(-|ー|.|\\s)mask",
+            "18": "r(-|ー|.|\\s)mask",
+            "19": "r(-|ー|.|\\s)angel",
+            "20": "d(-|ー|.|\\s)horn",
+            "21": "r(-|ー|.|\\s)muffs",
+            "22": "g(-|ー|.|\\s)goggle",
+            "23": "p(-|ー|.|\\s)mask",
+            "24": "k(-|ー|.|\\s)mask",
+            "25": "half(-|ー|.|\\s)mask",
+            "26": "flush",
+            "27": "black(-|ー|.|\\s)mk",
+            "28": "galien",
+            "29": "cyclops",
+            "30": "sp(-|ー|.|\\s)glasses",
+            "31": "hearts",
+            "32": "c(-|ー|.|\\s)hset",
+            "33": "red(-|ー|.|\\s)rella",
+            "34": "black(-|ー|.|\\s)patch",
+            "35": "a(-|ー|.|\\s)glasses",
+            "36": "snowcool",
+            "37": "blue(-|ー|.|\\s)hset",
+            "38": "pacifer",
+            "39": "spy",
+            "40": "jason(-|ー|.|\\s)b",
+            "41": "captain(-|ー|.|\\s)k",
+            "42": "sky(-|ー|.|\\s)rock",
+            "43": "ora(-|ー|.|\\s)goggle",
+            "44": "paris(-|ー|.|\\s)hil",
+            "45": "superstar",
+            "46": "black",
+            "47": "desert",
+            "48": "marine.b",
+            "49": "kt(-|ー|.|\\s)hset",
+            "50": "orange",
+            "51": "nose(-|ー|.|\\s)cool",
+            "52": "l(-|ー|.|\\s)glasses",
+            "53": "c(-|ー|.|\\s)beard",
+            "54": "m(-|ー|.|\\s)wrestler",
+            "55": "sp(-|ー|.|\\s)goggle",
+            "56": "i(-|ー|.|\\s)crown",
+            "57": "s(-|ー|.|\\s)beard",
+            "58": "f(-|ー|.|\\s)ghost",
+            "59": "bat(-|ー|.|\\s)glasses",
+            "60": "h(-|ー|.|\\s)pumpkin",
+            "61": "m(-|ー|.|\\s)joker",
+            "62": "f(-|ー|.|\\s)i(-|ー|.|\\s)love",
+            "63": "g(-|ー|.|\\s)pig",
+            "64": "c(-|ー|.|\\s)tree",
+            "65": "p(-|ー|.|\\s)muffs",
+            "66": "h(-|ー|.|\\s)solider",
+            "67": "m(-|ー|.|\\s)rudolph",
+            "68": "m(-|ー|.|\\s)frank",
+            "69": "talisman",
+            "70": "m(-|ー|.|\\s)skul",
+            "71": "antlers",
+            "72": "santahat",
+            "73": "snose",
+            "74": "dracula"
+        },
+        "body": {
+            "1": "baldur",
+            "2": "s(-|ー|.|\\s)heart",
+            "3": "c(-|ー|.|\\s)duffle",
+            "4": "hoodie",
+            "5": "n(-|ー|.|\\s)s(-|ー|.|\\s)suit",
+            "6": "u(-|ー|.|\\s)basket",
+            "7": "u(-|ー|.|\\s)military",
+            "8": "j(-|ー|.|\\s)rider",
+            "9": "qipao",
+            "10": "s(-|ー|.|\\s)hawaii",
+            "11": "commander",
+            "12": "n(-|ー|.|\\s)clow",
+            "13": "jumpsuit",
+            "14": "ec(-|ー|.|\\s)armor",
+            "15": "f(-|ー|.|\\s)suit",
+            "16": "s(-|ー|.|\\s)nurse",
+            "17": "prince",
+            "18": "alice",
+            "19": "b(-|ー|.|\\s)suit",
+            "20": "e(-|ー|.|\\s)robe",
+            "21": "olympus",
+            "22": "d(-|ー|.|\\s)cloak",
+            "23": "y(-|ー|.|\\s)training",
+            "24": "ffg",
+            "25": "m(-|ー|.|\\s)cow\\(b\\)",
+            "26": "tiger",
+            "27": "dress",
+            "28": "tuxedo",
+            "29": "s(-|ー|.|\\s)uniform\\(w\\)",
+            "30": "s(-|ー|.|\\s)uniform\\(m\\)",
+            "31": "baby(-|ー|.|\\s)dress",
+            "32": "baby(-|ー|.|\\s)bear",
+            "33": "1st(-|ー|.|\\s)top",
+            "34": "blue(-|ー|.|\\s)jama",
+            "35": "ch(-|ー|.|\\s)belt",
+            "36": "rb(-|ー|.|\\s)crown",
+            "37": "police",
+            "38": "car(-|ー|.|\\s)t",
+            "39": "sailor(-|ー|.|\\s)a",
+            "40": "aladin",
+            "41": "redflower",
+            "42": "hawaiian",
+            "43": "ranch",
+            "44": "life(-|ー|.|\\s)jacket",
+            "45": "penguin",
+            "46": "t(-|ー|.|\\s)skull",
+            "47": "boom",
+            "48": "emer(-|ー|.|\\s)bag",
+            "49": "c(-|ー|.|\\s)guevara",
+            "50": "btj",
+            "51": "p08",
+            "52": "gign",
+            "53": "devgru",
+            "54": "sas",
+            "55": "sahara",
+            "56": "doctor-h",
+            "57": "mustard",
+            "58": "red(-|ー|.|\\s)inner",
+            "59": "popi(-|ー|.|\\s)popi",
+            "60": "r(-|ー|.|\\s)muffler",
+            "61": "apron",
+            "62": "s(-|ー|.|\\s)surfing",
+            "63": "w(-|ー|.|\\s)robe",
+            "64": "i(-|ー|.|\\s)prince",
+            "65": "hoodie",
+            "66": "n(-|ー|.|\\s)santa",
+            "67": "u(-|ー|.|\\s)doctor",
+            "68": "pirate",
+            "69": "royalrobe",
+            "70": "b(-|ー|.|\\s)santa",
+            "71": "h(-|ー|.|\\s)soldier",
+            "72": "rudolph",
+            "73": "b(-|ー|.|\\s)frank",
+            "74": "ksw",
+            "75": "b(-|ー|.|\\s)skull",
+            "76": "m(-|ー|.|\\s)cow\\(w\\)",
+            "77": "tiger\\(w\\)",
+            "78": "pink",
+            "79": "pink",
+            "80": "r(-|ー|.|\\s)uniform\\(w\\)",
+            "81": "r(-|ー|.|\\s)uniform\\(m\\)",
+            "82": "pink(-|ー|.|\\s)jama",
+            "83": "raind(-|ー|.|\\s)bell",
+            "84": "xmas(-|ー|.|\\s)robe",
+            "85": "santa",
+            "86": "sman(-|ー|.|\\s)scarf",
+            "87": "robe"
+        },
+        "back": {
+            "1": "dantalion",
+            "2": "c(-|ー|.|\\s)backpack",
+            "3": "b(-|ー|.|\\s)mouse",
+            "4": "ss(-|ー|.|\\s)board",
+            "5": "heli(-|ー|.|\\s)fan",
+            "6": "kentauros",
+            "7": "w(-|ー|.|\\s)mechanic",
+            "8": "t(-|ー|.|\\s)unicorn",
+            "9": "scroll",
+            "10": "radio",
+            "11": "spanner",
+            "12": "e(-|ー|.|\\s)egg\\(d\\)",
+            "13": "injector",
+            "14": "s(-|ー|.|\\s)rose",
+            "15": "pape",
+            "16": "p(-|ー|.|\\s)watch",
+            "17": "g(-|ー|.|\\s)bottle",
+            "18": "d(-|ー|.|\\s)blade",
+            "19": "m(-|ー|.|\\s)moon",
+            "20": "m(-|ー|.|\\s)sun",
+            "21": "a(-|ー|.|\\s)arrow",
+            "22": "coffin",
+            "23": "carrot",
+            "24": "sharkbag",
+            "25": "hotdog",
+            "26": "multi(-|ー|.|\\s)bag",
+            "27": "popsicle",
+            "28": "burger",
+            "29": "kenstick",
+            "30": "donut",
+            "31": "l(-|ー|.|\\s)tube",
+            "32": "pinky(-|ー|.|\\s)bear",
+            "33": "duck(-|ー|.|\\s)shoes",
+            "34": "parrot",
+            "35": "baby(-|ー|.|\\s)b",
+            "36": "surfing",
+            "37": "ducktube",
+            "38": "super(-|ー|.|\\s)b",
+            "39": "caribbean",
+            "40": "warrior",
+            "41": "oxygen",
+            "42": "fireman",
+            "43": "m(-|ー|.|\\s)bag",
+            "44": "f(-|ー|.|\\s)bag",
+            "45": "w(-|ー|.|\\s)talkie",
+            "46": "l(-|ー|.|\\s)bag",
+            "47": "s(-|ー|.|\\s)bag",
+            "48": "devil(-|ー|.|\\s)b",
+            "49": "angel(-|ー|.|\\s)w",
+            "50": "cupid(-|ー|.|\\s)wing",
+            "51": "line(-|ー|.|\\s)bprack",
+            "52": "po(-|ー|.|\\s)stick",
+            "53": "g(-|ー|.|\\s)b(-|ー|.|\\s)cookie",
+            "54": "mandolin",
+            "55": "f(-|ー|.|\\s)wing|赤羽",
+            "56": "shark(-|ー|.|\\s)surf",
+            "57": "b(-|ー|.|\\s)rudolph",
+            "58": "w(-|ー|.|\\s)crystal",
+            "59": "h(-|ー|.|\\s)scythe",
+            "60": "momo",
+            "61": "e(-|ー|.|\\s)egg\\(f\\)",
+            "62": "e(-|ー|.|\\s)egg\\(s\\)",
+            "63": "b(-|ー|.|\\s)wing\\(g\\)",
+            "64": "b(-|ー|.|\\s)snowman",
+            "65": "i(-|ー|.|\\s)crystal",
+            "66": "s(-|ー|.|\\s)spring",
+            "67": "w(-|ー|.|\\s)wing\\(g\\)",
+            "68": "w(-|ー|.|\\s)skull",
+            "69": "t(-|ー|.|\\s)w(-|ー|.|\\s)ice",
+            "70": "shibabag",
+            "71": "bouquet",
+            "72": "beige(-|ー|.|\\s)bag",
+            "73": "heart(-|ー|.|\\s)box",
+            "74": "xmas(-|ー|.|\\s)box",
+            "75": "xmas(-|ー|.|\\s)tree",
+            "76": "xmas(-|ー|.|\\s)bag",
+            "77": "burger",
+            "78": "broomstick",
+            "79": "pumpkin"
+        }
+    }
