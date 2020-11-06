@@ -135,10 +135,14 @@ class Menu:
                 flag = 1  # タイムアウト
                 break
             elif done_task.get_name() == "react":
-                reaction, _ = done_task.result()
+                reaction, user = done_task.result()
                 if (max_page == 1) or str(reaction.emoji) == self.data.emoji.goback:
                     flag = 2  # back
                     break
+                try:
+                    await msg.remove_reaction(reaction, user)
+                except:
+                    pass
                 if str(reaction.emoji) == "▶️":
                     if page == max_page:
                         page = 1
