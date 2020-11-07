@@ -29,7 +29,7 @@ class Strings:
     menu_save = ["保存", "Save", "저장", "Salvar"]
     menu_save_description = ["保存時につける名前を入力してください.", "Enter the name you want to give.", "제공 할 이름을 입력하십시오.", "Ingrese el nombre que desea dar."]
     menu_load = ["読み込み", "Load", "하중", "Carga"]
-    menu_load_description = ["読み込みたい作品の名前または番号を入力してください.", "Enter the name or index tha you want to load.", "로드하려는 이름 또는 색인을 입력하십시오.", "Ingrese el nombre o índice que desea cargar."]
+    menu_load_description = ["読み込みたい作品の名前または番号を入力してください.", "Enter the name or index that you want to load.", "로드하려는 이름 또는 색인을 입력하십시오.", "Ingrese el nombre o índice que desea cargar."]
     welcome_to_costume_title = ["装飾シミュレータへようこそ!", "Welcome to the costume simulator!", "코스튬 시뮬레이터에 오신 것을 환영합니다!", "¡Bienvenido al simulador de disfraz!"]
     welcome_to_costume_description = [
         "装飾シミュレータ操作用コマンドのリストは`{0}help Costume`で確認できるよ!\nm!add (base/character/weapon/head/body/back) 番号 \nm!list (base/character/weapon/head/body/back)\n例:\n`{0}list character`\n`{0}add character 1`\n実際に上の例にあるコマンドを使ってみてね！\nもっと知りたいって人はこの動画を見てね！\n[https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)",

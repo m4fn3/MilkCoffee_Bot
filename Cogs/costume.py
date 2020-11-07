@@ -29,18 +29,7 @@ class Costume(commands.Cog):
         self.menu_users = set()
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
-        """
-        アイテムをアイテムリストから名前または番号で取得
-        Args:
-            item_name (str): アイテムの名称または番号
-            index (bool): 種類を指定しているかどうか
-            item_type (str): アイテムの種類
-
-        Returns:
-            int, Any:
-             0 ... 異常発生, エラーコード (str)
-             1 ... 正常, [種類, 番号]　(list)
-        """
+        """アイテムを名前または番号で検索"""
         type_list: list
         if index and item_name.isdigit():
             if getattr(self.bot.data, item_type).min <= int(item_name) <= getattr(self.bot.data, item_type).max:
@@ -67,29 +56,14 @@ class Costume(commands.Cog):
             return 1, item_info
 
     def convert_to_bytes(self, image: Image) -> bytes:
-        """
-        imageオブジェクトをbyteに変換
-        Args:
-            image: 変換したいImageオブジェクト
-
-        Returns:
-            bytes: 画像のバイト
-        """
+        """imageオブジェクトをbyteに変換"""
         imgByteArr = io.BytesIO()
         image.save(imgByteArr, format=image.format)
         return imgByteArr.getvalue()
 
     def save_canvas_data(self, user_id, data: str) -> None:
         # TODO: db
-        """
-        canvasのデータを保存
-        Args:
-            user_id : ユーザーID
-            data (str): 装飾コード
-
-        Returns:
-            None
-        """
+        """ canvasのデータを保存 """
         self.bot.database[str(user_id)]["costume"]["canvas"] = data
 
     def get_list(self, item_type: str, page: int) -> str:
@@ -118,13 +92,6 @@ class Costume(commands.Cog):
                 }
             }
             await self.bot.get_cog("Bot").language_selector(ctx)
-            await self.process_new_user(ctx.message)
-        elif "costume" not in self.bot.database[str(ctx.author.id)]:
-            self.bot.database[str(ctx.author.id)]["costume"] = {
-                "canvas": "1o4s3k",
-                "save": []
-            }
-            await self.process_new_user(ctx.message)
 
     async def cog_command_error(self, ctx, error):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
@@ -134,12 +101,6 @@ class Costume(commands.Cog):
             await error_embed(ctx, self.bot.text.interval_too_fast[user_lang].format(error.retry_after))
         else:
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
-
-    async def process_new_user(self, message):
-        user_lang = get_lg(self.bot.database[str(message.author.id)]["language"], message.guild.region)
-        embed = discord.Embed(title=self.bot.text.welcome_to_costume_title[user_lang], color=0x00ffff)
-        embed.description = self.bot.text.welcome_to_costume_description[user_lang].format(self.bot.PREFIX)
-        await message.channel.send(message.author.mention, embed=embed)
 
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description)
     async def menu(self, ctx):
