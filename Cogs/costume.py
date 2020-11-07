@@ -224,7 +224,7 @@ class Costume(commands.Cog):
             await message.remove_reaction("▶️", self.bot.user)
             return 0, None
 
-    @commands.command()
+    @commands.command(aliases=["m"])
     async def menu(self, ctx):
         try:
             code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化 - db
@@ -332,7 +332,7 @@ class Costume(commands.Cog):
             else:
                 return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
         self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
-        await error_embed(ctx, self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
+        await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
 
     @commands.command(usage="save (保存名称)^save (save name)^save (저장 명칭)^save (guardar nombre)", brief="現在の装飾を保存できるよ!^Save the current decoration!^현재의 장식을 저장 할 수 있어!^¡Puede guardar la decoración actual!",
                       description="現在の装飾を保存できるよ!保存名称を指定しなかったら、'Untitled1'みたいな名前を自動でつけとくね!^Save the current decoration! If you don't specify a save name, I automatically give it a name like 'Untitled 1'!^현재의 장식을 저장 할 수 있어! 저장할 이름을 지정하지 않으면, 'Untitled 1'같은 이름을 자동으로 저장할거야!^¡Puede guardar la decoración actual! Si no especifica un nombre para guardar, puede darle automáticamente un nombre como 'Untitled 1'.",
@@ -373,7 +373,7 @@ class Costume(commands.Cog):
                 "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
             }
         )
-        await error_embed(ctx, self.bot.text.saved_work[user_lang].format(name))
+        await sucess_embed(ctx, self.bot.text.saved_work[user_lang].format(name))
 
     @commands.command(aliases=["mylist"], usage="my (ページ)^my (page)^my (페이지)^my (página)", brief="保存した作品の一覧を表示するよ!^Display a list of saved works!^저장된 작업 목록을 표시 할 수 있어!^¡Puedes mostrar una lista de trabajos guardados!",
                       description="保存した作品の一覧を表示できるよ!ページを指定しなかったら、1ページ目から表示するよ!でも、リアクションを押してページ移動もできるから心配しないでね!^Display a list of saved works! If you do not specify a page, it will be displayed from the first page! But don't worry because you can also move pages by pressing reaction!^저장된 작업 목록을 표시 할 수 있어! 페이지를 지정하지 않으면, 1 페이지에서 볼 수 있어!하지만 반응을 눌러 페이지 이동도 할 수 있으니까 걱정하지 마!^¡Puedes mostrar una lista de trabajos guardados! Si no especificas una página, se mostrará desde la primera página ¡Pero no te preocupes porque también puedes mover páginas presionando reacción!",

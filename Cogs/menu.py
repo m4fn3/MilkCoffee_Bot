@@ -18,29 +18,37 @@ class Menu:
         self.ctx = ctx
         self.bot = bot  # type: MilkCoffee
         self.lang = lang
+        self.code = code
         self.item = code_to_list(code)
         self.data = ItemData()
-        self.msg = None
+        self.msg: Optional[discord.Message] = None
 
-    def __del__(self):
-        self.bot.loop.create_task(self.clear_menu_reaction())
+    async def destroy(self):
+        """リアクションを削除またはメッセージを削除して終了"""
+        try:
+            await self.msg.clear_reactions()
+        except:
+            try:
+                await self.msg.delete()
+            except:
+                pass
 
     async def run(self):
         """メニュー開始"""
         while True:
             emoji = await self.main_menu()
             if emoji is None:
-                return  # メインメニューのタイムアウト
+                return await self.destroy()  # メインメニューのタイムアウト
             res = await self.emoji_task(emoji)
             if not res:
-                return  # Exit絵文字
+                return await self.destroy()  # Exit絵文字
 
     async def main_menu(self):
         """メインメニューの作成"""
         if self.msg is not None:
             await self.msg.delete()
         embed = discord.Embed(color=0x9effce)
-        desc = "最上部テキスト(仮)\n"
+        desc = self.data.emoji.num + " " + self.bot.text.menu_code[self.lang] + ": `" + self.code + "`\n"
         desc += self.data.emoji.base + " " + self.bot.text.menu_base[self.lang] + f"{str(self.item[0]).rjust(3)}` {getattr(self.data.base.emoji, 'e' + str(self.item[0]))} {getattr(self.data.base.name, 'n' + str(self.item[0]))}\n"
         desc += self.data.emoji.char + " " + self.bot.text.menu_character[self.lang] + f"{str(self.item[1]).rjust(3)}` {getattr(self.data.character.emoji, 'e' + str(self.item[1]))} {getattr(self.data.character.name, 'n' + str(self.item[1]))}\n"
         desc += self.data.emoji.weapon + " " + self.bot.text.menu_weapon[self.lang] + f"{str(self.item[2]).rjust(3)}` {getattr(self.data.weapon.emoji, 'e' + str(self.item[2]))} {getattr(self.data.weapon.name, 'n' + str(self.item[2]))}\n"
@@ -53,7 +61,7 @@ class Menu:
         # リアクションを追加
         emoji_add_task = self.bot.loop.create_task(self.add_menu_reaction())
         # リアクション待機
-        menu_emoji = [self.data.emoji.base, self.data.emoji.char, self.data.emoji.weapon, self.data.emoji.head, self.data.emoji.body, self.data.emoji.back, self.data.emoji.search, self.data.emoji.num, self.data.emoji.exit]
+        menu_emoji = [self.data.emoji.base, self.data.emoji.char, self.data.emoji.weapon, self.data.emoji.head, self.data.emoji.body, self.data.emoji.back, self.data.emoji.search, self.data.emoji.num, self.data.emoji.config, self.data.emoji.exit]
         emoji: str
         try:
             react, _ = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: str(r.emoji) in menu_emoji and r.message.id == self.msg.id and u == self.ctx.author)
@@ -73,21 +81,8 @@ class Menu:
             self.msg.add_reaction(self.data.emoji.back),
             self.msg.add_reaction(self.data.emoji.search),
             self.msg.add_reaction(self.data.emoji.num),
+            self.msg.add_reaction(self.data.emoji.config),
             self.msg.add_reaction(self.data.emoji.exit)
-        )
-
-    async def clear_menu_reaction(self):
-        """メッセージのリアクションを削除"""
-        await asyncio.gather(
-            self.msg.remove_reaction(self.data.emoji.base, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.char, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.weapon, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.head, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.body, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.back, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.search, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.num, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.exit, self.ctx.guild.me)
         )
 
     async def emoji_task(self, emoji):
@@ -109,9 +104,10 @@ class Menu:
             flag = await self.searcher()
         elif emoji == self.data.emoji.num:
             flag = await self.code_input()
+        elif emoji == self.data.emoji.config:
+            flag = await self.config()
         elif emoji == self.data.emoji.exit:
             return False
-
         if flag == 1:  # タイムアウト
             return False
         elif flag == 2:  # メインメニューを表示
@@ -129,7 +125,7 @@ class Menu:
         if max_page == 1:
             selector_emoji = [self.data.emoji.goback]
         else:
-            selector_emoji = ["◀️", "▶️", self.data.emoji.goback]
+            selector_emoji = [self.data.emoji.left, self.data.emoji.right, self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, selector_emoji))
         # 入力待機
         flag: int
@@ -154,12 +150,12 @@ class Menu:
                     await msg.remove_reaction(reaction, user)
                 except:
                     pass
-                if str(reaction.emoji) == "▶️":
+                if str(reaction.emoji) == self.data.emoji.right:
                     if page == max_page:
                         page = 1
                     else:
                         page = page + 1
-                elif str(reaction.emoji) == "◀️":
+                elif str(reaction.emoji) == self.data.emoji.left:
                     if page == 1:
                         page = max_page
                     else:
@@ -265,6 +261,7 @@ class Menu:
                         (self.data.weapon.min <= item[2] <= self.data.weapon.max) and (self.data.head.min <= item[3] <= self.data.head.max) and \
                         (self.data.body.min <= item[4] <= self.data.body.max) and (self.data.back.min <= item[5] <= self.data.back.max):
                     self.item = item
+                    self.code = list_to_code(item)
                     # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
@@ -277,6 +274,145 @@ class Menu:
                         break
         await msg.delete()
         return flag
+
+    async def config(self):
+        embed = discord.Embed(title="データ管理")
+        embed.description = f"保存または読込のリアクションを選択しろください"
+        msg = await self.ctx.send(embed=embed)
+        emoji_task = self.bot.loop.create_task(self.add_config_emoji(msg))
+        react: discord.Reaction
+        try:
+            react, _ = await self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in [self.data.emoji.load, self.data.emoji.save, self.data.emoji.goback] and r.message.id == msg.id and u == self.ctx.author, timeout=30)
+            emoji_task.cancel()
+        except asyncio.TimeoutError:
+            await msg.delete()
+            return 1  # タイムアウト
+        await msg.delete()
+        if str(react.emoji) == self.data.emoji.goback:
+            return 2  # back
+        elif str(react.emoji) == self.data.emoji.load:
+            return await self.load()
+        elif str(react.emoji) == self.data.emoji.save:
+            return await self.save()
+
+    async def save(self):
+        """作品を保存"""
+        embed = discord.Embed(title="保存")
+        embed.description = "保存したい作品の番号または名前"
+        msg = await self.ctx.send(embed=embed)
+        config_emoji = [self.data.emoji.goback]
+        self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
+        # TODO: db 既に20個保存されている場合
+        # await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
+        # return 2
+        used_name_list = []  # TODO: db 保存された作品の名前のリスト
+        # 入力待機
+        flag = 1
+        count = 0
+        while True:
+            react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in config_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
+            msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
+            done, _ = await asyncio.wait({react_task, msg_task}, return_when=asyncio.FIRST_COMPLETED)
+            done_task = list(done)[0]
+            react_task.cancel()
+            msg_task.cancel()
+            if isinstance(done_task.exception(), asyncio.TimeoutError):
+                flag = 1  # タイムアウト
+                break
+            elif done_task.get_name() == "react":
+                flag = 2  # back
+                break
+            elif done_task.get_name() == "msg":
+                rmsg = done_task.result()
+                name = rmsg.content
+                error = False
+                if name.isdigit():
+                    await error_embed(self.ctx, self.bot.text.int_only_name_not_allowed[self.lang])
+                    error = True
+                elif name in used_name_list:
+                    await error_embed(self.ctx, self.bot.text.name_already_used[self.lang])
+                    error = True
+                elif len(name) < 1 or 20 < len(name):
+                    await error_embed(self.ctx, self.bot.text.name_length_between_1_20[self.lang])
+                    error = True
+                if error:
+                    count += 1
+                    if count == 3:
+                        flag = 2
+                        break
+                else:
+                    # TODO: db nameでcanvasのデータを保存
+                    await success_embed(self.ctx, self.bot.text.saved_work[self.lang].format(name))
+                    flag = 2
+                    break
+        await msg.delete()
+        return flag
+
+    async def load(self):
+        """作品を読み込み"""
+        embed = discord.Embed(title="読込")
+        embed.description = "読み込みたい作品の番号または名前"
+        msg = await self.ctx.send(embed=embed)
+        config_emoji = [self.data.emoji.goback]
+        self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
+        # 入力待機
+        flag = 1
+        count = 0
+        while True:
+            react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in config_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
+            msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
+            done, _ = await asyncio.wait({react_task, msg_task}, return_when=asyncio.FIRST_COMPLETED)
+            done_task = list(done)[0]
+            react_task.cancel()
+            msg_task.cancel()
+            if isinstance(done_task.exception(), asyncio.TimeoutError):
+                flag = 1  # タイムアウト
+                break
+            elif done_task.get_name() == "react":
+                flag = 2  # back
+                break
+            elif done_task.get_name() == "msg":
+                rmsg = done_task.result()
+                index = rmsg.content
+                error = False
+                item_index: int
+                # TODO: dbの部分はループ外で処理すると効率よいかも
+                if index.isdigit() and 1 <= int(index) <= 20:
+                    item_count = 1  # TODO db そのユーザーの保存数
+                    if 0 <= int(index) <= item_count:
+                        item_index = int(index) - 1
+                    else:
+                        await error_embed(self.ctx, self.bot.text.no_th_saved_work[self.lang].format(index))
+                        error = True
+                elif index.isdigit():
+                    await error_embed(self.ctx, self.bot.text.specify_between_1_20[self.lang])
+                    error = True
+                else:
+                    used_name_list = [d.get("name") for d in []]  # TODO: db []の部分にユーザーの保存されたデータリスト
+                    if index in used_name_list:
+                        item_index = used_name_list.index(index)
+                    else:
+                        await error_embed(self.ctx, self.bot.text.not_found_with_name[self.lang])
+                        error = True
+                if error:
+                    count += 1
+                    if count == 3:
+                        flag = 2
+                        break
+                else:
+                    # TODO: db 作業場データにitem_index番目に保存済みのデータを読み込む
+                    await success_embed(self.ctx, self.bot.text.loaded_work[self.lang].format(item_index + 1, "読み込んだ作品の名前"))  # TODO: db 作品名
+                    flag = 2
+                    break
+        await msg.delete()
+        return flag
+
+    async def add_config_emoji(self, msg):
+        await asyncio.gather(
+            msg.add_reaction(self.data.emoji.load),
+            msg.add_reaction(self.data.emoji.save),
+            msg.add_reaction(self.data.emoji.goback)
+        )
 
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""

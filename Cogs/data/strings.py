@@ -19,6 +19,7 @@ class Strings:
     menu_head = ["`頭装飾　　　 :", "`head     :", "`머리　 :", "`cabeza    :"]
     menu_body = ["`体装飾　　　 :", "`body     :", "`몸　　 :", "`cuerpo    :"]
     menu_back = ["`背中装飾　　 :", "`back     :", "`허리　 :", "`espalda   :"]
+    menu_code = ["装飾コード", "CostumeCode", "장식 코드", "código de decoración"]
     item_not_found = ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
     wrong_item_index = ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong item number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
     welcome_to_costume_title = ["装飾シミュレータへようこそ!", "Welcome to the costume simulator!", "코스튬 시뮬레이터에 오신 것을 환영합니다!", "¡Bienvenido al simulador de disfraz!"]

@@ -81,6 +81,11 @@ class Emoji:
     goback = "<:goback:774149798747963402>"
     limited = "<:limited:774149798286065694>"
     num = "<:num:774426280253718558>"
+    right = "<:right:774488678193037342>"
+    left = "<:left:774488697537560627>"
+    load = "<:load:774498067511771136>"
+    save = "<:save:774498016245579807>"
+    config = "<:config:774498276492705792>"
 
 @dataclasses.dataclass(frozen=True)
 class ItemData:
