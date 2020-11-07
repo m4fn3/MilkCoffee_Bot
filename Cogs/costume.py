@@ -24,6 +24,8 @@ class Costume(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # type: MilkCoffee
         self.item = ItemData()
+        self.menu_channels = set()
+        self.menu_users = set()
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """
@@ -227,10 +229,18 @@ class Costume(commands.Cog):
     @commands.command(aliases=["m"])
     async def menu(self, ctx):
         try:
+            if ctx.author.id in self.menu_users:
+                return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
+            elif ctx.channel.id in self.menu_channels:
+                return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
+            self.menu_users.add(ctx.author.id)
+            self.menu_channels.add(ctx.channel.id)
             code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化 - db
             user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
             menu = Menu(ctx, self.bot, user_lang, code)
             await menu.run()
+            self.menu_users.remove(ctx.author.id)
+            self.menu_channels.remove(ctx.channel.id)
         except:
             print(traceback2.format_exc())
 

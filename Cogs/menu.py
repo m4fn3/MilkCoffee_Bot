@@ -276,7 +276,7 @@ class Menu:
         return flag
 
     async def config(self):
-        embed = discord.Embed(title=self.bot.text.menu_config[self.lang])
+        embed = discord.Embed(title=self.bot.text.menu_config[self.lang], color=0xffce9e)
         embed.description = self.bot.text.menu_config_description[self.lang].format(self.data.emoji.save, self.data.emoji.load)
         msg = await self.ctx.send(embed=embed)
         emoji_task = self.bot.loop.create_task(self.add_config_emoji(msg))
@@ -297,7 +297,7 @@ class Menu:
 
     async def save(self):
         """作品を保存"""
-        embed = discord.Embed(title=self.bot.text.menu_save[self.lang])
+        embed = discord.Embed(title=self.bot.text.menu_save[self.lang], color=0xd1a3ff)
         embed.description = self.bot.text.menu_save_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.data.emoji.goback]
@@ -350,7 +350,7 @@ class Menu:
 
     async def load(self):
         """作品を読み込み"""
-        embed = discord.Embed(title=self.bot.text.menu_load[self.lang])
+        embed = discord.Embed(title=self.bot.text.menu_load[self.lang], color=0xd1a3ff)
         embed.description = self.bot.text.menu_load_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.data.emoji.goback]
