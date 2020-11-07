@@ -6,50 +6,6 @@ numbers = "0123456789"
 alphabets = string.ascii_letters
 characters = numbers + alphabets
 
-
-def code_to_list(code36: str) -> Optional[List[int]]:
-    """装飾コードを番号リストに変換"""
-    try:
-        code10 = int(code36, base=36)  # 36進数->10進数に変換
-    except:
-        return None
-    item = str(code10).zfill(14)  # 14桁になるよう0埋め
-    return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:8]), int(item[8:11]), int(item[11:14])]
-
-
-def list_to_code(item: list) -> str:
-    """番号リストを装飾コードに変換"""
-    code = f"{item[0]}{str(item[1]).zfill(2)}{str(item[2]).zfill(2)}{str(item[3]).zfill(3)}{str(item[4]).zfill(3)}{str(item[5]).zfill(3)}"
-    return parse_to_36(int(code))
-
-
-def parse_to_36(tmp: int):
-    """10進数->36進数に変換"""
-    result = ''
-    while tmp >= 36:
-        idx = tmp % 36
-        result = characters[idx] + result
-        tmp = int(tmp / 36)
-    idx = tmp % 36
-    return characters[idx] + result
-
-
-def update_code(code: str):
-    """旧形式の装飾コードを新形式に変換"""
-    item = old_ctl(code)
-    # 各番号変換
-    code = list_to_code(item)
-    return code
-
-
-def old_ctl(item: str) -> list:
-    """古い形式のデータ変換"""
-    result = int(item, 36)  # 36進数から10進数に変換
-    item = str(result).zfill(11)  # 11桁になるように0埋めする
-    return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:7]), int(item[7:9]), int(item[9:11])]
-
-
-"""
 head = {
     "0": "0",
     "1": "74",
@@ -302,4 +258,49 @@ back = {
     "78": "21",
     "79": "20"
 }
-"""
+
+
+def code_to_list(code36: str) -> Optional[List[int]]:
+    """装飾コードを番号リストに変換"""
+    try:
+        code10 = int(code36, base=36)  # 36進数->10進数に変換
+    except:
+        return None
+    item = str(code10).zfill(14)  # 14桁になるよう0埋め
+    return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:8]), int(item[8:11]), int(item[11:14])]
+
+
+def list_to_code(item: list) -> str:
+    """番号リストを装飾コードに変換"""
+    code = f"{item[0]}{str(item[1]).zfill(2)}{str(item[2]).zfill(2)}{str(item[3]).zfill(3)}{str(item[4]).zfill(3)}{str(item[5]).zfill(3)}"
+    return parse_to_36(int(code))
+
+
+def parse_to_36(tmp: int):
+    """10進数->36進数に変換"""
+    result = ''
+    while tmp >= 36:
+        idx = tmp % 36
+        result = characters[idx] + result
+        tmp = int(tmp / 36)
+    idx = tmp % 36
+    return characters[idx] + result
+
+
+def update_code(code: str):
+    """旧形式の装飾コードを新形式に変換"""
+    item = old_ctl(code)
+    # 各番号変換
+    item[3] = int(head[str(item[3])])
+    item[4] = int(body[str(item[4])])
+    item[5] = int(back[str(item[5])])
+    code = list_to_code(item)
+    return code
+
+
+def old_ctl(item: str) -> list:
+    """古い形式のデータ変換"""
+    result = int(item, 36)  # 36進数から10進数に変換
+    item = str(result).zfill(11)  # 11桁になるように0埋めする
+    return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:7]), int(item[7:9]), int(item[9:11])]
+
