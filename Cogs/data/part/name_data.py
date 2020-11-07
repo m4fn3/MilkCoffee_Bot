@@ -104,6 +104,7 @@ class HeadName:
     n29 = "ANTLERS"
     n30 = "L-GLASSES"
     n31 = "FLUSH"
+    n32 = "B-MASK"
     n33 = "HALF MASK"
     n34 = "C.BEARD"
     n35 = "K.MASK"

@@ -99,6 +99,7 @@ class ItemRegex:
     "29": "antlers",
     "30": "l(-|ー|.|\\s)glasses",
     "31": "flush",
+    "32": "b(-|ー|.|\\s)mask",
     "33": "half(-|ー|.|\\s)mask",
     "34": "c(-|ー|.|\\s)beard",
     "35": "k(-|ー|.|\\s)mask",
