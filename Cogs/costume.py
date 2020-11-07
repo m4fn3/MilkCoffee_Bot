@@ -42,26 +42,26 @@ class Costume(commands.Cog):
         """
         type_list: list
         if index and item_name.isdigit():
-            if self.item_info[item_type]["min"] <= int(item_name) <= self.item_info[item_type]["max"]:
+            if getattr(self.item, item_type).min <= int(item_name) <= getattr(self.item, item_type).max:
                 return 1, [item_type, item_name]
             else:
-                return 0, ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong item number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
+                return 0, self.bot.text.wrong_item_index
         elif index:
             type_list = [item_type]
         else:
-            type_list = [type_name for type_name in self.name_re]
+            type_list = [type_name for type_name in self.item.regex]
         match_per = -1
         item_info = []
         for i in type_list:
-            for j in self.name_re[i]:
-                match_obj = re.search(self.name_re[i][j], item_name, re.IGNORECASE)
+            for j in self.item.regex[i]:
+                match_obj = re.search(self.item.regex[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
-                    diff_per = difflib.SequenceMatcher(None, self.name[i][j].lower(), match_obj.group()).ratio()
+                    diff_per = difflib.SequenceMatcher(None, getattr(getattr(self.item, i).name, "n" + str(j)).lower(), match_obj.group()).ratio()
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]
         if match_per == -1:
-            return 0, ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
+            return 0, self.bot.text.item_not_found
         else:
             return 1, item_info
 
