@@ -1,9 +1,11 @@
 import asyncio
 import difflib
+import io
 import re
 from typing import Any
 
 import discord
+from PIL import Image
 
 from .data.item_data import ItemData
 from .utils.item_parser import *
@@ -44,7 +46,8 @@ class Menu:
         desc += self.data.emoji.body + " " + self.bot.text.menu_body[self.lang] + f"{str(self.item[4]).rjust(3)}` {getattr(self.data.body.emoji, 'e' + str(self.item[4]))} {getattr(self.data.body.name, 'n' + str(self.item[4]))}\n"
         desc += self.data.emoji.back + " " + self.bot.text.menu_back[self.lang] + f"{str(self.item[5]).rjust(3)}` {getattr(self.data.back.emoji, 'e' + str(self.item[5]))} {getattr(self.data.back.name, 'n' + str(self.item[5]))}\n"
         embed.description = desc
-        self.msg = await self.ctx.send(embed=embed)
+        img = self.make_image(*self.item)
+        self.msg = await self.ctx.send(embed=embed, file=img)
         # リアクションを追加
         emoji_add_task = self.bot.loop.create_task(self.add_menu_reaction())
         # リアクション待機
@@ -298,3 +301,20 @@ class Menu:
             return 0, ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
         else:
             return 1, item_info
+
+    def make_image(self, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> discord.File:
+        base = Image.open(f"./Assets/base/{base_id}.png")
+        character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
+        weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
+        head = Image.open(f"./Assets/head/{head_id}.png")
+        body = Image.open(f"./Assets/body/{body_id}.png")
+        back = Image.open(f"./Assets/back/{back_id}.png")
+        base.paste(character, (0, 0), character)
+        base.paste(head, (0, 0), head)
+        base.paste(body, (0, 0), body)
+        base.paste(back, (0, 0), back)
+        base.paste(weapon, (0, 0), weapon)
+        imgByteArr = io.BytesIO()
+        base.save(imgByteArr, format=base.format)
+        base = imgByteArr.getvalue()
+        return discord.File(fp=io.BytesIO(base), filename="result.png")
