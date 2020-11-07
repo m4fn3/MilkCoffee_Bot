@@ -48,7 +48,7 @@ class Lang:
 
 @dataclasses.dataclass(frozen=True)
 class Follow:
-    usage = "follow (チャンネル)^follow (channel)^follow (채널)^follow (canal)",
+    usage = "follow (チャンネル)^follow (channel)^follow (채널)^follow (canal)"
     description = "BOTの更新情報を受け取ります^Receive BOT's updates^BOT의 업데이트를받습니다^Reciba las actualizaciones de BOT"
 
 @dataclasses.dataclass(frozen=True)

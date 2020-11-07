@@ -76,8 +76,12 @@ class Strings:
     list_back_title = ["背中装飾一覧", "Back list", "허리 목록", "lista de back"]
     # bot.py
     reaction_rate = ["反応速度: `{}`[ms]", "Reaction rate: `{}`[ms]", "반응 속도: `{}`[ms]", "Velocidad de reacción: `{}`[ms]"]
-    invite_links = ["__**BOTの招待用URL**__:\n{}\n__**サポート用サーバー(公式サーバー)**__:\n{}", "__**BOT invitation URL**__:\n{0}\n__**Support server (official server)**__:\n{1}", "__**봇 초대 용 URL**__\n{0}\n__**지원용 서버 (공식 서버)**__\n{1}", "__**BOT URL de invitación**__: \n{0}\n__**Servidor de soporte (servidor oficial)**__:\n{1}"]
-    # language.py
+    invite_title = ["招待リンク", "Invitation links", "초대 링크", "Enlace de invitación"]
+    invite_description = ["BOTの招待リンク集です.わからないことがあれば,お気軽に公式サーバーでお尋ねください.", "Here are some links. If you need help, please feel free to ask in Support Server. Thanks!", "여기에 링크가 있습니다. 도움이 필요하시면 언제든지공식 서버에 문의하십시오. 감사!", "Aquí hay enlaces. Si necesita ayuda, no dude en preguntar en Support Server. ¡Gracias!"]
+    invite_url = ["招待URL", "Invite URL", "환대 URL", "URL de invitación"]
+    invite_server = ["公式サーバー", "Support Server", "공식 서버", "Servidor de soporte"]
+    invite_add = ["その他のリンク", "Additional links", "추가 링크", "enlaces adicionales"]
+    invite_vote = ["top.ggで評価する", "Vote me on top.gg", "top.gg 으로 평가", "Vótame en top.gg"]
     lang_not_found = ["言語が見つかりませんでした。", "The language was not found.", "언어를 찾을 수 없습니다.", "No se encontró el idioma."]
     # notice.py
     followed_channel = ["{}で公式サーバーのBOTお知らせ用チャンネルをフォローしました。", "I followed the BOT notification channel at {}!", "{}에서 BOT 알림 채널을 따라갔습니다!", "Seguí el canal de notificación BOT en {}."]

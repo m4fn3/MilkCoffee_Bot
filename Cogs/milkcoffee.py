@@ -17,9 +17,9 @@ class MilkCoffee(commands.Bot):
         self.bot_cogs = ["Cogs.bot", "Cogs.costume", "Cogs.developer", "Cogs.notify"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
         self.static_data = StaticData()  # 固定データを読み込み
-        self.text = Strings()
-        self.data = ItemData()
-        for cog in self.bot_cogs:  # Cog読み込み
+        self.text = Strings()  # 言語別文字列データを読み込み
+        self.data = ItemData()  # 絵文字,アイテムデータを読み込み
+        for cog in self.bot_cogs:  # Cogの読み込み
             self.load_extension(cog)
         self.database = {}  # TODO: db
         # NOTE: ADMIN一時的に追加
