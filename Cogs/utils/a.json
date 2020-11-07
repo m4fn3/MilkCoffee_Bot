@@ -1,9 +1,4 @@
-import dataclasses
-
-
-@dataclasses.dataclass(frozen=True)
-class ItemRegex:
-    regex = {
+{
   "base": {
     "0": "milk|ミルク|白",
     "1": "choco|チョコ|黒"
