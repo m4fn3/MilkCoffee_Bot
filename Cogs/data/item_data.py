@@ -86,6 +86,11 @@ class Emoji:
     load = "<:load:774498067511771136>"
     save = "<:save:774498016245579807>"
     config = "<:config:774498276492705792>"
+    language = "<:language:758954812653305896>"
+    region = "<:region:758947780319379486>"
+    twitter = "<:twitter:757612992727613460>"
+    facebook = "<:facebook:757612955029340190>"
+    youtube = "<:youtube:757613031915257926>"
 
 @dataclasses.dataclass(frozen=True)
 class ItemData:

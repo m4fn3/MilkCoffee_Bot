@@ -7,8 +7,7 @@ from typing import Any
 import discord
 from PIL import Image
 
-from .bot import MilkCoffee
-from .data.item_data import ItemData
+from .milkcoffee import MilkCoffee
 from .utils.item_parser import *
 from .utils.messenger import error_embed, success_embed
 
@@ -20,7 +19,6 @@ class Menu:
         self.lang = lang
         self.code = code
         self.item = code_to_list(code)
-        self.data = ItemData()
         self.msg: Optional[discord.Message] = None
 
     async def destroy(self):
@@ -48,20 +46,20 @@ class Menu:
         if self.msg is not None:
             await self.msg.delete()
         embed = discord.Embed(color=0x9effce)
-        desc = self.data.emoji.num + " " + self.bot.text.menu_code[self.lang] + ": `" + self.code + "`\n"
-        desc += self.data.emoji.base + " " + self.bot.text.menu_base[self.lang] + f"{str(self.item[0]).rjust(3)}` {getattr(self.data.base.emoji, 'e' + str(self.item[0]))} {getattr(self.data.base.name, 'n' + str(self.item[0]))}\n"
-        desc += self.data.emoji.char + " " + self.bot.text.menu_character[self.lang] + f"{str(self.item[1]).rjust(3)}` {getattr(self.data.character.emoji, 'e' + str(self.item[1]))} {getattr(self.data.character.name, 'n' + str(self.item[1]))}\n"
-        desc += self.data.emoji.weapon + " " + self.bot.text.menu_weapon[self.lang] + f"{str(self.item[2]).rjust(3)}` {getattr(self.data.weapon.emoji, 'e' + str(self.item[2]))} {getattr(self.data.weapon.name, 'n' + str(self.item[2]))}\n"
-        desc += self.data.emoji.head + " " + self.bot.text.menu_head[self.lang] + f"{str(self.item[3]).rjust(3)}` {getattr(self.data.head.emoji, 'e' + str(self.item[3]))} {getattr(self.data.head.name, 'n' + str(self.item[3]))}\n"
-        desc += self.data.emoji.body + " " + self.bot.text.menu_body[self.lang] + f"{str(self.item[4]).rjust(3)}` {getattr(self.data.body.emoji, 'e' + str(self.item[4]))} {getattr(self.data.body.name, 'n' + str(self.item[4]))}\n"
-        desc += self.data.emoji.back + " " + self.bot.text.menu_back[self.lang] + f"{str(self.item[5]).rjust(3)}` {getattr(self.data.back.emoji, 'e' + str(self.item[5]))} {getattr(self.data.back.name, 'n' + str(self.item[5]))}\n"
+        desc = self.bot.data.emoji.num + " " + self.bot.text.menu_code[self.lang] + ": `" + self.code + "`\n"
+        desc += self.bot.data.emoji.base + " " + self.bot.text.menu_base[self.lang] + f"{str(self.item[0]).rjust(3)}` {getattr(self.bot.data.base.emoji, 'e' + str(self.item[0]))} {getattr(self.bot.data.base.name, 'n' + str(self.item[0]))}\n"
+        desc += self.bot.data.emoji.char + " " + self.bot.text.menu_character[self.lang] + f"{str(self.item[1]).rjust(3)}` {getattr(self.bot.data.character.emoji, 'e' + str(self.item[1]))} {getattr(self.bot.data.character.name, 'n' + str(self.item[1]))}\n"
+        desc += self.bot.data.emoji.weapon + " " + self.bot.text.menu_weapon[self.lang] + f"{str(self.item[2]).rjust(3)}` {getattr(self.bot.data.weapon.emoji, 'e' + str(self.item[2]))} {getattr(self.bot.data.weapon.name, 'n' + str(self.item[2]))}\n"
+        desc += self.bot.data.emoji.head + " " + self.bot.text.menu_head[self.lang] + f"{str(self.item[3]).rjust(3)}` {getattr(self.bot.data.head.emoji, 'e' + str(self.item[3]))} {getattr(self.bot.data.head.name, 'n' + str(self.item[3]))}\n"
+        desc += self.bot.data.emoji.body + " " + self.bot.text.menu_body[self.lang] + f"{str(self.item[4]).rjust(3)}` {getattr(self.bot.data.body.emoji, 'e' + str(self.item[4]))} {getattr(self.bot.data.body.name, 'n' + str(self.item[4]))}\n"
+        desc += self.bot.data.emoji.back + " " + self.bot.text.menu_back[self.lang] + f"{str(self.item[5]).rjust(3)}` {getattr(self.bot.data.back.emoji, 'e' + str(self.item[5]))} {getattr(self.bot.data.back.name, 'n' + str(self.item[5]))}\n"
         embed.description = desc
         img = self.make_image(*self.item)
         self.msg = await self.ctx.send(embed=embed, file=img)
         # リアクションを追加
         emoji_add_task = self.bot.loop.create_task(self.add_menu_reaction())
         # リアクション待機
-        menu_emoji = [self.data.emoji.base, self.data.emoji.char, self.data.emoji.weapon, self.data.emoji.head, self.data.emoji.body, self.data.emoji.back, self.data.emoji.search, self.data.emoji.num, self.data.emoji.config, self.data.emoji.exit]
+        menu_emoji = [self.bot.data.emoji.base, self.bot.data.emoji.char, self.bot.data.emoji.weapon, self.bot.data.emoji.head, self.bot.data.emoji.body, self.bot.data.emoji.back, self.bot.data.emoji.search, self.bot.data.emoji.num, self.bot.data.emoji.config, self.bot.data.emoji.exit]
         emoji: str
         try:
             react, _ = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: str(r.emoji) in menu_emoji and r.message.id == self.msg.id and u == self.ctx.author)
@@ -73,40 +71,40 @@ class Menu:
     async def add_menu_reaction(self):
         """メッセージにリアクションを追加"""
         await asyncio.gather(
-            self.msg.add_reaction(self.data.emoji.base),
-            self.msg.add_reaction(self.data.emoji.char),
-            self.msg.add_reaction(self.data.emoji.weapon),
-            self.msg.add_reaction(self.data.emoji.head),
-            self.msg.add_reaction(self.data.emoji.body),
-            self.msg.add_reaction(self.data.emoji.back),
-            self.msg.add_reaction(self.data.emoji.search),
-            self.msg.add_reaction(self.data.emoji.num),
-            self.msg.add_reaction(self.data.emoji.config),
-            self.msg.add_reaction(self.data.emoji.exit)
+            self.msg.add_reaction(self.bot.data.emoji.base),
+            self.msg.add_reaction(self.bot.data.emoji.char),
+            self.msg.add_reaction(self.bot.data.emoji.weapon),
+            self.msg.add_reaction(self.bot.data.emoji.head),
+            self.msg.add_reaction(self.bot.data.emoji.body),
+            self.msg.add_reaction(self.bot.data.emoji.back),
+            self.msg.add_reaction(self.bot.data.emoji.search),
+            self.msg.add_reaction(self.bot.data.emoji.num),
+            self.msg.add_reaction(self.bot.data.emoji.config),
+            self.msg.add_reaction(self.bot.data.emoji.exit)
         )
 
     async def emoji_task(self, emoji):
         """各絵文字に対する挙動"""
         flag = 1
-        if emoji == self.data.emoji.base:
+        if emoji == self.bot.data.emoji.base:
             flag = await self.selector("base")
-        elif emoji == self.data.emoji.char:
+        elif emoji == self.bot.data.emoji.char:
             flag = await self.selector("character")
-        elif emoji == self.data.emoji.weapon:
+        elif emoji == self.bot.data.emoji.weapon:
             flag = await self.selector("weapon")
-        elif emoji == self.data.emoji.head:
+        elif emoji == self.bot.data.emoji.head:
             flag = await self.selector("head")
-        elif emoji == self.data.emoji.body:
+        elif emoji == self.bot.data.emoji.body:
             flag = await self.selector("body")
-        elif emoji == self.data.emoji.back:
+        elif emoji == self.bot.data.emoji.back:
             flag = await self.selector("back")
-        elif emoji == self.data.emoji.search:
+        elif emoji == self.bot.data.emoji.search:
             flag = await self.searcher()
-        elif emoji == self.data.emoji.num:
+        elif emoji == self.bot.data.emoji.num:
             flag = await self.code_input()
-        elif emoji == self.data.emoji.config:
+        elif emoji == self.bot.data.emoji.config:
             flag = await self.config()
-        elif emoji == self.data.emoji.exit:
+        elif emoji == self.bot.data.emoji.exit:
             return False
         if flag == 1:  # タイムアウト
             return False
@@ -116,16 +114,16 @@ class Menu:
     async def selector(self, item_type):
         """選択画面"""
         # 選択画面作成
-        max_page = getattr(self.data, item_type).page
+        max_page = getattr(self.bot.data, item_type).page
         embed = discord.Embed(title=self.bot.text.list_base_title[self.lang], color=0xffce9e)
         embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, 1)
         embed.set_footer(text=self.bot.text.showing_page_1[self.lang].format(max_page))
         msg = await self.ctx.send(embed=embed)
         selector_emoji = []
         if max_page == 1:
-            selector_emoji = [self.data.emoji.goback]
+            selector_emoji = [self.bot.data.emoji.goback]
         else:
-            selector_emoji = [self.data.emoji.left, self.data.emoji.right, self.data.emoji.goback]
+            selector_emoji = [self.bot.data.emoji.left, self.bot.data.emoji.right, self.bot.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, selector_emoji))
         # 入力待機
         flag: int
@@ -143,19 +141,19 @@ class Menu:
                 break
             elif done_task.get_name() == "react":
                 reaction, user = done_task.result()
-                if (max_page == 1) or str(reaction.emoji) == self.data.emoji.goback:
+                if (max_page == 1) or str(reaction.emoji) == self.bot.data.emoji.goback:
                     flag = 2  # back
                     break
                 try:
                     await msg.remove_reaction(reaction, user)
                 except:
                     pass
-                if str(reaction.emoji) == self.data.emoji.right:
+                if str(reaction.emoji) == self.bot.data.emoji.right:
                     if page == max_page:
                         page = 1
                     else:
                         page = page + 1
-                elif str(reaction.emoji) == self.data.emoji.left:
+                elif str(reaction.emoji) == self.bot.data.emoji.left:
                     if page == 1:
                         page = max_page
                     else:
@@ -175,7 +173,7 @@ class Menu:
                         flag = 2
                         break
                 else:
-                    self.item[getattr(self.data, result[0]).index] = int(result[1])
+                    self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
                     # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
@@ -192,7 +190,7 @@ class Menu:
         embed = discord.Embed(title=self.bot.text.menu_find_item[self.lang], color=0xffce9e)
         embed.description = self.bot.text.menu_find_description[self.lang]
         msg = await self.ctx.send(embed=embed)
-        searcher_emoji = [self.data.emoji.goback]
+        searcher_emoji = [self.bot.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
@@ -221,7 +219,7 @@ class Menu:
                         flag = 2
                         break
                 else:
-                    self.item[getattr(self.data, result[0]).index] = int(result[1])
+                    self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
                     # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
@@ -234,7 +232,7 @@ class Menu:
         embed = discord.Embed(title="装飾コードで設定", color=0xffce9e)
         embed.description = "装飾コードを入力してください"  # TODO: 多言語対応 - セレクタ―のdescriptionに説明文
         msg = await self.ctx.send(embed=embed)
-        searcher_emoji = [self.data.emoji.goback]
+        searcher_emoji = [self.bot.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
@@ -257,9 +255,9 @@ class Menu:
                 item = code_to_list(rmsg.content.lower())
                 if item is None:
                     await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
-                elif (self.data.base.min <= item[0] <= self.data.base.max) and (self.data.character.min <= item[1] <= self.data.character.max) and \
-                        (self.data.weapon.min <= item[2] <= self.data.weapon.max) and (self.data.head.min <= item[3] <= self.data.head.max) and \
-                        (self.data.body.min <= item[4] <= self.data.body.max) and (self.data.back.min <= item[5] <= self.data.back.max):
+                elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
+                        (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
+                        (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
                     self.item = item
                     self.code = list_to_code(item)
                     # TODO: db にコードを保存
@@ -277,22 +275,22 @@ class Menu:
 
     async def config(self):
         embed = discord.Embed(title=self.bot.text.menu_config[self.lang], color=0xffce9e)
-        embed.description = self.bot.text.menu_config_description[self.lang].format(self.data.emoji.save, self.data.emoji.load)
+        embed.description = self.bot.text.menu_config_description[self.lang].format(self.bot.data.emoji.save, self.bot.data.emoji.load)
         msg = await self.ctx.send(embed=embed)
         emoji_task = self.bot.loop.create_task(self.add_config_emoji(msg))
         react: discord.Reaction
         try:
-            react, _ = await self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in [self.data.emoji.load, self.data.emoji.save, self.data.emoji.goback] and r.message.id == msg.id and u == self.ctx.author, timeout=30)
+            react, _ = await self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in [self.bot.data.emoji.load, self.bot.data.emoji.save, self.bot.data.emoji.goback] and r.message.id == msg.id and u == self.ctx.author, timeout=30)
             emoji_task.cancel()
         except asyncio.TimeoutError:
             await msg.delete()
             return 1  # タイムアウト
         await msg.delete()
-        if str(react.emoji) == self.data.emoji.goback:
+        if str(react.emoji) == self.bot.data.emoji.goback:
             return 2  # back
-        elif str(react.emoji) == self.data.emoji.load:
+        elif str(react.emoji) == self.bot.data.emoji.load:
             return await self.load()
-        elif str(react.emoji) == self.data.emoji.save:
+        elif str(react.emoji) == self.bot.data.emoji.save:
             return await self.save()
 
     async def save(self):
@@ -300,7 +298,7 @@ class Menu:
         embed = discord.Embed(title=self.bot.text.menu_save[self.lang], color=0xd1a3ff)
         embed.description = self.bot.text.menu_save_description[self.lang]
         msg = await self.ctx.send(embed=embed)
-        config_emoji = [self.data.emoji.goback]
+        config_emoji = [self.bot.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
         # TODO: db 既に20個保存されている場合
         # await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
@@ -353,7 +351,7 @@ class Menu:
         embed = discord.Embed(title=self.bot.text.menu_load[self.lang], color=0xd1a3ff)
         embed.description = self.bot.text.menu_load_description[self.lang]
         msg = await self.ctx.send(embed=embed)
-        config_emoji = [self.data.emoji.goback]
+        config_emoji = [self.bot.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
         # 入力待機
         flag: int
@@ -409,21 +407,21 @@ class Menu:
 
     async def add_config_emoji(self, msg):
         await asyncio.gather(
-            msg.add_reaction(self.data.emoji.load),
-            msg.add_reaction(self.data.emoji.save),
-            msg.add_reaction(self.data.emoji.goback)
+            msg.add_reaction(self.bot.data.emoji.load),
+            msg.add_reaction(self.bot.data.emoji.save),
+            msg.add_reaction(self.bot.data.emoji.goback)
         )
 
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""
-        item_count = getattr(self.data, item_type).max
+        item_count = getattr(self.bot.data, item_type).max
         text = ""
-        start_index = getattr(self.data, item_type).min + 10 * (page - 1)
+        start_index = getattr(self.bot.data, item_type).min + 10 * (page - 1)
         for item_index in range(start_index, start_index + 10):
             if item_index > item_count:
                 break
-            emoji = getattr(getattr(self.data, item_type).emoji, "e" + str(item_index))
-            name = getattr(getattr(self.data, item_type).name, "n" + str(item_index))
+            emoji = getattr(getattr(self.bot.data, item_type).emoji, "e" + str(item_index))
+            name = getattr(getattr(self.bot.data, item_type).name, "n" + str(item_index))
             text += f"`{str(item_index).rjust(3)}` {emoji} {name}\n"
         return text
 
@@ -431,21 +429,21 @@ class Menu:
         """アイテムを検索"""
         type_list: list
         if index and item_name.isdigit():
-            if getattr(self.data, item_type).min <= int(item_name) <= getattr(self.data, item_type).max:
+            if getattr(self.bot.data, item_type).min <= int(item_name) <= getattr(self.bot.data, item_type).max:
                 return 1, [item_type, item_name]
             else:
                 return 0, self.bot.text.wrong_item_index
         elif index:
             type_list = [item_type]
         else:
-            type_list = [type_name for type_name in self.data.regex]
+            type_list = [type_name for type_name in self.bot.data.regex]
         match_per = -1
         item_info = []
         for i in type_list:
-            for j in self.data.regex[i]:
-                match_obj = re.search(self.data.regex[i][j], item_name, re.IGNORECASE)
+            for j in self.bot.data.regex[i]:
+                match_obj = re.search(self.bot.data.regex[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
-                    diff_per = difflib.SequenceMatcher(None, getattr(getattr(self.data, i).name, "n" + str(j)).lower(), match_obj.group()).ratio()
+                    diff_per = difflib.SequenceMatcher(None, getattr(getattr(self.bot.data, i).name, "n" + str(j)).lower(), match_obj.group()).ratio()
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]

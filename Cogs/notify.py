@@ -1,69 +1,69 @@
 import asyncio
-import json
 
 import discord
 from discord.ext import commands
 
-from .bot import MilkCoffee
+from .data.command_data import CmdData
+from .milkcoffee import MilkCoffee
 from .utils.messenger import error_embed, success_embed
 from .utils.multilingual import *
 
+cmd_data = CmdData()
+
 
 class Notify(commands.Cog):
-    """お知らせの設定するよ!^I'll set the notification!^알림설정하기!^¡Establece notificaciones!"""
+    """お知らせの設定します^Setup the notification^알림설정하기^Establece notificaciones"""
 
     def __init__(self, bot):
         self.bot = bot  # type: MilkCoffee
-        with open('./Assets/emoji_data.json', 'r', encoding="utf-8") as f:
-            self.emoji = json.load(f)
 
     async def cog_before_invoke(self, ctx):
         if str(ctx.author.id) in self.bot.BAN:
-            await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.data.appeal_channel))
+            await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.static_data.appeal_channel))
             raise Exception("Your Account Banned")
         elif str(ctx.author.id) not in self.bot.database:
             self.bot.database[str(ctx.author.id)] = {
                 "language": 0,
             }
-            await self.bot.get_cog("Language").language_selector(ctx)
+            await self.bot.get_cog("Bot").language_selector(ctx)
 
     async def on_GM_update(self, message):
-        if message.channel.id == self.bot.data.GM_update_channel[0]:  # Twitter
+        if message.channel.id == self.bot.static_data.GM_update_channel[0]:  # Twitter
             for channel_id in self.bot.GM_update["twitter"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["twitter"].remove(channel_id)
-        elif message.channel.id == self.bot.data.GM_update_channel[1]:  # FaceBookJP
+        elif message.channel.id == self.bot.static_data.GM_update_channel[1]:  # FaceBookJP
             for channel_id in self.bot.GM_update["facebook_jp"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_jp"].remove(channel_id)
-        elif message.channel.id == self.bot.data.GM_update_channel[2]:  # FaceBookEN
+        elif message.channel.id == self.bot.static_data.GM_update_channel[2]:  # FaceBookEN
             for channel_id in self.bot.GM_update["facebook_en"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_en"].remove(channel_id)
-        elif message.channel.id == self.bot.data.GM_update_channel[3]:  # FaceBookKR
+        elif message.channel.id == self.bot.static_data.GM_update_channel[3]:  # FaceBookKR
             for channel_id in self.bot.GM_update["facebook_kr"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_kr"].remove(channel_id)
-        elif message.channel.id == self.bot.data.GM_update_channel[4]:  # FaceBookES
+        elif message.channel.id == self.bot.static_data.GM_update_channel[4]:  # FaceBookES
             for channel_id in self.bot.GM_update["facebook_es"]:
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
                     self.bot.GM_update["facebook_es"].remove(channel_id)
-        elif message.channel.id == self.bot.data.GM_update_channel[5]:  # YouTube
+        elif message.channel.id == self.bot.static_data.GM_update_channel[5]:  # YouTube
             for channel_id in self.bot.GM_update["youtube"]:
                 try:
                     self.bot.get_channel(channel_id)
@@ -80,8 +80,7 @@ class Notify(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
-    @commands.command(usage="follow (チャンネル)^follow (channel)^follow (채널)^follow (canal)",
-                      description="BOTのお知らせをあなたのサーバーのチャンネルにお届けするよ!チャンネルを指定しなかったら、コマンドを実行したチャンネルにお知らせするよ!^Receive BOT updates to the channel on your server! If you do not specify a channel, we will setup to the channel that command executed^봇의 소식을 당신의 서버에 제공합니다! 채널을 지정하지 않으면 명령을 실행한 채널에 공지합니다!^¡Un BOT enviará una notificación al canal en su servidor! Si no especifica un canal, ¡notificaremos al canal donde se ejecutó el comando!")
+    @commands.command(usage=cmd_data.follow.usage, description=cmd_data.follow.description)
     async def follow(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         channel_id: int
@@ -90,12 +89,12 @@ class Notify(commands.Cog):
         else:
             target_channel = ctx.channel
         if target_channel.permissions_for(ctx.guild.me).manage_webhooks:
-            await self.bot.get_channel(self.bot.data.announce_channel).follow(destination=target_channel)
+            await self.bot.get_channel(self.bot.static_data.announce_channel).follow(destination=target_channel)
             await success_embed(ctx, self.bot.text.followed_channel[user_lang].format(target_channel.mention))
         else:
-            await error_embed(ctx, self.bot.text.missing_manage_webhook[user_lang].format(self.bot.data.announce_channel))
+            await error_embed(ctx, self.bot.text.missing_manage_webhook[user_lang].format(self.bot.static_data.announce_channel))
 
-    @commands.command(usage="notice (チャンネル)^notice (channel)^notice (채널)^notice (canal)", description="MilkChoco運営の更新情報をあなたのサーバーのチャンネルにお届けするよ!^Receive MilkChoco updates on your server's channel!^밀크초코 운영의 업데이트 정보를 당신의 서버의 채널에 제공합니다!^¡Lo mantendremos informado sobre las operaciones de MilkChoco en su canal de servidor!")
+    @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description)
     async def notice(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         language_text = "en"
@@ -114,31 +113,31 @@ class Notify(commands.Cog):
             embed = discord.Embed(title=self.bot.text.notice_title[user_lang])
             embed.description = f"""
 {self.bot.text.notice_description[user_lang]}
-{self.emoji["notify"]["twitter"]} ... Twitter
-{self.emoji["notify"]["facebook"]} ... FaceBook
-{self.emoji["notify"]["youtube"]} ... YouTube
+{self.bot.data.emoji.twitter} ... Twitter
+{self.bot.data.emoji.facebook} ... FaceBook
+{self.bot.data.emoji.youtube} ... YouTube
 """
             msg = await ctx.send(embed=embed)
-            await msg.add_reaction(self.emoji["notify"]["twitter"])
-            await msg.add_reaction(self.emoji["notify"]["facebook"])
-            await msg.add_reaction(self.emoji["notify"]["youtube"])
+            await msg.add_reaction(self.bot.data.emoji.twitter)
+            await msg.add_reaction(self.bot.data.emoji.facebook)
+            await msg.add_reaction(self.bot.data.emoji.youtube)
 
             def check(r, u):
-                return r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.emoji["notify"]["twitter"], self.emoji["notify"]["facebook"], self.emoji["notify"]["youtube"]]
+                return r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.twitter, self.bot.data.emoji.facebook, self.bot.data.emoji.youtube]
 
             while True:
                 try:
                     reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=check)
-                    if str(reaction.emoji) == self.emoji["notify"]["twitter"]:
+                    if str(reaction.emoji) == self.bot.data.emoji.twitter:
                         await self.setup_message(ctx, target_channel, "twitter")
-                    elif str(reaction.emoji) == self.emoji["notify"]["facebook"]:
+                    elif str(reaction.emoji) == self.bot.data.emoji.facebook:
                         await self.setup_message(ctx, target_channel, "facebook_" + language_text)
-                    elif str(reaction.emoji) == self.emoji["notify"]["youtube"]:
+                    elif str(reaction.emoji) == self.bot.data.emoji.youtube:
                         await self.setup_message(ctx, target_channel, "youtube")
                 except asyncio.TimeoutError:
-                    await msg.remove_reaction(self.emoji["notify"]["twitter"], self.bot.user)
-                    await msg.remove_reaction(self.emoji["notify"]["facebook"], self.bot.user)
-                    await msg.remove_reaction(self.emoji["notify"]["youtube"], self.bot.user)
+                    await msg.remove_reaction(self.bot.data.emoji.twitter, self.bot.user)
+                    await msg.remove_reaction(self.bot.data.emoji.facebook, self.bot.user)
+                    await msg.remove_reaction(self.bot.data.emoji.youtube, self.bot.user)
                     break
 
     async def setup_message(self, ctx, target_channel, update_type):
@@ -150,7 +149,7 @@ class Notify(commands.Cog):
             self.bot.GM_update[update_type].remove(target_channel.id)
             await error_embed(ctx, self.bot.text.unsubscribe_update[user_lang].format(target_channel.mention, update_type))
 
-    @commands.command(usage="ads^ads^ads^ads", description="次広告が見れるまでの10分間のタイマーを設定するよ!広告見ようとはおもってるけど、忘れちゃう人向け。^Set a 10-minute timer to see the next ad! For those who want to see the ad but forget it.^다음 광고가 생길때까지 10분 타이머를 설정해! 광고를 보려고 생각하고 있지만, 잊어 버리는 사람을위해서!^¡Establezca un temporizador de 10 minutos para ver el próximo anuncio! Para aquellos que quieren ver el anuncio pero lo olvidan.")
+    @commands.command(usage=cmd_data.ads.usage, description=cmd_data.ads.description)
     async def ads(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         await success_embed(ctx, self.bot.text.tell_you_after_10_min[user_lang])

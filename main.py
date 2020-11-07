@@ -5,7 +5,7 @@ from os.path import join, dirname
 import discord
 from dotenv import load_dotenv
 
-from Cogs.bot import MilkCoffee
+from Cogs.milkcoffee import MilkCoffee
 from Cogs.help import Help
 
 load_dotenv(verbose=True)
