@@ -193,7 +193,6 @@ class Menu:
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
-        page = 1
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in searcher_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
             msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
@@ -303,6 +302,7 @@ class Menu:
             return 1, item_info
 
     def make_image(self, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> discord.File:
+        """画像を作成"""
         base = Image.open(f"./Assets/base/{base_id}.png")
         character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
         weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
