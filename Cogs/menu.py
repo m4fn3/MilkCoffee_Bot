@@ -236,7 +236,7 @@ class Menu:
     async def code_input(self):
         """名前からアイテムを検索"""
         embed = discord.Embed(title="装飾コードで設定", color=0xffce9e)
-        embed.description = "装飾コードを入力してください"
+        embed.description = "装飾コードを入力してください"  # TODO: 多言語対応 - セレクタ―のdescriptionに説明文
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
