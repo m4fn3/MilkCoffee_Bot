@@ -1,9 +1,3 @@
-"""Tool to rename costume num automatically"""
-import glob
-import shutil
-
-from tqdm import tqdm
-
 head = {
     "0": "0",
     "1": "74",
@@ -256,12 +250,3 @@ back = {
     "78": "21",
     "79": "20"
 }
-
-files = glob.glob("C:\\data\\Discord-Bot\\MilkCoffee\\Assets\\back\\*")
-bar = tqdm(total=len(files))
-for file in files:
-    bar.update(1)
-    num = file.split("\\")[-1].split(".")[0]
-    new_num = back[num]
-    shutil.copy(file, f"C:\\data\\Discord-Bot\\MilkCoffee\\Assets\\new_back\\{new_num}.png")
-
