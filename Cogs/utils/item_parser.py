@@ -1,5 +1,5 @@
 import string
-from typing import List
+from typing import List, Optional
 
 # 36進数用の文字列
 numbers = "0123456789"
@@ -7,10 +7,13 @@ alphabets = string.ascii_letters
 characters = numbers + alphabets
 
 
-def code_to_list(code36: str) -> List[int]:
+def code_to_list(code36: str) -> Optional[List[int]]:
     """装飾コードを番号リストに変換"""
-    code10 = int(code36, 36)  # 36進数->10進数に変換
-    item = str(code10).zfill(11)  # 11桁になるよう0埋め
+    try:
+        code10 = int(code36, base=36)  # 36進数->10進数に変換
+    except:
+        return None
+    item = str(code10).zfill(14)  # 14桁になるよう0埋め
     return [int(item[0:1]), int(item[1:3]), int(item[3:5]), int(item[5:8]), int(item[8:11]), int(item[11:14])]
 
 

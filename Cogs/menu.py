@@ -48,7 +48,7 @@ class Menu:
         # リアクションを追加
         emoji_add_task = self.bot.loop.create_task(self.add_menu_reaction())
         # リアクション待機
-        menu_emoji = [self.data.emoji.base, self.data.emoji.char, self.data.emoji.weapon, self.data.emoji.head, self.data.emoji.body, self.data.emoji.back, self.data.emoji.search, self.data.emoji.exit]
+        menu_emoji = [self.data.emoji.base, self.data.emoji.char, self.data.emoji.weapon, self.data.emoji.head, self.data.emoji.body, self.data.emoji.back, self.data.emoji.search, self.data.emoji.num, self.data.emoji.exit]
         emoji: str
         try:
             react, _ = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: str(r.emoji) in menu_emoji and r.message.id == self.msg.id and u == self.ctx.author)
@@ -67,7 +67,8 @@ class Menu:
             self.msg.add_reaction(self.data.emoji.body),
             self.msg.add_reaction(self.data.emoji.back),
             self.msg.add_reaction(self.data.emoji.search),
-            self.msg.add_reaction(self.data.emoji.exit),
+            self.msg.add_reaction(self.data.emoji.num),
+            self.msg.add_reaction(self.data.emoji.exit)
         )
 
     async def clear_menu_reaction(self):
@@ -80,7 +81,8 @@ class Menu:
             self.msg.remove_reaction(self.data.emoji.body, self.ctx.guild.me),
             self.msg.remove_reaction(self.data.emoji.back, self.ctx.guild.me),
             self.msg.remove_reaction(self.data.emoji.search, self.ctx.guild.me),
-            self.msg.remove_reaction(self.data.emoji.exit, self.ctx.guild.me),
+            self.msg.remove_reaction(self.data.emoji.num, self.ctx.guild.me),
+            self.msg.remove_reaction(self.data.emoji.exit, self.ctx.guild.me)
         )
 
     async def emoji_task(self, emoji):
@@ -100,8 +102,11 @@ class Menu:
             flag = await self.selector("back")
         elif emoji == self.data.emoji.search:
             flag = await self.searcher()
+        elif emoji == self.data.emoji.num:
+            flag = await self.code_input()
         elif emoji == self.data.emoji.exit:
             return False
+
         if flag == 1:  # タイムアウト
             return False
         elif flag == 2:  # メインメニューを表示
@@ -214,6 +219,46 @@ class Menu:
         await msg.delete()
         return flag
 
+    async def code_input(self):
+        """名前からアイテムを検索"""
+        embed = discord.Embed(title="装飾コードで設定")
+        embed.description = "装飾コードを入力してください"
+        msg = await self.ctx.send(embed=embed)
+        searcher_emoji = [self.data.emoji.goback]
+        self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
+        # 入力待機
+        flag: int
+        while True:
+            react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in searcher_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
+            msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
+            done, _ = await asyncio.wait({react_task, msg_task}, return_when=asyncio.FIRST_COMPLETED)
+            done_task = list(done)[0]
+            react_task.cancel()
+            msg_task.cancel()
+            if isinstance(done_task.exception(), asyncio.TimeoutError):
+                flag = 1  # タイムアウト
+                break
+            elif done_task.get_name() == "react":
+                flag = 2  # back
+                break
+            elif done_task.get_name() == "msg":
+                rmsg = done_task.result()
+                item = code_to_list(rmsg.content.lower())
+                if item is None:
+                    await self.ctx.send("間違った装飾コード")
+                elif (self.data.base.min <= item[0] <= self.data.base.max) and (self.data.character.min <= item[1] <= self.data.character.max) and \
+                        (self.data.weapon.min <= item[2] <= self.data.weapon.max) and (self.data.head.min <= item[3] <= self.data.head.max) and \
+                        (self.data.body.min <= item[4] <= self.data.body.max) and (self.data.back.min <= item[5] <= self.data.back.max):
+                    self.item = item
+                    # TODO: db にコードを保存
+                    # 新版で画像を生成してメニューを新しく表示
+                    flag = 2
+                    break
+                else:
+                    await self.ctx.send("間違った装飾コード")
+        await msg.delete()
+        return flag
+
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""
         item_count = getattr(self.data, item_type).max
@@ -245,7 +290,7 @@ class Menu:
             for j in self.data.regex[i]:
                 match_obj = re.search(self.data.regex[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
-                    diff_per = difflib.SequenceMatcher(None, getattr(getattr(self.data, i).name, "n"+str(j)).lower(), match_obj.group()).ratio()
+                    diff_per = difflib.SequenceMatcher(None, getattr(getattr(self.data, i).name, "n" + str(j)).lower(), match_obj.group()).ratio()
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]

@@ -80,6 +80,7 @@ class Emoji:
     exit = "<:exit:774149798730530826>"
     goback = "<:goback:774149798747963402>"
     limited = "<:limited:774149798286065694>"
+    num = "<:num:774426280253718558>"
 
 @dataclasses.dataclass(frozen=True)
 class ItemData:
