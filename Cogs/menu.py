@@ -7,10 +7,10 @@ from typing import Any
 import discord
 from PIL import Image
 
+from .bot import MilkCoffee
 from .data.item_data import ItemData
 from .utils.item_parser import *
-from .utils.messenger import error_embed, success_embed, normal_embed
-from .bot import MilkCoffee
+from .utils.messenger import error_embed, success_embed
 
 
 class Menu:
@@ -307,7 +307,7 @@ class Menu:
         # return 2
         used_name_list = []  # TODO: db 保存された作品の名前のリスト
         # 入力待機
-        flag = 1
+        flag: int
         count = 0
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in config_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
@@ -356,7 +356,7 @@ class Menu:
         config_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
         # 入力待機
-        flag = 1
+        flag: int
         count = 0
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in config_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
@@ -375,7 +375,7 @@ class Menu:
                 rmsg = done_task.result()
                 index = rmsg.content
                 error = False
-                item_index: int
+                item_index = 1
                 # TODO: dbの部分はループ外で処理すると効率よいかも
                 if index.isdigit() and 1 <= int(index) <= 20:
                     item_count = 1  # TODO db そのユーザーの保存数
