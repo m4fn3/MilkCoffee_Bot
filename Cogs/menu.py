@@ -189,8 +189,8 @@ class Menu:
 
     async def searcher(self):
         """名前からアイテムを検索"""
-        embed = discord.Embed(title="アイテム検索", color=0xffce9e)
-        embed.description = "アイテム名を入力してください"
+        embed = discord.Embed(title=self.bot.text.menu_find_item[self.lang], color=0xffce9e)
+        embed.description = self.bot.text.menu_find_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
@@ -276,8 +276,8 @@ class Menu:
         return flag
 
     async def config(self):
-        embed = discord.Embed(title="データ管理")
-        embed.description = f"保存または読込のリアクションを選択しろください"
+        embed = discord.Embed(title=self.bot.text.menu_config[self.lang])
+        embed.description = self.bot.text.menu_config_description[self.lang].format(self.data.emoji.save, self.data.emoji.load)
         msg = await self.ctx.send(embed=embed)
         emoji_task = self.bot.loop.create_task(self.add_config_emoji(msg))
         react: discord.Reaction
@@ -297,8 +297,8 @@ class Menu:
 
     async def save(self):
         """作品を保存"""
-        embed = discord.Embed(title="保存")
-        embed.description = "保存したい作品の番号または名前"
+        embed = discord.Embed(title=self.bot.text.menu_save[self.lang])
+        embed.description = self.bot.text.menu_save_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
@@ -350,8 +350,8 @@ class Menu:
 
     async def load(self):
         """作品を読み込み"""
-        embed = discord.Embed(title="読込")
-        embed.description = "読み込みたい作品の番号または名前"
+        embed = discord.Embed(title=self.bot.text.menu_load[self.lang])
+        embed.description = self.bot.text.menu_load_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
