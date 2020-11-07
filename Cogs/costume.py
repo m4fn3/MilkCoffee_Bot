@@ -79,6 +79,7 @@ class Costume(commands.Cog):
         return imgByteArr.getvalue()
 
     def save_canvas_data(self, user_id, data: str) -> None:
+        # TODO: db
         """
         canvasのデータを保存
         Args:
@@ -91,22 +92,16 @@ class Costume(commands.Cog):
         self.bot.database[str(user_id)]["costume"]["canvas"] = data
 
     def get_list(self, item_type: str, page: int) -> str:
-        """
-        指定した種類のアイテムリストを取得
-        Args:
-            item_type (str): アイテムの種類
-            page (str): ページ
-
-        Returns:
-            str: アイテム一覧
-        """
-        item_count = self.item_info[item_type]["max"]
+        """指定した種類のアイテムリストテキストを生成"""
+        item_count = getattr(self.item, item_type).max
         text = ""
-        start_index = self.item_info[item_type]["min"] + 10 * (page - 1)
+        start_index = getattr(self.item, item_type).min + 10 * (page - 1)
         for item_index in range(start_index, start_index + 10):
             if item_index > item_count:
                 break
-            text += f"{item_index} {self.emoji[item_type][str(item_index)]} {self.name[item_type][str(item_index)]}\n"
+            emoji = getattr(getattr(self.item, item_type).emoji, "e" + str(item_index))
+            name = getattr(getattr(self.item, item_type).name, "n" + str(item_index))
+            text += f"`{str(item_index).rjust(3)}` {emoji} {name}\n"
         return text
 
     async def cog_before_invoke(self, ctx):
