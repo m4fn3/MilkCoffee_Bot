@@ -41,8 +41,8 @@ class Head:
     emoji = HeadEmoji()
     name = HeadName()
     min = 0
-    max = 74
-    len = 75
+    max = 75
+    len = 76
     index = 3
     page = 8
 
@@ -52,8 +52,8 @@ class Body:
     emoji = BodyEmoji()
     name = BodyName()
     min = 0
-    max = 87
-    len = 88
+    max = 86
+    len = 87
     index = 4
     page = 9
 
@@ -63,8 +63,8 @@ class Back:
     emoji = BackEmoji()
     name = BackName()
     min = 0
-    max = 79
-    len = 80
+    max = 78
+    len = 79
     index = 5
     page = 8
 

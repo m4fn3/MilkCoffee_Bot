@@ -264,3 +264,4 @@ for file in files:
     num = file.split("\\")[-1].split(".")[0]
     new_num = back[num]
     shutil.copy(file, f"C:\\data\\Discord-Bot\\MilkCoffee\\Assets\\new_back\\{new_num}.png")
+
