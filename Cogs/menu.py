@@ -9,12 +9,14 @@ from PIL import Image
 
 from .data.item_data import ItemData
 from .utils.item_parser import *
+from .utils.messenger import error_embed, success_embed, normal_embed
+from .bot import MilkCoffee
 
 
 class Menu:
     def __init__(self, ctx, bot, lang, code):
         self.ctx = ctx
-        self.bot = bot
+        self.bot = bot  # type: MilkCoffee
         self.lang = lang
         self.item = code_to_list(code)
         self.data = ItemData()
@@ -37,7 +39,7 @@ class Menu:
         """メインメニューの作成"""
         if self.msg is not None:
             await self.msg.delete()
-        embed = discord.Embed()
+        embed = discord.Embed(color=0x9effce)
         desc = "最上部テキスト(仮)\n"
         desc += self.data.emoji.base + " " + self.bot.text.menu_base[self.lang] + f"{str(self.item[0]).rjust(3)}` {getattr(self.data.base.emoji, 'e' + str(self.item[0]))} {getattr(self.data.base.name, 'n' + str(self.item[0]))}\n"
         desc += self.data.emoji.char + " " + self.bot.text.menu_character[self.lang] + f"{str(self.item[1]).rjust(3)}` {getattr(self.data.character.emoji, 'e' + str(self.item[1]))} {getattr(self.data.character.name, 'n' + str(self.item[1]))}\n"
@@ -119,7 +121,7 @@ class Menu:
         """選択画面"""
         # 選択画面作成
         max_page = getattr(self.data, item_type).page
-        embed = discord.Embed(title=self.bot.text.list_base_title[self.lang])
+        embed = discord.Embed(title=self.bot.text.list_base_title[self.lang], color=0xffce9e)
         embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, 1)
         embed.set_footer(text=self.bot.text.showing_page_1[self.lang].format(max_page))
         msg = await self.ctx.send(embed=embed)
@@ -132,6 +134,7 @@ class Menu:
         # 入力待機
         flag: int
         page = 1
+        count = 0
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
             msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
@@ -161,7 +164,7 @@ class Menu:
                         page = max_page
                     else:
                         page = page - 1
-                embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[self.lang])
+                embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[self.lang], color=0xffce9e)
                 embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, page)
                 embed.set_footer(text=self.bot.text.showing_page[self.lang].format(page, max_page))
                 await msg.edit(embed=embed)
@@ -169,8 +172,12 @@ class Menu:
                 rmsg = done_task.result()
                 code, result = self.find_item(rmsg.content, index=True, item_type=item_type)
                 if code == 0:
+                    count += 1
                     # アイテムが見つかりませんでした
-                    await self.ctx.send("item not found <-re->")
+                    await error_embed(self.ctx, result[self.lang])
+                    if count == 3:
+                        flag = 2
+                        break
                 else:
                     self.item[getattr(self.data, result[0]).index] = int(result[1])
                     # TODO: db にコードを保存
@@ -186,13 +193,14 @@ class Menu:
 
     async def searcher(self):
         """名前からアイテムを検索"""
-        embed = discord.Embed(title="アイテム検索")
+        embed = discord.Embed(title="アイテム検索", color=0xffce9e)
         embed.description = "アイテム名を入力してください"
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
+        count = 0
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in searcher_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
             msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
@@ -210,8 +218,12 @@ class Menu:
                 rmsg = done_task.result()
                 code, result = self.find_item(rmsg.content)
                 if code == 0:
+                    count += 1
                     # アイテムが見つかりませんでした
-                    await self.ctx.send("item not found <-re->")
+                    await error_embed(self.ctx, result[self.lang])
+                    if count == 3:
+                        flag = 2
+                        break
                 else:
                     self.item[getattr(self.data, result[0]).index] = int(result[1])
                     # TODO: db にコードを保存
@@ -223,13 +235,14 @@ class Menu:
 
     async def code_input(self):
         """名前からアイテムを検索"""
-        embed = discord.Embed(title="装飾コードで設定")
+        embed = discord.Embed(title="装飾コードで設定", color=0xffce9e)
         embed.description = "装飾コードを入力してください"
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.data.emoji.goback]
         self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
+        count = 0
         while True:
             react_task = asyncio.create_task(self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in searcher_emoji and r.message.id == msg.id and u == self.ctx.author, timeout=30), name="react")
             msg_task = asyncio.create_task(self.bot.wait_for("message", check=lambda m: m.author == self.ctx.author and m.channel == self.ctx.channel, timeout=30), name="msg")
@@ -247,7 +260,7 @@ class Menu:
                 rmsg = done_task.result()
                 item = code_to_list(rmsg.content.lower())
                 if item is None:
-                    await self.ctx.send("間違った装飾コード")
+                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
                 elif (self.data.base.min <= item[0] <= self.data.base.max) and (self.data.character.min <= item[1] <= self.data.character.max) and \
                         (self.data.weapon.min <= item[2] <= self.data.weapon.max) and (self.data.head.min <= item[3] <= self.data.head.max) and \
                         (self.data.body.min <= item[4] <= self.data.body.max) and (self.data.back.min <= item[5] <= self.data.back.max):
@@ -257,7 +270,11 @@ class Menu:
                     flag = 2
                     break
                 else:
-                    await self.ctx.send("間違った装飾コード")
+                    count += 1
+                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
+                    if count == 3:
+                        flag = 2
+                        break
         await msg.delete()
         return flag
 
@@ -281,7 +298,7 @@ class Menu:
             if getattr(self.data, item_type).min <= int(item_name) <= getattr(self.data, item_type).max:
                 return 1, [item_type, item_name]
             else:
-                return 0, ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong item number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
+                return 0, self.bot.text.wrong_item_index
         elif index:
             type_list = [item_type]
         else:
@@ -297,7 +314,7 @@ class Menu:
                         match_per = diff_per
                         item_info = [i, j]
         if match_per == -1:
-            return 0, ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
+            return 0, self.bot.text.item_not_found
         else:
             return 1, item_info
 

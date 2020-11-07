@@ -19,6 +19,8 @@ class Strings:
     menu_head = ["`頭装飾　　　 :", "`head     :", "`머리　 :", "`cabeza    :"]
     menu_body = ["`体装飾　　　 :", "`body     :", "`몸　　 :", "`cuerpo    :"]
     menu_back = ["`背中装飾　　 :", "`back     :", "`허리　 :", "`espalda   :"]
+    item_not_found = ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
+    wrong_item_index = ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong item number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
     welcome_to_costume_title = ["装飾シミュレータへようこそ!", "Welcome to the costume simulator!", "코스튬 시뮬레이터에 오신 것을 환영합니다!", "¡Bienvenido al simulador de disfraz!"]
     welcome_to_costume_description = [
         "装飾シミュレータ操作用コマンドのリストは`{0}help Costume`で確認できるよ!\nm!add (base/character/weapon/head/body/back) 番号 \nm!list (base/character/weapon/head/body/back)\n例:\n`{0}list character`\n`{0}add character 1`\n実際に上の例にあるコマンドを使ってみてね！\nもっと知りたいって人はこの動画を見てね！\n[https://www.youtube.com/watch?v=WgZ83Dt955s](https://www.youtube.com/watch?v=WgZ83Dt955s)",
@@ -33,6 +35,9 @@ class Strings:
     costume_table_body = ["体装飾", "body", "몸", "cuerpo"]
     costume_table_back = ["背中装飾", "back", "허리", "espalda"]
     costume_table_code = ["装飾コード: {}", "CostumeCode: {}", "장식 코드: {}", "código de decoración: {}"]
+    wrong_costume_code = ["間違った装飾コードです.", "Invalid CostumeCode", "잘못된 장식 코드", "Inválido código de decoración"]
+
+
     no_th_saved_work = ["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"]
     specify_between_1_20 = ["1~20の間で指定してね!.", "Please specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."]
     not_found_with_name = ["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"]
