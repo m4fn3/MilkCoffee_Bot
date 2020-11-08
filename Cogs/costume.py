@@ -250,7 +250,7 @@ class Costume(commands.Cog):
             else:
                 await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
 
-    @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, bried=cmd_data.load.brief)
+    @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, brief=cmd_data.load.brief)
     async def load(self, ctx, *, index: str) -> None:
         """ 保存された作品を作業場に読み込む """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
