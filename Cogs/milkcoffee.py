@@ -3,12 +3,12 @@ import time
 import discord
 from discord.ext import commands
 
+from .data.item_data import ItemData
 from .data.static_data import StaticData
 from .data.strings import Strings
-from .utils.multilingual import *
 from .utils.messenger import normal_embed
+from .utils.multilingual import *
 
-from .data.item_data import ItemData
 
 class MilkCoffee(commands.Bot):
 

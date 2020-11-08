@@ -188,7 +188,7 @@ class Help(commands.HelpCommand):
         user_lang = get_lg(self.context.bot.database[str(self.context.author.id)]["language"], self.context.guild.region)
         if isinstance(cmd, commands.Group) and len(cmd.all_commands) > 0:
             return ["`{1}` に `{0}` というサブコマンドは存在しません。`{2}help {1}` で使い方を確認できます", "The subcommand `{0}` is not registered in `{1}`. Please check the usage with `{2}help {1}`!", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"][user_lang].format(string, cmd.qualified_name,
-                                                                                                                                                                                                                                                                                                                                                                 self.context.bot.PREFIX)
+                                                                                                                                                                                                                                                                                                                                                              self.context.bot.PREFIX)
         return ["`{0}` にサブコマンドは存在しません。`{1}help {0}` で使い方を確認できます", "No subcommands are registered in `{0}`. Please check the usage with `{1}help {0}`!", "`{0}`에 등록 된 하위 명령이 없습니다.`{1}help {0}`로 사용법을 확인하세요!", "No hay subcomandos registrados en `{0}`.¡Compruebe el uso con la `{1}help {0}`!"][user_lang].format(cmd.qualified_name, self.context.bot.PREFIX)
 
     async def new_user(self):
