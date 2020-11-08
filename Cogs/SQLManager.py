@@ -62,3 +62,18 @@ class SQLManager:
         """通知登録を解除"""
         await self.con.execute("UPDATE notify SET guild = array_remove(guild, $1) where type = $2", channel_id, notify_type)
 
+    async def get_canvas(self, user_id: int) -> str:
+        """作業中の装飾データを取得"""
+        res = await self.con.fetchrow("SELECT canvas FROM user_data WHERE id = $1", user_id)
+        if res is None or res["canvas"] is None:
+            return "1aecsirk"
+        else:
+            return res["canvas"]
+
+    async def set_canvas(self, user_id: int, code: str) -> None:
+        """作業中の装飾データを設定"""
+        await self.con.execute("UPDATE user_data SET canvas = $1 WHERE id = $2", code, user_id)
+
+    async def get_save_count(self, user_id: int) -> int:
+        """保存された作品の数を取得"""
+

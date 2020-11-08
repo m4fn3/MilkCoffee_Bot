@@ -85,7 +85,7 @@ class Costume(commands.Cog):
             await self.bot.on_new_user(ctx)
 
     async def cog_command_error(self, ctx, error):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):
@@ -95,7 +95,7 @@ class Costume(commands.Cog):
 
     async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
         """ アイテム番号から画像を構築 """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         base = Image.open(f"./Assets/base/{base_id}.png")
         character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
         weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
@@ -153,7 +153,7 @@ class Costume(commands.Cog):
             self.menu_users.add(ctx.author.id)
             self.menu_channels.add(ctx.channel.id)
             code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化 - db
-            user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+            user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
             menu = Menu(ctx, self.bot, user_lang, code)
             await menu.run()
             self.menu_users.remove(ctx.author.id)
@@ -171,11 +171,11 @@ class Costume(commands.Cog):
         Returns:
             None
         """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         listed = ctx.message.content.split(" ", 1)
         item_code: str
         if len(listed) == 1:
-            item_code = self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
+            item_code = await self.bot.db.get_canvas(ctx.author.id)
         else:
             index = listed[1]
             item_index: int
@@ -211,7 +211,7 @@ class Costume(commands.Cog):
     @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:
         """ 保存した作品を表示 """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         listed = ctx.message.content.split()
         page_length = 4
         page: int
@@ -256,7 +256,7 @@ class Costume(commands.Cog):
     @commands.command(aliases=["remove", "del", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
     async def delete(self, ctx, *, index) -> None:
         """ 保存した画像を削除 """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if index.isdigit() and 1 <= int(index) <= 20:
             item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
             if 0 <= int(index) <= item_count:
@@ -279,7 +279,7 @@ class Costume(commands.Cog):
     @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, brief=cmd_data.load.brief)
     async def load(self, ctx, *, index: str) -> None:
         """ 保存された作品を作業場に読み込む """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         item_index: int
         if index.isdigit() and 1 <= int(index) <= 20:
             item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
@@ -307,7 +307,7 @@ class Costume(commands.Cog):
         Returns:
             None
         """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         name: str
         listed = ctx.message.content.split(" ", 1)
         if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
@@ -339,7 +339,7 @@ class Costume(commands.Cog):
     @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
     async def set(self, ctx, *, code) -> None:
         """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         item = code_to_list(code)
         if item is None:
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
