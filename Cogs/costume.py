@@ -102,7 +102,7 @@ class Costume(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
-    @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description)
+    @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
         try:
             if ctx.author.id in self.menu_users:
@@ -120,7 +120,7 @@ class Costume(commands.Cog):
         except:
             print(traceback2.format_exc())
 
-    @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help)
+    @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
     async def set(self, ctx, *, item) -> None:
         """
         装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録
@@ -146,7 +146,7 @@ class Costume(commands.Cog):
             await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
             self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
 
-    @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description)
+    @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:
         """
         保存した作品を表示
@@ -197,7 +197,7 @@ class Costume(commands.Cog):
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
-    @commands.command(aliases=["remove", "del", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description)
+    @commands.command(aliases=["remove", "del", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
     async def delete(self, ctx, *, index) -> None:
         """
         保存した画像を削除
@@ -228,7 +228,7 @@ class Costume(commands.Cog):
             else:
                 await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
 
-    @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description)
+    @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def random(self, ctx):
         num_base = random.randint(self.bot.data.base.min, self.bot.data.base.max)

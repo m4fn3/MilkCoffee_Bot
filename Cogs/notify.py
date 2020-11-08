@@ -80,7 +80,7 @@ class Notify(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
-    @commands.command(usage=cmd_data.follow.usage, description=cmd_data.follow.description)
+    @commands.command(usage=cmd_data.follow.usage, description=cmd_data.follow.description, brief=cmd_data.follow.brief)
     async def follow(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         channel_id: int
@@ -94,7 +94,7 @@ class Notify(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.missing_manage_webhook[user_lang].format(self.bot.static_data.announce_channel))
 
-    @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description)
+    @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description, brief=cmd_data.notice.brief)
     async def notice(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         language_text = "en"
@@ -149,7 +149,7 @@ class Notify(commands.Cog):
             self.bot.GM_update[update_type].remove(target_channel.id)
             await error_embed(ctx, self.bot.text.unsubscribe_update[user_lang].format(target_channel.mention, update_type))
 
-    @commands.command(usage=cmd_data.ads.usage, description=cmd_data.ads.description)
+    @commands.command(usage=cmd_data.ads.usage, description=cmd_data.ads.description, brief=cmd_data.ads.brief)
     async def ads(self, ctx):
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         await success_embed(ctx, self.bot.text.tell_you_after_10_min[user_lang])
