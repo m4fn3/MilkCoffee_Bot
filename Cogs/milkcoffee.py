@@ -29,15 +29,6 @@ class MilkCoffee(commands.Bot):
         for cog in self.bot_cogs:  # Cogの読み込み
             self.load_extension(cog)
 
-        # NOTE: ADMIN一時的に追加
-        self.GM_update = {  # TODO: db
-            "twitter": [],
-            "youtube": [],
-            "facebook_jp": [],
-            "facebook_en": [],
-            "facebook_kr": [],
-            "facebook_es": []
-        }
         self.uptime = time.time()
 
     async def on_ready(self):
@@ -45,7 +36,7 @@ class MilkCoffee(commands.Bot):
         print(f"Logged in to [{self.user}]")
         if not self.db.is_connected():  # データベースに接続しているか確認
             await self.db.connect()  # データベースに接続
-            self.cache_users = await self.db.get_registered_users()
+            self.cache_users = self.cache_users.union(set(await self.db.get_registered_users()))
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 

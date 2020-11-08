@@ -18,58 +18,55 @@ class Notify(commands.Cog):
         self.bot = bot  # type: MilkCoffee
 
     async def cog_before_invoke(self, ctx):
-        if str(ctx.author.id) in self.bot.BAN:
-            await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.static_data.appeal_channel))
-            raise Exception("Your Account Banned")
-        elif ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
+        if ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
             await self.bot.on_new_user(ctx)
 
     async def on_GM_update(self, message):
         if message.channel.id == self.bot.static_data.GM_update_channel[0]:  # Twitter
-            for channel_id in self.bot.GM_update["twitter"]:
+            for channel_id in await self.bot.db.get_notify_channels("twitter"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["twitter"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("twitter", channel_id)
         elif message.channel.id == self.bot.static_data.GM_update_channel[1]:  # FaceBookJP
-            for channel_id in self.bot.GM_update["facebook_jp"]:
+            for channel_id in await self.bot.db.get_notify_channels("facebook_jp"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook_jp"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("facebook_jp", channel_id)
         elif message.channel.id == self.bot.static_data.GM_update_channel[2]:  # FaceBookEN
-            for channel_id in self.bot.GM_update["facebook_en"]:
+            for channel_id in await self.bot.db.get_notify_channels("facebook_en"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook_en"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("facebook_en", channel_id)
         elif message.channel.id == self.bot.static_data.GM_update_channel[3]:  # FaceBookKR
-            for channel_id in self.bot.GM_update["facebook_kr"]:
+            for channel_id in await self.bot.db.get_notify_channels("facebook_kr"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook_kr"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("facebook_kr", channel_id)
         elif message.channel.id == self.bot.static_data.GM_update_channel[4]:  # FaceBookES
-            for channel_id in self.bot.GM_update["facebook_es"]:
+            for channel_id in await self.bot.db.get_notify_channels("facebook_es"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["facebook_es"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("facebook_es", channel_id)
         elif message.channel.id == self.bot.static_data.GM_update_channel[5]:  # YouTube
-            for channel_id in self.bot.GM_update["youtube"]:
+            for channel_id in await self.bot.db.get_notify_channels("youtube"):
                 try:
                     self.bot.get_channel(channel_id)
                     await self.bot.get_channel(channel_id).send(message.content)
                 except:
-                    self.bot.GM_update["youtube"].remove(channel_id)
+                    await self.bot.db.remove_notify_channel("youtube", channel_id)
 
     async def cog_command_error(self, ctx, error):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):
@@ -79,7 +76,7 @@ class Notify(commands.Cog):
 
     @commands.command(usage=cmd_data.follow.usage, description=cmd_data.follow.description, brief=cmd_data.follow.brief)
     async def follow(self, ctx):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
             target_channel = ctx.message.channel_mentions[0]
@@ -93,7 +90,7 @@ class Notify(commands.Cog):
 
     @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description, brief=cmd_data.notice.brief)
     async def notice(self, ctx):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         language_text = "en"
         if user_lang == (LanguageCode.JAPANESE.value - 1):
             language_text = "jp"
@@ -138,17 +135,17 @@ class Notify(commands.Cog):
                     break
 
     async def setup_message(self, ctx, target_channel, update_type):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        if target_channel.id not in self.bot.GM_update[update_type]:
-            self.bot.GM_update[update_type].append(target_channel.id)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        if target_channel.id not in await self.bot.db.get_notify_channels(update_type):
+            await self.bot.db.add_notify_channel(update_type, target_channel.id)
             await success_embed(ctx, self.bot.text.subscribe_update[user_lang].format(target_channel.mention, update_type))
         else:
-            self.bot.GM_update[update_type].remove(target_channel.id)
+            await self.bot.db.remove_notify_channel(update_type, target_channel.id)
             await error_embed(ctx, self.bot.text.unsubscribe_update[user_lang].format(target_channel.mention, update_type))
 
     @commands.command(usage=cmd_data.ads.usage, description=cmd_data.ads.description, brief=cmd_data.ads.brief)
     async def ads(self, ctx):
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         await success_embed(ctx, self.bot.text.tell_you_after_10_min[user_lang])
         await asyncio.sleep(10 * 60)
         await ctx.send(self.bot.text.passed_10_min[user_lang].format(ctx.author.mention))

@@ -19,7 +19,7 @@ from .milkcoffee import MilkCoffee
 
 # class
 class Developer(commands.Cog, command_attrs=dict(hidden=True)):
-    """BOTのシステムを管理します。(ADMIN以上の権限が必要です)"""
+    """BOTのシステムを管理します"""
 
     def __init__(self, bot):
         self.bot = bot  # type: MilkCoffee
@@ -41,7 +41,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         return content.strip('` \n')
 
     async def cog_before_invoke(self, ctx):
-        if str(ctx.author.id) not in self.bot.ADMIN:
+        if ctx.author.id not in [513136168112750593, 519760564755365888]:
             raise Exception("Developer-Admin-Error")
 
     async def cog_command_error(self, ctx, error):

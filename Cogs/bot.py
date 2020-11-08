@@ -19,15 +19,12 @@ class Bot(commands.Cog):
 
     async def cog_before_invoke(self, ctx):
         """コマンド実行の前処理"""
-        if str(ctx.author.id) in self.bot.BAN:  # BANされたユーザーの場合
-            await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.static_data.appeal_channel))
-            raise Exception("Your Account Banned")  # 実行停止
-        elif ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
+        if ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
             await self.bot.on_new_user(ctx)
 
     async def cog_command_error(self, ctx, error):
         """エラー発生時"""
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):  # 引数不足
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):  # クルーダウン
@@ -38,7 +35,7 @@ class Bot(commands.Cog):
     @commands.command(aliases=["inv", "about", "info"], usage=cmd_data.invite.usage, description=cmd_data.invite.description, brief=cmd_data.invite.brief)
     async def invite(self, ctx):
         """招待リンクを送信"""
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         embed = discord.Embed(title="MilkCoffee", color=0xffffa8, url=self.bot.static_data.invite)
         embed.description = self.bot.text.invite_description[user_lang]
         embed.set_thumbnail(url=self.bot.user.avatar_url)
@@ -55,24 +52,24 @@ class Bot(commands.Cog):
         if len(text) == 1:  # 引数がない場合,選択画面を表示
             await self.language_selector(ctx)
         else:  # 言語が指定されている場合
-            lang = text[1].lower()  # TODO: db ここからさき
+            lang = text[1].lower()
             if lang in ["region", "server", "guild", "auto", "サーバー", "地域", "サーバー地域", "0"]:
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.REGION.value
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.REGION.value)
                 await success_embed(ctx, f"{self.bot.data.emoji.region} Set language to [Server Region]!")
             elif lang in ["ja", "jp", "japanese", "jpn", "日本語", "1"]:
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.JAPANESE.value)
                 await success_embed(ctx, ":flag_jp: 言語を __日本語__ に設定しました!")
             elif lang in ["en", "eng", "english", "2"]:
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.ENGLISH.value)
                 await success_embed(ctx, ":flag_au: Set language to __English__")
             elif lang in ["ko", "kr", "korean", "kor", "한국어", "3"]:
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.KOREAN.value)
                 await success_embed(ctx, ":flag_kr: 언어를 __한국어__ 로 설정했습니다!")
             elif lang in ["es", "sp", "spa", "spanish", "Español", "4"]:
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.SPANISH.value)
                 await success_embed(ctx, ":flag_es: Establecer idioma en __Español__!")
             else:
-                await error_embed(ctx, self.bot.text.lang_not_found[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)])
+                await error_embed(ctx, self.bot.text.lang_not_found[self.bot.db.get_lang(ctx.author.id, ctx.guild.region)])
 
     async def language_selector(self, ctx):
         """言語選択画面"""
@@ -88,19 +85,19 @@ class Bot(commands.Cog):
             reaction, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.region, "🇯🇵", "🇦🇺", "🇰🇷", "🇪🇸"])
             emoji_task.cancel()
             if str(reaction.emoji) == self.bot.data.emoji.region:  # サーバー地域
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.REGION.value  # TODO: db
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.REGION.value)
                 await success_embed(ctx, f"{self.bot.data.emoji.region} Set language to [Server Region]!")
             elif str(reaction.emoji) == "🇯🇵":  # 日本語
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.JAPANESE.value  # TODO: db
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.JAPANESE.value)
                 await success_embed(ctx, ":flag_jp: 言語を __日本語__ に設定しました!")
             elif str(reaction.emoji) == "🇦🇺":  # 英語
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.ENGLISH.value  # TODO: db
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.ENGLISH.value)
                 await success_embed(ctx, ":flag_au: Set language to __English__")
             elif str(reaction.emoji) == "🇰🇷":  # 韓国語
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.KOREAN.value  # TODO: db
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.KOREAN.value)
                 await success_embed(ctx, ":flag_kr: 언어를 __한국어__ 로 설정했습니다!")
             elif str(reaction.emoji) == "🇪🇸":  # スペイン語
-                self.bot.database[str(ctx.author.id)]["language"] = LanguageCode.SPANISH.value  # TODO: db
+                await self.bot.db.set_lang(ctx.author.id, LanguageCode.SPANISH.value)
                 await success_embed(ctx, ":flag_es: Establecer idioma en __Español__!")
         except asyncio.TimeoutError:
             pass
