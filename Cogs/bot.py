@@ -107,6 +107,8 @@ class Bot(commands.Cog):
                 await success_embed(ctx, ":flag_es: Establecer idioma en __Español__!")
         except asyncio.TimeoutError:
             pass
+        finally:
+            await msg.clear_reactions()
 
     async def add_selector_emoji(self, msg):
         """選択画面に選択肢の絵文字を追加"""

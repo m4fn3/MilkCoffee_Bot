@@ -80,9 +80,7 @@ class Help(commands.HelpCommand):
                 embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
                 await message.edit(embed=embed)
             except asyncio.TimeoutError:
-                await message.remove_reaction(self.context.bot.data.emoji.left, self.context.bot.user)
-                await message.remove_reaction(self.context.bot.data.emoji.right, self.context.bot.user)
-                await message.remove_reaction(self.context.bot.data.emoji.help, self.context.bot.user)
+                await message.clear_reactions()
                 break
 
     def get_space_count(self, name: int, max_length: int) -> int:
