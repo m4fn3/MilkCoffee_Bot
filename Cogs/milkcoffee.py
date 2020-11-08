@@ -3,12 +3,12 @@ import time
 import discord
 from discord.ext import commands
 
+from .SQLManager import SQLManager
 from .data.item_data import ItemData
 from .data.static_data import StaticData
 from .data.strings import Strings
 from .utils.messenger import normal_embed
-from .utils.multilingual import *
-from .SQLManager import SQLManager
+
 
 class MilkCoffee(commands.Bot):
 
@@ -19,6 +19,7 @@ class MilkCoffee(commands.Bot):
 
         # データベース接続
         self.db = SQLManager(db_url, self.loop)
+        self.cache_users = set()  # 登録済みユーザーのリスト
 
         # 読み込み
         self.static_data = StaticData()  # 固定データを読み込み
@@ -28,11 +29,7 @@ class MilkCoffee(commands.Bot):
         for cog in self.bot_cogs:  # Cogの読み込み
             self.load_extension(cog)
 
-        # self.database = {}  # TODO: db
         # NOTE: ADMIN一時的に追加
-        self.ADMIN = {"513136168112750593": "1", "519760564755365888": "2"}  # TODO: db
-        self.BAN = {}  # TODO: db
-        self.Contributor = {}  # TODO: db
         self.GM_update = {  # TODO: db
             "twitter": [],
             "youtube": [],
@@ -48,6 +45,7 @@ class MilkCoffee(commands.Bot):
         print(f"Logged in to [{self.user}]")
         if not self.db.is_connected():  # データベースに接続しているか確認
             await self.db.connect()  # データベースに接続
+            self.cache_users = await self.db.get_registered_users()
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
@@ -61,8 +59,7 @@ class MilkCoffee(commands.Bot):
         elif message.author.bot:  # BOTからのメッセージの場合
             return
         elif message.content == f"<@!{self.user.id}>":  # BOTがメンションされた時
-            # TODO: 言語未登録時にエラー
-            return await normal_embed(message.channel, self.text.prefix_of_the_bot[get_lg(self.database[str(message.author.id)]["language"], message.guild.region)].format(self.PREFIX, self.PREFIX))
+            return await normal_embed(message.channel, self.text.prefix_of_the_bot[await self.db.get_lang(message.author.id, message.guild.region)].format(self.PREFIX, self.PREFIX))
         else:  # コマンドとして処理
             await self.process_commands(message)
 
@@ -90,3 +87,9 @@ class MilkCoffee(commands.Bot):
         """コマンド実行時"""
         pass  # await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
         # TODO: テストのため一時無効化 - コマンドログ
+
+    async def on_new_user(self, ctx):
+        """新規ユーザーが使用した時"""
+        self.cache_users.add(ctx.author.id)
+        await self.db.register_new_user(ctx.author.id)
+        await self.get_cog("Bot").language_selector(ctx)  # 言語選択

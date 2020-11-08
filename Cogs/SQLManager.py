@@ -1,5 +1,6 @@
 import json
 from typing import Optional, List, Set
+from .utils.multilingual import get_lg
 
 import asyncpg
 
@@ -22,5 +23,22 @@ class SQLManager:
         else:
             return True
 
-    def register_new_user(self, user_id: int) -> None:
-        await self.con.execute("")
+    async def get_registered_users(self) -> List[int]:
+        """登録済みユーザーのリストを取得"""
+        res = await self.con.fetchrow("SELECT array_agg(id) FROM user_data")
+        if res is None or res["array_agg"] is None:
+            return []
+        else:
+            return res["array_agg"]
+
+    async def register_new_user(self, user_id: int) -> None:
+        """新規ユーザーを追加"""
+        await self.con.execute("INSERT INTO user_data(id) VALUES($1)", user_id)
+
+    async def get_lang(self, user_id: int, region) -> int:
+        """ユーザーの言語を取得"""
+        res = await self.con.fetchrow("SELECT language FROM user_data WHERE id = $1", user_id)
+        if res is None or res["language"] is None:
+            return 0
+        return get_lg(res["language"], region)
+

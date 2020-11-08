@@ -22,11 +22,8 @@ class Bot(commands.Cog):
         if str(ctx.author.id) in self.bot.BAN:  # BANされたユーザーの場合
             await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.static_data.appeal_channel))
             raise Exception("Your Account Banned")  # 実行停止
-        elif str(ctx.author.id) not in self.bot.database:  # 未登録ユーザーの場合
-            self.bot.database[str(ctx.author.id)] = {  # TODO: db
-                "language": 0
-            }
-            await self.language_selector(ctx)  # 言語選択
+        elif ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
+            await self.bot.on_new_user(ctx)
 
     async def cog_command_error(self, ctx, error):
         """エラー発生時"""

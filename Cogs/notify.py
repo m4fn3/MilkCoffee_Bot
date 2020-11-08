@@ -21,11 +21,8 @@ class Notify(commands.Cog):
         if str(ctx.author.id) in self.bot.BAN:
             await error_embed(ctx, self.bot.text.your_account_banned[get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)].format(self.bot.static_data.appeal_channel))
             raise Exception("Your Account Banned")
-        elif str(ctx.author.id) not in self.bot.database:
-            self.bot.database[str(ctx.author.id)] = {
-                "language": 0,
-            }
-            await self.bot.get_cog("Bot").language_selector(ctx)
+        elif ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
+            await self.bot.on_new_user(ctx)
 
     async def on_GM_update(self, message):
         if message.channel.id == self.bot.static_data.GM_update_channel[0]:  # Twitter
