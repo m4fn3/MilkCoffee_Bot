@@ -4,6 +4,7 @@ import random
 import re
 from typing import Any
 
+import asyncio
 import discord
 import traceback2
 from PIL import Image
@@ -105,12 +106,12 @@ class Costume(commands.Cog):
     async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
         """ アイテム番号から画像を構築 """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        base = Image.open(f"./assets/base/{base_id}.png")
-        character = Image.open(f"./assets/character/{base_id}/{character_id}.png")
-        weapon = Image.open(f"./assets/weapon/{weapon_id}.png")
-        head_img = Image.open(f"./assets/head/{head_id}.png")
-        body_img = Image.open(f"./assets/body/{body_id}.png")
-        back_img = Image.open(f"./assets/back/{back_id}.png")
+        base = Image.open(f"./Assets/base/{base_id}.png")
+        character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
+        weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
+        head_img = Image.open(f"./Assets/head/{head_id}.png")
+        body_img = Image.open(f"./Assets/body/{body_id}.png")
+        back_img = Image.open(f"./Assets/back/{back_id}.png")
         base.paste(character, (0, 0), character)
         base.paste(head_img, (0, 0), head_img)
         base.paste(body_img, (0, 0), body_img)
@@ -128,6 +129,29 @@ class Costume(commands.Cog):
         desc += self.bot.data.emoji.back + " " + self.bot.text.menu_back[user_lang] + f"{str(back_id).rjust(3)}` {getattr(self.bot.data.back.emoji, 'e' + str(back_id))} {getattr(self.bot.data.back.name, 'n' + str(back_id))}\n"
         embed.description = desc
         await ctx.send(embed=embed, file=discord.File(fp=io.BytesIO(base), filename=f"{code}.png"))
+
+    async def page_reaction_mover(self, message, author: int, max_page: int, now_page: int) -> (int, Any):
+        """ リアクションページ移動処理 """
+        new_page: int
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == message.id and u == author and str(r.emoji) in ["◀️", "▶️"])
+            if str(reaction.emoji) == "▶️":
+                if now_page == max_page:
+                    new_page = 1
+                else:
+                    new_page = now_page + 1
+            elif str(reaction.emoji) == "◀️":
+                if now_page == 1:
+                    new_page = max_page
+                else:
+                    new_page = now_page - 1
+            else:
+                new_page = now_page
+            return 1, new_page
+        except asyncio.TimeoutError:
+            await message.remove_reaction("◀️", self.bot.user)
+            await message.remove_reaction("▶️", self.bot.user)
+            return 0, None
 
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
@@ -147,31 +171,20 @@ class Costume(commands.Cog):
         except:
             print(traceback2.format_exc())
 
-    @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
-    async def set(self, ctx, *, code) -> None:
-        """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
-        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        item = code_to_list(code)
-        if item is None:
-            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
-        elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
-                (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
-                (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
-            await self.make_image(ctx, *item)
-            # TODO: db にコードを保存: code
-        else:
-            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
+    @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def random(self, ctx):
+        num_base = random.randint(self.bot.data.base.min, self.bot.data.base.max)
+        num_character = random.randint(self.bot.data.character.min, self.bot.data.character.max)
+        num_weapon = random.randint(self.bot.data.weapon.min, self.bot.data.weapon.max)
+        num_head = random.randint(self.bot.data.head.min, self.bot.data.head.max)
+        num_body = random.randint(self.bot.data.body.min, self.bot.data.body.max)
+        num_back = random.randint(self.bot.data.back.min, self.bot.data.back.max)
+        await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
 
     @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:
-        """
-        保存した作品を表示
-        Args:
-            ctx: Context
-
-        Returns:
-            None
-        """
+        """ 保存した作品を表示 """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         listed = ctx.message.content.split()
         page_length = 4
@@ -190,9 +203,10 @@ class Costume(commands.Cog):
         for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
             if index > item_count:
                 break
-            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["static_data"]
-            item_list = parse_item_code_to_list(item_id)
-            text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
+            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
+            item_list = code_to_list(item_id)
+            getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))
+            text = f"{item_id}  {getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e'+str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e'+str(item_list[2]))} {getattr(self.bot.data.head.emoji, 'e'+str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e'+str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e'+str(item_list[5]))}"
             embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
         message = await ctx.send(embed=embed)
         await message.add_reaction("◀️")
@@ -207,23 +221,15 @@ class Costume(commands.Cog):
             for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
                 if index > item_count:
                     break
-                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["static_data"]
-                item_list = parse_item_code_to_list(item_id)
-                text = f"{item_id}  {self.emoji['base'][str(item_list[0])]} {self.emoji['character'][str(item_list[1])]} {self.emoji['weapon'][str(item_list[2])]} {self.emoji['head'][str(item_list[3])]} {self.emoji['body'][str(item_list[4])]} {self.emoji['back'][str(item_list[5])]}"
+                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
+                item_list = code_to_list(item_id)
+                text = f"{item_id}  {getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e'+str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e'+str(item_list[2]))} {getattr(self.bot.data.head.emoji, 'e'+str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e'+str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e'+str(item_list[5]))}"
                 embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
             await message.edit(embed=embed)
 
     @commands.command(aliases=["remove", "del", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
     async def delete(self, ctx, *, index) -> None:
-        """
-        保存した画像を削除
-        Args:
-            ctx: Context
-            index: 保存番号 or 保存名称
-
-        Returns:
-            None
-        """
+        """ 保存した画像を削除 """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
         if index.isdigit() and 1 <= int(index) <= 20:
             item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
@@ -244,16 +250,80 @@ class Costume(commands.Cog):
             else:
                 await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
 
-    @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
-    @commands.cooldown(1, 3, commands.BucketType.user)
-    async def random(self, ctx):
-        num_base = random.randint(self.bot.data.base.min, self.bot.data.base.max)
-        num_character = random.randint(self.bot.data.character.min, self.bot.data.character.max)
-        num_weapon = random.randint(self.bot.data.weapon.min, self.bot.data.weapon.max)
-        num_head = random.randint(self.bot.data.head.min, self.bot.data.head.max)
-        num_body = random.randint(self.bot.data.body.min, self.bot.data.body.max)
-        num_back = random.randint(self.bot.data.back.min, self.bot.data.back.max)
-        await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
+    @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, bried=cmd_data.load.brief)
+    async def load(self, ctx, *, index: str) -> None:
+        """ 保存された作品を作業場に読み込む """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        item_index: int
+        if index.isdigit() and 1 <= int(index) <= 20:
+            item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
+            if 0 <= int(index) <= item_count:
+                item_index = int(index) - 1
+            else:
+                return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(index))
+        elif index.isdigit():
+            return await error_embed(ctx, self.bot.text.specify_between_1_20[user_lang])
+        else:
+            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
+            if index in used_name_list:
+                item_index = used_name_list.index(index)
+            else:
+                return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
+        self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
+        await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
+
+    @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
+    async def save(self, ctx) -> None:
+        """
+        現在の装飾を保存
+        Args:
+            ctx: Context
+        Returns:
+            None
+        """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        name: str
+        listed = ctx.message.content.split(" ", 1)
+        if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
+            return await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
+        used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
+        if len(listed) == 1:
+            count = 1
+            while True:
+                if f"Untitled{count}" not in used_name_list:
+                    name = f"Untitled{count}"
+                    break
+                count += 1
+        else:
+            if listed[1].isdigit():
+                return await error_embed(ctx, self.bot.text.int_only_name_not_allowed[user_lang])
+            elif listed[1] in used_name_list:
+                return await error_embed(ctx, self.bot.text.name_already_used[user_lang])
+            elif len(listed[1]) < 1 or 20 < len(listed[1]):
+                return await error_embed(ctx, self.bot.text.name_length_between_1_20[user_lang])
+            name = listed[1]
+        self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
+            {
+                "name": name,
+                "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
+            }
+        )
+        await success_embed(ctx, self.bot.text.saved_work[user_lang].format(name))
+
+    @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
+    async def set(self, ctx, *, code) -> None:
+        """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        item = code_to_list(code)
+        if item is None:
+            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
+        elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
+                (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
+                (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
+            await self.make_image(ctx, *item)
+            # TODO: db にコードを保存: code
+        else:
+            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
 
 def setup(bot):
