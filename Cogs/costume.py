@@ -9,6 +9,8 @@ import traceback2
 from PIL import Image
 from discord.ext import commands
 
+from .utils.item_parser import *
+
 from .data.command_data import CmdData
 from .menu import Menu
 from .milkcoffee import MilkCoffee
@@ -100,6 +102,33 @@ class Costume(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
+    async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
+        """ アイテム番号から画像を構築 """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        base = Image.open(f"./assets/base/{base_id}.png")
+        character = Image.open(f"./assets/character/{base_id}/{character_id}.png")
+        weapon = Image.open(f"./assets/weapon/{weapon_id}.png")
+        head_img = Image.open(f"./assets/head/{head_id}.png")
+        body_img = Image.open(f"./assets/body/{body_id}.png")
+        back_img = Image.open(f"./assets/back/{back_id}.png")
+        base.paste(character, (0, 0), character)
+        base.paste(head_img, (0, 0), head_img)
+        base.paste(body_img, (0, 0), body_img)
+        base.paste(back_img, (0, 0), back_img)
+        base.paste(weapon, (0, 0), weapon)
+        base = self.convert_to_bytes(base)
+        embed = discord.Embed(color=0x9effce)
+        code = list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
+        desc = self.bot.data.emoji.num + " " + self.bot.text.menu_code[user_lang] + ": `" + code + "`\n"
+        desc += self.bot.data.emoji.base + " " + self.bot.text.menu_base[user_lang] + f"{str(base_id).rjust(3)}` {getattr(self.bot.data.base.emoji, 'e' + str(base_id))} {getattr(self.bot.data.base.name, 'n' + str(base_id))}\n"
+        desc += self.bot.data.emoji.char + " " + self.bot.text.menu_character[user_lang] + f"{str(character_id).rjust(3)}` {getattr(self.bot.data.character.emoji, 'e' + str(character_id))} {getattr(self.bot.data.character.name, 'n' + str(character_id))}\n"
+        desc += self.bot.data.emoji.weapon + " " + self.bot.text.menu_weapon[user_lang] + f"{str(weapon_id).rjust(3)}` {getattr(self.bot.data.weapon.emoji, 'e' + str(weapon_id))} {getattr(self.bot.data.weapon.name, 'n' + str(weapon_id))}\n"
+        desc += self.bot.data.emoji.head + " " + self.bot.text.menu_head[user_lang] + f"{str(head_id).rjust(3)}` {getattr(self.bot.data.head.emoji, 'e' + str(head_id))} {getattr(self.bot.data.head.name, 'n' + str(head_id))}\n"
+        desc += self.bot.data.emoji.body + " " + self.bot.text.menu_body[user_lang] + f"{str(body_id).rjust(3)}` {getattr(self.bot.data.body.emoji, 'e' + str(body_id))} {getattr(self.bot.data.body.name, 'n' + str(body_id))}\n"
+        desc += self.bot.data.emoji.back + " " + self.bot.text.menu_back[user_lang] + f"{str(back_id).rjust(3)}` {getattr(self.bot.data.back.emoji, 'e' + str(back_id))} {getattr(self.bot.data.back.name, 'n' + str(back_id))}\n"
+        embed.description = desc
+        await ctx.send(embed=embed, file=discord.File(fp=io.BytesIO(base), filename=f"{code}.png"))
+
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
         try:
@@ -119,30 +148,19 @@ class Costume(commands.Cog):
             print(traceback2.format_exc())
 
     @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
-    async def set(self, ctx, *, item) -> None:
-        """
-        装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録
-        Args:
-            ctx: Context
-            item: 装飾コード or 各装飾の番号
-
-        Returns:
-            None
-        """
+    async def set(self, ctx, *, code) -> None:
+        """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
         user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
-        item_list = item.split()
-        if len(item_list) == 1:
-            code, result = check_item_id(item)
-            if code == 0:
-                return await error_embed(ctx, result[user_lang])
-            await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
-            self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
+        item = code_to_list(code)
+        if item is None:
+            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
+        elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
+                (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
+                (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
+            await self.make_image(ctx, *item)
+            # TODO: db にコードを保存: code
         else:
-            code, result = check_item_list(item_list)
-            if code == 0:
-                return await error_embed(ctx, result[user_lang])
-            await self.make_image(ctx, result[0], result[1], result[2], result[3], result[4], result[5])
-            self.save_canvas_data(ctx.author.id, parse_item_list_to_code(result))
+            await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
     @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:

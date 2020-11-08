@@ -108,7 +108,10 @@ class Bot(commands.Cog):
         except asyncio.TimeoutError:
             pass
         finally:
-            await msg.clear_reactions()
+            try:
+                await msg.clear_reactions()
+            except:
+                pass
 
     async def add_selector_emoji(self, msg):
         """選択画面に選択肢の絵文字を追加"""
