@@ -17,10 +17,19 @@ class Set:
 
 
 @dataclasses.dataclass(frozen=True)
+class Show:
+    usage = "show (保存番号|保存名称)^show (save number | save name)^show (저장 번호 | 저장 명칭)^show (guardar número | guardar nombre)"
+    brief = "現在の装飾を表示できるよ!^Show the current decoration!^현재의 장식을 표시 할 수 있어!^¡Puede mostrar la decoración actual!"
+    description = "現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!^Show the current decoration! After specifying the save number, the works that match the number will be displayed from the saved works!^현재의 장식을 표시 할  수있어! 저장 번호를 지정한 후 저장 한 작품 중에서 번호에 있던 작품을 보여주지!^¡Puede mostrar la decoración actual! Después de especificar el número de guardado, las obras que coincidan con el número se " \
+                  "mostrarán de las obras guardadas. "
+
+
+@dataclasses.dataclass(frozen=True)
 class My:
     usage = "my^my^my^my"
     brief = "保存済み作品一覧を表示^list of saved works^저장된 작업 목록보기^lista de obras guardadas"
     description = "保存した作品の一覧を表示します^Show a list of saved works^저장된 작업 목록을 표시 할 수 있어^Mostrar una lista de trabajos guardados"
+
 
 @dataclasses.dataclass(frozen=True)
 class Load:
@@ -28,11 +37,13 @@ class Load:
     brief = "保存した作品を作業場に読み込むよ!^Load the saved work into the current workshop!^저장된 작업을 현재 작업장에로드하십시오!^¡Carga el trabajo guardado en el taller actual!"
     description = "保存した作品を番号または名称で指定して、現在の作業場に読み込むよ!^Load the saved work  into the current workshop  by number or name!^저장 한 작품을 번호 또는 이름을 지정하여 현재 작업 공간에 불러와요!^Especifique el trabajo guardado por número o nombre y cárguelo en el lugar de trabajo actual."
 
+
 @dataclasses.dataclass(frozen=True)
 class Save:
     usage = "save (保存名称)^save (save name)^save (저장 명칭)^save (guardar nombre)"
     brief = "現在の装飾を保存できるよ!^Save the current decoration!^현재의 장식을 저장 할 수 있어!^¡Puede guardar la decoración actual!"
     description = "現在の装飾を保存できるよ!保存名称を指定しなかったら、'Untitled1'みたいな名前を自動でつけとくね!^Save the current decoration! If you don't specify a save name, I automatically give it a name like 'Untitled 1'!^현재의 장식을 저장 할 수 있어! 저장할 이름을 지정하지 않으면, 'Untitled 1'같은 이름을 자동으로 저장할거야!^¡Puede guardar la decoración actual! Si no especifica un nombre para guardar, puede darle automáticamente un nombre como 'Untitled 1'."
+
 
 @dataclasses.dataclass(frozen=True)
 class Delete:
@@ -93,6 +104,7 @@ class CmdData:
     menu = Menu()
     load = Load()
     save = Save()
+    show = Show()
     # Bot
     invite = Invite()
     language = Lang()

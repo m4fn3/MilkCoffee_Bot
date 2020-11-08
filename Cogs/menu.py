@@ -124,7 +124,7 @@ class Menu:
             selector_emoji = [self.bot.data.emoji.goback]
         else:
             selector_emoji = [self.bot.data.emoji.left, self.bot.data.emoji.right, self.bot.data.emoji.goback]
-        self.bot.loop.create_task(self.add_selector_emoji(msg, selector_emoji))
+        emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, selector_emoji))
         # 入力待機
         flag: int
         page = 1
@@ -174,10 +174,12 @@ class Menu:
                         break
                 else:
                     self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
+                    self.code = list_to_code(self.item)
                     # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
+        emoji_task.cancel()
         await msg.delete()
         return flag
 
@@ -191,7 +193,7 @@ class Menu:
         embed.description = self.bot.text.menu_find_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.bot.data.emoji.goback]
-        self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
+        emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
         count = 0
@@ -220,10 +222,12 @@ class Menu:
                         break
                 else:
                     self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
+                    self.code = list_to_code(self.item)
                     # TODO: db にコードを保存
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
+        emoji_task.cancel()
         await msg.delete()
         return flag
 
@@ -233,7 +237,7 @@ class Menu:
         embed.description = "装飾コードを入力してください"  # TODO: 多言語対応 - セレクタ―のdescriptionに説明文
         msg = await self.ctx.send(embed=embed)
         searcher_emoji = [self.bot.data.emoji.goback]
-        self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
+        emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, searcher_emoji))
         # 入力待機
         flag: int
         count = 0
@@ -270,6 +274,7 @@ class Menu:
                     if count == 3:
                         flag = 2
                         break
+        emoji_task.cancel()
         await msg.delete()
         return flag
 
@@ -283,6 +288,7 @@ class Menu:
             react, _ = await self.bot.wait_for("reaction_add", check=lambda r, u: str(r.emoji) in [self.bot.data.emoji.load, self.bot.data.emoji.save, self.bot.data.emoji.goback] and r.message.id == msg.id and u == self.ctx.author, timeout=30)
             emoji_task.cancel()
         except asyncio.TimeoutError:
+            emoji_task.cancel()
             await msg.delete()
             return 1  # タイムアウト
         await msg.delete()
@@ -299,7 +305,7 @@ class Menu:
         embed.description = self.bot.text.menu_save_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.bot.data.emoji.goback]
-        self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
+        emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
         # TODO: db 既に20個保存されている場合
         # await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
         # return 2
@@ -343,6 +349,7 @@ class Menu:
                     await success_embed(self.ctx, self.bot.text.saved_work[self.lang].format(name))
                     flag = 2
                     break
+        emoji_task.cancel()
         await msg.delete()
         return flag
 
@@ -352,7 +359,7 @@ class Menu:
         embed.description = self.bot.text.menu_load_description[self.lang]
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.bot.data.emoji.goback]
-        self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
+        emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
         # 入力待機
         flag: int
         count = 0
@@ -402,6 +409,7 @@ class Menu:
                     await success_embed(self.ctx, self.bot.text.loaded_work[self.lang].format(item_index + 1, "読み込んだ作品の名前"))  # TODO: db 作品名
                     flag = 2
                     break
+        emoji_task.cancel()
         await msg.delete()
         return flag
 

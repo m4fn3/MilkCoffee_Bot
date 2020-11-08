@@ -88,7 +88,7 @@ class Costume(commands.Cog):
             self.bot.database[str(ctx.author.id)] = {
                 "language": 0,
                 "costume": {
-                    "canvas": "1o4s3k",
+                    "canvas": "1aecsirk",
                     "save": []
                 }
             }
@@ -170,6 +170,42 @@ class Costume(commands.Cog):
             self.menu_channels.remove(ctx.channel.id)
         except:
             print(traceback2.format_exc())
+
+    @commands.command(usage="show (保存番号|保存名称)^show (save number | save name)^show (저장 번호 | 저장 명칭)^show (guardar número | guardar nombre)", brief="現在の装飾を表示できるよ!^Show the current decoration!^현재의 장식을 표시 할 수 있어!^¡Puede mostrar la decoración actual!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!^Show the current decoration! After specifying the save number, the works that match the number will be displayed from the saved works!^현재의 장식을 표시 할  수있어! 저장 번호를 지정한 후 저장 한 작품 중에서 번호에 있던 작품을 보여주지!^¡Puede mostrar la decoración actual! Después de especificar el número de guardado, las obras que coincidan con el número se mostrarán de las obras guardadas.", help="`{0}show` ... 現在の装飾を表示`\n{0}show 1` ... 1番目に保存された装飾を表示\n`{0}show Untitled1` ... Untitled1という名前で保存された装飾を表示^`{0}show` ... Show current decoration`\n{0}show 1` ... Show the first saved decoration\n`{0}show Untitled 1` ... Show decorations saved as Untitled 1^`{0}show` ... 현재의 장식을 표시`\n{0}show 1` ... 첫번째로 저장된 장식을 표시\n`{0}show 제목 1` ... 제목 1로 저장 된 장식을 표시^`{0}show` ... Mostrar decoración actual`\n{0}show 1` ... Mostrar la primera decoración guardada\n`{0}show Untitled 1` ... Muestra las decoraciones guardadas con el nombre Untitled 1")
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def show(self, ctx) -> None:
+        """
+        保存番号または保存名称から保存された画像または、作業中の画像を表示
+        Args:
+            ctx: Context
+        Returns:
+            None
+        """
+        user_lang = get_lg(self.bot.database[str(ctx.author.id)]["language"], ctx.guild.region)
+        listed = ctx.message.content.split(" ", 1)
+        item_code: str
+        if len(listed) == 1:
+            item_code = self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
+        else:
+            index = listed[1]
+            item_index: int
+            if index.isdigit() and 1 <= int(index) <= 20:
+                item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
+                if 0 <= int(index) <= item_count:
+                    item_index = int(index) - 1
+                else:
+                    return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(index))
+            elif index.isdigit():
+                return await error_embed(ctx, self.bot.text.specify_between_1_20[user_lang])
+            else:
+                used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
+                if index in used_name_list:
+                    item_index = used_name_list.index(index)
+                else:
+                    return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
+            item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
+        items = code_to_list(item_code)
+        await self.make_image(ctx, *items)
 
     @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
