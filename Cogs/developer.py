@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import io
 import os
-import re
+import pprint
 import subprocess
 import sys
 import textwrap
@@ -49,187 +49,6 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
         else:
             await ctx.send(f"エラーが発生しました:\n{error}")
-
-    @commands.command(aliases=["mtn", "mt"])
-    async def maintenance(self, ctx, *, reason):
-        self.bot.maintenance = reason
-        await ctx.send(f"メンテナンスを設定しました。\n理由: {reason}")
-
-    @commands.command(aliases=["unmtn", "unmt"])
-    async def unmaintenance(self, ctx):
-        self.bot.maintenance = ""
-        await ctx.send("メンテナンスを解除しました。")
-
-    @commands.command()
-    async def admin(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) in self.bot.ADMIN:
-            return await ctx.send("このユーザーはすでにADMINです.")
-        self.bot.ADMIN[str(user.id)] = reason
-        await ctx.send(f"該当ユーザーをADMINにしました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がADMINになりました。", color=0xffa500)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command()
-    async def deadmin(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) not in self.bot.ADMIN:
-            await ctx.send("このユーザーはADMINではありません。")
-        del self.bot.ADMIN[str(user.id)]
-        await ctx.send(f"該当ユーザーをADMINから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がADMINから削除されました。", color=0xc71585)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command()
-    async def is_admin(self, ctx, user_id):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if user_id not in self.bot.ADMIN:
-            await ctx.send(f"このユーザーはADMINではありません。(ユーザー情報: {str(user)} ({user.id}))")
-        else:
-            await ctx.send(f"このユーザーはADMINです。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.ADMIN[user_id]}")
-
-    @commands.command(aliases=["con"])
-    async def contributor(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) in self.bot.Contributor:
-            return await ctx.send("このユーザーはすでにContributorです.")
-        self.bot.Contributor[str(user.id)] = reason
-        await ctx.send(f"該当ユーザーをContributorにしました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がContributorになりました。", color=0xe6e6fa)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command(aliases=["decon"])
-    async def decontributor(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) not in self.bot.Contributor:
-            await ctx.send("このユーザーはContributorではありません。")
-        del self.bot.Contributor[str(user.id)]
-        await ctx.send(f"該当ユーザーをContributorから削除しました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がContributorから削除されました。", color=0xffe4e1)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command(aliases=["is_con"])
-    async def is_contributor(self, ctx, user_id):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if user_id not in self.bot.Contributor:
-            await ctx.send(f"このユーザーはContributorではありません。(ユーザー情報: {str(user)} ({user.id}))")
-        else:
-            await ctx.send(f"このユーザーはContributorです。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.Contributor[user_id]}")
-
-    @commands.command()
-    async def ban(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) in self.bot.BAN:
-            return await ctx.send("このユーザーはすでにBANされています.")
-        self.bot.BAN[str(user.id)] = reason
-        await ctx.send(f"該当ユーザーをBANしました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がBANされました。", color=0xdc143c)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command()
-    async def unban(self, ctx, user_id, *, reason):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if str(user.id) not in self.bot.BAN:
-            await ctx.send("このユーザーはBANされていません。")
-        del self.bot.BAN[str(user.id)]
-        await ctx.send(f"該当ユーザーをBAN解除しました。(ユーザー情報: {str(user)} ({user.id}))")
-        embed = discord.Embed(title=f"{user.name} がBAN解除されました。", color=0x4169e1)
-        embed.description = f"ユーザー情報: {str(user)} ({user.id})\n理由: {reason}\n実行者: {str(ctx.author)} ({ctx.author.id})"
-        await self.bot.get_channel(self.bot.static_data.log_channel).send(embed=embed)
-
-    @commands.command(aliases=["banned", "baned"])
-    async def is_ban(self, ctx, user_id):
-        user: discord.User
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif user_id.isdigit():
-            try:
-                user = await self.bot.fetch_user(int(user_id))
-            except discord.errors.NotFound:
-                return await ctx.send("このユーザーIDを持つユーザーは存在しません。")
-        else:
-            return await ctx.send("ユーザーIDは数字で指定してください。")
-        if user_id not in self.bot.BAN:
-            await ctx.send(f"このユーザーはBANされていません。(ユーザー情報: {str(user)} ({user.id}))")
-        else:
-            await ctx.send(f"このユーザーはBANされています。(ユーザー情報: {str(user)} ({user.id}))\n理由:{self.bot.BAN[user_id]}")
 
     @commands.command(aliases=["rl"])
     async def reload(self, ctx, text):
@@ -323,11 +142,29 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             elif isinstance(channel, discord.VoiceChannel):
                 voice_channels += 1
         latency = self.bot.latency
+        try:
+            temp = [str(obj.current) + "℃" for key in psutil.sensors_temperatures() for obj in psutil.sensors_temperatures()[key]]
+        except:
+            temp = ["N/A"]
         embed = discord.Embed(title="Process")
-        embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory:[{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\n```", inline=False)
-        embed.add_field(name="Discord", value=f"```yaml\nServers:{guilds}\nTextChannels:{text_channels}\nVoiceChannels:{voice_channels}\nUsers:{users}\nConnectedVC:{vcs}```", inline=False)
+        embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory: [{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\nTemperature: {','.join(temp)}```", inline=False)
+        embed.add_field(name="Discord", value=f"```yaml\nServers: {guilds}\nTextChannels: {text_channels}\nVoiceChannels: {voice_channels}\nUsers: {users}\nConnectedVC: {vcs}```", inline=False)
         embed.add_field(name="Run", value=f"```yaml\nUptime: {uptime}\nLatency: {latency:.2f}[s]\n```")
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def db(self, ctx, *, text):
+        res = await self.bot.db.con.fetch(text)
+        res = [dict(i) for i in res]
+        await ctx.send("```json\n" + pprint.pformat(res)[:1980] + "```")
+
+    @commands.command(aliases=["pg"])
+    async def ping(self, ctx):
+        before = time.monotonic()
+        message = await ctx.send("Pong")
+        ping = (time.monotonic() - before) * 1000
+        await message.delete()
+        await ctx.send(f"反応速度: `{int(ping)}`[ms]")
 
     @commands.command()
     async def cmd(self, ctx, *, text):
@@ -359,91 +196,6 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             result = await process.communicate()
 
         return [res.decode('utf-8') for res in result]
-
-    @commands.command(hidden=True)
-    async def make_trans(self, ctx):
-        f = open("strings.txt", "w")
-        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
-        for cog in cogs:
-            target_cog = self.bot.get_cog(name=cog)
-            f.write(f"""
-{target_cog.qualified_name}
-{target_cog.description}
-""")
-            for cmd in self.bot.get_cog(name=cog).walk_commands():
-                if cmd.usage is None:
-                    continue
-                f.write("--" + cmd.name + "\n")
-                f.write(cmd.usage + "\n")
-                try:
-                    if cmd.breif is not None:
-                        f.write(cmd.breif + "\n")
-                except:
-                    pass
-                try:
-                    if cmd.description is not None:
-                        f.write(cmd.description + "\n")
-                except:
-                    pass
-                try:
-                    if cmd.help is not None:
-                        f.write(cmd.help + "\n")
-                except:
-                    pass
-        f.close()
-        await ctx.send("完了")
-
-    @commands.command(hidden=True)
-    async def make_string(self, ctx):
-        cogs = ["costume", "global_chat", "info", "notify"]
-        log_f = open("string-log.txt", "w")
-        text: str
-        for cog_name in cogs:
-            print(cog_name)
-            with open(f"{cog_name}.py") as f:
-                text = f.read()
-            mch = re.finditer(r"await ctx.send\((.+)\)", text)
-            for i in mch:
-                log_f.write(i.group(1) + "\n")
-        log_f.close()
-        await ctx.send("完了")
-
-    @commands.command(hidden=True)
-    async def make_html(self, ctx):
-        f = open("commands_html.txt", "w")
-        cogs = ["GlobalChat", "Notify", "Costume", "Information"]
-        for cog in cogs:
-            coga = self.bot.get_cog(name=cog)
-            f.write(f"""
-          <div id="{coga.qualified_name}">
-            <h1>m!{coga.qualified_name}</h1>
-            <p>{coga.description}</p>
-                """)
-            for cmd in self.bot.get_cog(name=cog).walk_commands():
-                if cmd.usage is None:
-                    continue
-                desc = cmd.description.replace("<prefix>", "m!").replace("`", "").replace("\n", "<br>")
-                alias = ""
-                if cmd.aliases:
-                    alias = ", ".join(cmd.aliases)
-                    alias = f"\n            <p>略記: {alias}</p>"
-                help = ""
-                if cmd.help:
-                    help = "\n" + cmd.help.replace("<prefix>", "m!").replace("`", "").replace("\n", "<br>")
-                    help = f"\n             <p>{help}</p>"
-                f.write(f"""
-                <div class="command_box" id="open_command">
-                  <p>{cmd.usage}</p>
-                  <div class="command_description">
-                    <p>{desc}</p>{alias}{help}
-                  </div>
-                </div>
-                    """)
-            f.write("""
-          </div>
-                """)
-        f.close()
-        await ctx.send("完了")
 
 
 def setup(bot):

@@ -8,20 +8,27 @@ from .data.static_data import StaticData
 from .data.strings import Strings
 from .utils.messenger import normal_embed
 from .utils.multilingual import *
-
+from .SQLManager import SQLManager
 
 class MilkCoffee(commands.Bot):
 
-    def __init__(self, main_prefix, command_prefix, help_command, status, activity, intents):
+    def __init__(self, main_prefix, db_url, command_prefix, help_command, status, activity, intents):
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
-        self.bot_cogs = ["Cogs.bot", "Cogs.costume", "Cogs.developer", "Cogs.notify"]
+        self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
+
+        # データベース接続
+        self.db = SQLManager(db_url, self.loop)
+
+        # 読み込み
         self.static_data = StaticData()  # 固定データを読み込み
         self.text = Strings()  # 言語別文字列データを読み込み
         self.data = ItemData()  # 絵文字,アイテムデータを読み込み
+
         for cog in self.bot_cogs:  # Cogの読み込み
             self.load_extension(cog)
-        self.database = {}  # TODO: db
+
+        # self.database = {}  # TODO: db
         # NOTE: ADMIN一時的に追加
         self.ADMIN = {"513136168112750593": "1", "519760564755365888": "2"}  # TODO: db
         self.BAN = {}  # TODO: db
@@ -38,7 +45,9 @@ class MilkCoffee(commands.Bot):
 
     async def on_ready(self):
         """キャッシュ準備完了"""
-        print(f"Logged in to {self.user}")
+        print(f"Logged in to [{self.user}]")
+        if not self.db.is_connected():  # データベースに接続しているか確認
+            await self.db.connect()  # データベースに接続
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
@@ -81,29 +90,3 @@ class MilkCoffee(commands.Bot):
         """コマンド実行時"""
         pass  # await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
         # TODO: テストのため一時無効化 - コマンドログ
-
-    # TODO: db
-    # @tasks.loop(seconds=30.0)
-    # async def save_database(self):
-    #     db_dict = {
-    #         "user": self.database,
-    #         "role": {
-    #             "ADMIN": self.ADMIN,
-    #             "BAN": self.BAN,
-    #             "Contributor": self.Contributor
-    #         },
-    #         "notify": {
-    #             "twitter": self.GM_update["twitter"],
-    #             "youtube": self.GM_update["youtube"],
-    #             "facebook_jp": self.GM_update["facebook_jp"],
-    #             "facebook_en": self.GM_update["facebook_en"],
-    #             "facebook_es": self.GM_update["facebook_es"],
-    #             "facebook_kr": self.GM_update["facebook_kr"]
-    #         },
-    #         "system": {
-    #             "maintenance": self.maintenance
-    #         }
-    #     }
-    #     database_channel = self.get_channel(self.datas["database_channel"])
-    #     db_bytes = json.dumps(db_dict, indent=2)
-    #     await database_channel.send(file=discord.File(fp=io.StringIO(db_bytes), filename="database.json"))
