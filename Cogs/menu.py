@@ -146,7 +146,7 @@ class Menu:
                 if (max_page == 1) or str(reaction.emoji) == self.bot.data.emoji.goback:
                     flag = 2  # back
                     break
-                try:
+                try:  # 簡便のためユーザーのリアクションを削除
                     await msg.remove_reaction(reaction, user)
                 except:
                     pass
@@ -430,7 +430,7 @@ class Menu:
                 break
             emoji = getattr(getattr(self.bot.data, item_type).emoji, "e" + str(item_index))
             name = getattr(getattr(self.bot.data, item_type).name, "n" + str(item_index))
-            text += f"`{str(item_index).rjust(3)}` {emoji} {name}\n"
+            text += f"`{str(item_index).ljust(3)}:` {emoji} {name}\n"
         return text
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):

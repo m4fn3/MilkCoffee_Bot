@@ -9,7 +9,7 @@ class Strings:
     missing_arguments = ["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"]
     interval_too_fast = ["コマンド実行の間隔が速すぎるよ! `{:.2f}`秒後に再度使用できるよ!", "The command execution interval is too fast! You can use it again in `{:.2f}` seconds!", "명령 실행 간격이 너무 빠릅니다! `{:.2f}` 초 후에 다시 사용할 수 있습니다!", "¡El intervalo de ejecución del comando es demasiado rápido! ¡Puede volver a utilizarlo en `{:.2f}` segundos!"]
     error_occurred = ["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"]
-    missing_subcommand = ["サブコマンドが不足しているよ!\n`{0}help add`で使い方を確認してね!", "Missing subcommands!\n`{0}help add` to see how to use it!", "하위 명령이 부족한거야! \n`{0}help add` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{0}help add` para ver cómo se usa!"]
+    missing_subcommand = ["サブコマンドが不足しているよ!\n`{}help {}`で使い方を確認してね!", "Missing subcommands!\n`{}help {}` to see how to use it!", "하위 명령이 부족한거야! \n`{}help {}` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{}help {}` para ver cómo se usa!"]
     # NOTE: main.py
     prefix_of_the_bot = ["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."]
     # NOTE: help.py

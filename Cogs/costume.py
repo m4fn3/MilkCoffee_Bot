@@ -71,7 +71,7 @@ class Costume(commands.Cog):
                 break
             emoji = getattr(getattr(self.bot.data, item_type).emoji, "e" + str(item_index))
             name = getattr(getattr(self.bot.data, item_type).name, "n" + str(item_index))
-            text += f"`{str(item_index).rjust(3)}` {emoji} {name}\n"
+            text += f"`{str(item_index).ljust(3)}:` {emoji} {name}\n"
         return text
 
     async def cog_before_invoke(self, ctx):
@@ -294,6 +294,75 @@ class Costume(commands.Cog):
             await self.make_image(ctx, *item)
         else:
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
+
+    @commands.group()
+    async def list(self, ctx):
+        if ctx.invoked_subcommand is None:
+            user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+            await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX, "list"))
+
+    @list.command(name="base")
+    async def list_base(self, ctx):
+        await self.list_selector(ctx, "base")
+
+    @list.command(name="character")
+    async def list_character(self, ctx):
+        await self.list_selector(ctx, "character")
+
+    @list.command(name="weapon")
+    async def list_weapon(self, ctx):
+        await self.list_selector(ctx, "weapon")
+
+    @list.command(name="head")
+    async def list_head(self, ctx):
+        await self.list_selector(ctx, "head")
+
+    @list.command(name="body")
+    async def list_body(self, ctx):
+        await self.list_selector(ctx, "body")
+
+    @list.command(name="back")
+    async def list_back(self, ctx):
+        await self.list_selector(ctx, "back")
+
+    async def list_selector(self, ctx, item_type):
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        max_page = getattr(self.bot.data, item_type).page
+        embed = discord.Embed(title=self.bot.text.list_base_title[user_lang], color=0xffce9e)
+        embed.description = self.bot.text.list_description[user_lang] + self.get_list(item_type, 1)
+        embed.set_footer(text=self.bot.text.showing_page_1[user_lang].format(max_page))
+        msg = await ctx.send(embed=embed)
+        if max_page == 1:
+            return
+        selector_emoji = [self.bot.data.emoji.left, self.bot.data.emoji.right]
+        self.bot.loop.create_task(self.list_selector_emoji(msg, selector_emoji))
+        page = 1
+        while True:
+            # TODO: タイムアウト実装
+            react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == ctx.author )
+            try:  # 簡便のためユーザーのリアクションを削除
+                await msg.remove_reaction(react, user)
+            except:
+                pass
+            if str(react.emoji) == self.bot.data.emoji.right:
+                if page == max_page:
+                    page = 1
+                else:
+                    page += 1
+            elif str(react.emoji) == self.bot.data.emoji.left:
+                if page == 1:
+                    page = max_page
+                else:
+                    page -= 1
+            embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[user_lang], color=0xffce9e)
+            embed.description = self.bot.text.list_description[user_lang] + self.get_list(item_type, page)
+            embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page, max_page))
+            await msg.edit(embed=embed)
+
+    async def list_selector_emoji(self, msg, emoji_list):
+        for emoji in emoji_list:
+            await msg.add_reaction(emoji)
+
 
 
 def setup(bot):
