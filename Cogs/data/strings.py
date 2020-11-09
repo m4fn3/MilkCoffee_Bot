@@ -61,7 +61,7 @@ class Strings:
     saved_work = ["保存したよ! 名称: '{}'", "Saved! Name: '{}'", "저장 했어! 이름: '{}'", "¡Guardado!. Nombre: '{}'"]
     page_number_between = ["ページ数は1~{}で指定してね!", "Specify the number of pages from 1 to {}!", "페이지 수는 1 ~ {} 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a {}!"]
     page_number_integer_between = ["ページ数は整数で1~{}で指定してね!", "Specify the number of pages as an integer from 1 to {}!", "페이지 수는 정수 1 ~ {} 중에서 지정주세요!", "¡Especifique el número de páginas como un número entero de 1 a {}!"]
-    my_title = ["保存した作品集 ({} / 4 ページ)", "Saved work collection ({} / 4 pages)", "저장된 작품집 ({} / 4 페이지)", "Colección de trabajos guardados ({} / 4 páginas)"]
+    my_title = ["保存した作品集 ({} / {} ページ)", "Saved work collection ({} / {} pages)", "저장된 작품집 ({} / {} 페이지)", "Colección de trabajos guardados ({} / {} páginas)"]
     my_description = ["左の数字が保存番号、その横の名前が保存名称だよ!。その下の英数字6,7桁の文字列が装飾コードだよ!", "The number on the left is the save number, and the name next to it is the save name! The 6 or 7 alphanumeric character string below it is the decoration code!", "왼쪽의 숫자가 저장 명칭이야! 그 아래 숫자 6,7 자리는 코스튬 코드이야!",
                       "El número de la izquierda es el número de guardado, y el nombre al lado es el nombre de guardado. ¡La cadena de 6 o 7 dígitos debajo es el código de decoración!"
                       ]

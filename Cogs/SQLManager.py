@@ -74,6 +74,15 @@ class SQLManager:
         """作業中の装飾データを設定"""
         await self.con.execute("UPDATE user_data SET canvas = $1 WHERE id = $2", code, user_id)
 
-    async def get_save_count(self, user_id: int) -> int:
-        """保存された作品の数を取得"""
+    async def get_save_work(self, user_id: int) -> list:
+        """保存された作品のデータを取得"""
+        res = await self.con.fetchrow("SELECT save FROM user_data WHERE id = $1", user_id)
+        if res is None or res["save"] is None:
+            return []
+        else:
+            return json.loads(res["save"])
+
+    async def update_save_work(self, user_id: int, new_data: list) -> None:
+        """保存された作品のデータを更新"""
+        await self.con.execute("UPDATE user_data SET save = $1 WHERE id = $2", json.dumps(new_data), user_id)
 

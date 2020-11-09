@@ -17,6 +17,8 @@ class MilkCoffee(commands.Bot):
         self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
 
+        self.db_ready = False
+
         # データベース接続
         self.db = SQLManager(db_url, self.loop)
         self.cache_users = set()  # 登録済みユーザーのリスト
@@ -37,12 +39,13 @@ class MilkCoffee(commands.Bot):
         if not self.db.is_connected():  # データベースに接続しているか確認
             await self.db.connect()  # データベースに接続
             self.cache_users = self.cache_users.union(set(await self.db.get_registered_users()))
+            self.db_ready = True
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
     async def on_message(self, message):
         """メッセージ送信時"""
-        if not self.is_ready():
+        if not (self.is_ready() and self.db_ready):
             return
         elif message.channel.id in self.static_data.GM_update_channel:  # 更新通知チャンネルの場合
             notify_cog = self.get_cog("Notify")

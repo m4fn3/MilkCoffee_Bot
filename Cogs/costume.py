@@ -62,11 +62,6 @@ class Costume(commands.Cog):
         image.save(imgByteArr, format=image.format)
         return imgByteArr.getvalue()
 
-    def save_canvas_data(self, user_id, data: str) -> None:
-        # TODO: db
-        """ canvasのデータを保存 """
-        self.bot.database[str(user_id)]["costume"]["canvas"] = data
-
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""
         item_count = getattr(self.bot.data, item_type).max
@@ -161,41 +156,29 @@ class Costume(commands.Cog):
         except:
             print(traceback2.format_exc())
 
-    @commands.command(usage="show (保存番号|保存名称)^show (save number | save name)^show (저장 번호 | 저장 명칭)^show (guardar número | guardar nombre)", brief="現在の装飾を表示できるよ!^Show the current decoration!^현재의 장식을 표시 할 수 있어!^¡Puede mostrar la decoración actual!", description="現在の装飾を表示できるよ!保存番号を指定したら、保存した作品の中から番号にあった作品を表示してあげる!^Show the current decoration! After specifying the save number, the works that match the number will be displayed from the saved works!^현재의 장식을 표시 할  수있어! 저장 번호를 지정한 후 저장 한 작품 중에서 번호에 있던 작품을 보여주지!^¡Puede mostrar la decoración actual! Después de especificar el número de guardado, las obras que coincidan con el número se mostrarán de las obras guardadas.", help="`{0}show` ... 現在の装飾を表示`\n{0}show 1` ... 1番目に保存された装飾を表示\n`{0}show Untitled1` ... Untitled1という名前で保存された装飾を表示^`{0}show` ... Show current decoration`\n{0}show 1` ... Show the first saved decoration\n`{0}show Untitled 1` ... Show decorations saved as Untitled 1^`{0}show` ... 현재의 장식을 표시`\n{0}show 1` ... 첫번째로 저장된 장식을 표시\n`{0}show 제목 1` ... 제목 1로 저장 된 장식을 표시^`{0}show` ... Mostrar decoración actual`\n{0}show 1` ... Mostrar la primera decoración guardada\n`{0}show Untitled 1` ... Muestra las decoraciones guardadas con el nombre Untitled 1")
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
     async def show(self, ctx) -> None:
-        """
-        保存番号または保存名称から保存された画像または、作業中の画像を表示
-        Args:
-            ctx: Context
-        Returns:
-            None
-        """
+        """保存番号または保存名称から画像を生成"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        listed = ctx.message.content.split(" ", 1)
-        item_code: str
-        if len(listed) == 1:
-            item_code = await self.bot.db.get_canvas(ctx.author.id)
+        args = ctx.message.content.split(" ", 1)  # 名称に空白が含まれることを苦慮して,1回のみ区切る
+        code: str
+        if len(args) == 1:  # 引数がない場合,作業場の画像を表示
+            code = await self.bot.db.get_canvas(ctx.author.id)
         else:
-            index = listed[1]
-            item_index: int
-            if index.isdigit() and 1 <= int(index) <= 20:
-                item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
-                if 0 <= int(index) <= item_count:
-                    item_index = int(index) - 1
-                else:
-                    return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(index))
-            elif index.isdigit():
-                return await error_embed(ctx, self.bot.text.specify_between_1_20[user_lang])
-            else:
-                used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
-                if index in used_name_list:
-                    item_index = used_name_list.index(index)
-                else:
+            cond = args[1]  # 条件を取得 (名前はまたは番号)
+            save_data = await self.bot.db.get_save_work(ctx.author.id)
+            if cond.isdigit():  # 数字->インデックスの場合
+                if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
+                    code = save_data[int(cond)]["code"]
+                else:  # 番号にあった作品がない場合
+                    return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(int(cond)))
+            else:  # 名前の場合
+                filtered_data = [d["code"] for d in save_data if d["name"] == cond]
+                if filtered_data:  # 名前にあった作品が見つかった場合
+                    code = filtered_data[0]
+                else:  # 名前にあった作品がない場合
                     return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-            item_code = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
-        items = code_to_list(item_code)
-        await self.make_image(ctx, *items)
+        await self.make_image(ctx, *(code_to_list(code)))
 
     @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
@@ -208,133 +191,117 @@ class Costume(commands.Cog):
         num_back = random.randint(self.bot.data.back.min, self.bot.data.back.max)
         await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
 
-    @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
+    @commands.command(aliases=["list", "mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:
-        """ 保存した作品を表示 """
+        """保存済みの作品リストを表示"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        listed = ctx.message.content.split()
-        page_length = 4
-        page: int
-        if len(listed) == 1:
-            page = 1
-        elif listed[1].isdigit() and 1 <= int(listed[1]) <= 4:
-            page = int(listed[1])
-        elif listed[1].isdigit():
-            return await error_embed(ctx, self.bot.text.page_number_between[user_lang].format(page_length))
-        else:
-            return await error_embed(ctx, self.bot.text.page_number_integer_between[user_lang].format(page_length))
-        item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
-        embed = discord.Embed(title=self.bot.text.my_title[user_lang].format(page))
-        embed.description = self.bot.text.my_description[user_lang]
-        for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
-            if index > item_count:
-                break
-            item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
-            item_list = code_to_list(item_id)
-            getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))
-            text = f"{item_id}  {getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e'+str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e'+str(item_list[2]))} {getattr(self.bot.data.head.emoji, 'e'+str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e'+str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e'+str(item_list[5]))}"
-            embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
-        message = await ctx.send(embed=embed)
-        await message.add_reaction("◀️")
-        await message.add_reaction("▶️")
+        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        total_pages = len(save_data) // 5 + 1  # 必要なページ数を取得
+        current_page = 1
+        msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
+        if total_pages == 1:
+            return  # 1ページのみの場合ページは不要なので終了
+        await self.my_add_emoji(msg)
         while True:
-            code, new_page = await self.page_reaction_mover(message, ctx.author, 4, page)
-            if code == 0:
+            try:  # リアクション待機
+                react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.right, self.bot.data.emoji.left])
+            except asyncio.TimeoutError:
+                try:
+                    await msg.clear_reactions()
+                except:
+                    pass
+                return
+            if str(react.emoji) == self.bot.data.emoji.right:
+                if current_page == total_pages:
+                    current_page = 1
+                else:
+                    current_page += 1
+            elif str(react.emoji) == self.bot.data.emoji.left:
+                if current_page == 1:
+                    current_page = total_pages
+                else:
+                    current_page -= 1
+            await msg.edit(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
+
+    def my_embed(self, lang, save, current, total) -> discord.Embed:
+        embed = discord.Embed(title=self.bot.text.my_title[lang].format(current, total))
+        desc = ""
+        for index in range(current * 5 - 5, current * 5 - 1):  # 0~4, 5~9 ...と代入
+            if index >= len(save):  # 保存数以上の場合終了
                 break
-            page = new_page
-            embed = discord.Embed(title=self.bot.text.my_title[user_lang].format(page))
-            embed.description = self.bot.text.my_description[user_lang]
-            for index in range(page * 5 - 4, page * 5 + 1):  # 1-5 6-10 11-15 16-20
-                if index > item_count:
-                    break
-                item_id = self.bot.database[str(ctx.author.id)]["costume"]["save"][index - 1]["data"]
-                item_list = code_to_list(item_id)
-                text = f"{item_id}  {getattr(self.bot.data.base.emoji, 'e'+str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e'+str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e'+str(item_list[2]))} {getattr(self.bot.data.head.emoji, 'e'+str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e'+str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e'+str(item_list[5]))}"
-                embed.add_field(name=f"{index} {self.bot.database[str(ctx.author.id)]['costume']['save'][index - 1]['name']}", value=text, inline=False)
-            await message.edit(embed=embed)
+            item_list = code_to_list(save[index]["code"])
+            desc += f"`{str(index+1).ljust(3)}:` **{save[index]['name']}**\n" \
+                    f"`{str(save[index]['code']).rjust(10)}` {getattr(self.bot.data.base.emoji, 'e' + str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e' + str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e' + str(item_list[2]))} " \
+                    f"{getattr(self.bot.data.head.emoji, 'e' + str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e' + str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e' + str(item_list[5]))}\n"
+        embed.description = desc
+        return embed
 
-    @commands.command(aliases=["remove", "del", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
-    async def delete(self, ctx, *, index) -> None:
-        """ 保存した画像を削除 """
+    async def my_add_emoji(self, msg):
+        await asyncio.gather(
+            msg.add_reaction(self.bot.data.emoji.right),
+            msg.add_reaction(self.bot.data.emoji.left)
+        )
+
+    @commands.command(aliases=["del", "remove", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
+    async def delete(self, ctx, *, cond) -> None:
+        """保存済みの作品を削除"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        if index.isdigit() and 1 <= int(index) <= 20:
-            item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
-            if 0 <= int(index) <= item_count:
-                old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(int(index) - 1)
-                await success_embed(ctx, self.bot.text.deleted_work[user_lang].format(index, old_data["name"]))
-            else:
-                await error_embed(ctx, self.bot.text.not_found_with_number[user_lang].format(index))
-        elif index.isdigit():
-            await error_embed(ctx, self.bot.text.specify_between_1_20[user_lang])
-        else:
-            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
-            if index in used_name_list:
-                item_index = used_name_list.index(index)
-                old_data = self.bot.database[str(ctx.author.id)]["costume"]["save"].pop(item_index)
-                await success_embed(ctx, self.bot.text.deleted_work[user_lang].format(item_index + 1, old_data["name"]))
-
-            else:
-                await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
+        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        index: int
+        if cond.isdigit():  # 数字->インデックスの場合
+            if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
+                index = int(cond) - 1
+            else:  # 番号にあった作品がない場合
+                return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(int(cond)))
+        else:  # 名前の場合
+            filtered_data = [save_data.index(d) for d in save_data if d["name"] == cond]
+            if filtered_data:  # 名前にあった作品が見つかった場合
+                index = filtered_data[0]
+            else:  # 名前にあった作品がない場合
+                return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
+        rm_work = save_data.pop(index)
+        await self.bot.db.update_save_work(ctx.author.id, save_data)
+        await success_embed(ctx, self.bot.text.deleted_work[user_lang].format(index + 1, rm_work["name"]))
 
     @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, brief=cmd_data.load.brief)
-    async def load(self, ctx, *, index: str) -> None:
-        """ 保存された作品を作業場に読み込む """
+    async def load(self, ctx, *, cond) -> None:
+        """保存済み作品を読み込み"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        item_index: int
-        if index.isdigit() and 1 <= int(index) <= 20:
-            item_count = len(self.bot.database[str(ctx.author.id)]["costume"]["save"])
-            if 0 <= int(index) <= item_count:
-                item_index = int(index) - 1
-            else:
-                return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(index))
-        elif index.isdigit():
-            return await error_embed(ctx, self.bot.text.specify_between_1_20[user_lang])
-        else:
-            used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
-            if index in used_name_list:
-                item_index = used_name_list.index(index)
-            else:
+        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        load_data: dict
+        if cond.isdigit():  # 数字->インデックスの場合
+            if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
+                load_data = save_data[int(cond) - 1]
+            else:  # 番号にあった作品がない場合
+                return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(int(cond)))
+        else:  # 名前の場合
+            filtered_data = [d for d in save_data if d["name"] == cond]
+            if filtered_data:  # 名前にあった作品が見つかった場合
+                load_data = filtered_data[0]
+            else:  # 名前にあった作品がない場合
                 return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-        self.bot.database[str(ctx.author.id)]["costume"]["canvas"] = self.bot.database[str(ctx.author.id)]["costume"]["save"][item_index]["data"]
-        await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(item_index + 1, self.bot.database[str(ctx.author.id)]['costume']['save'][item_index]['name']))
+        await self.bot.db.set_canvas(ctx.author.id, load_data["code"])
+        await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(save_data.index(load_data) + 1, load_data["name"]))
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
-    async def save(self, ctx) -> None:
-        """
-        現在の装飾を保存
-        Args:
-            ctx: Context
-        Returns:
-            None
-        """
+    async def save(self, ctx, *, cond) -> None:
+        """作品を保存"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        name: str
-        listed = ctx.message.content.split(" ", 1)
-        if len(self.bot.database[str(ctx.author.id)]["costume"]["save"]) == 20:
-            return await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
-        used_name_list = [d.get("name") for d in self.bot.database[str(ctx.author.id)]["costume"]["save"]]
-        if len(listed) == 1:
-            count = 1
-            while True:
-                if f"Untitled{count}" not in used_name_list:
-                    name = f"Untitled{count}"
-                    break
-                count += 1
-        else:
-            if listed[1].isdigit():
-                return await error_embed(ctx, self.bot.text.int_only_name_not_allowed[user_lang])
-            elif listed[1] in used_name_list:
-                return await error_embed(ctx, self.bot.text.name_already_used[user_lang])
-            elif len(listed[1]) < 1 or 20 < len(listed[1]):
-                return await error_embed(ctx, self.bot.text.name_length_between_1_20[user_lang])
-            name = listed[1]
-        self.bot.database[str(ctx.author.id)]["costume"]["save"].append(
-            {
-                "name": name,
-                "data": self.bot.database[str(ctx.author.id)]["costume"]["canvas"]
-            }
-        )
-        await success_embed(ctx, self.bot.text.saved_work[user_lang].format(name))
+        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        used_names = [data["name"] for data in save_data]  # 使用済みの名前のリストを取得
+        index: int
+        if cond in used_names:  # 使用済みの場合
+            return await error_embed(ctx, self.bot.text.name_already_used[user_lang])
+        elif cond.isdigit():  # 数字のみの場合
+            return await error_embed(ctx, self.bot.text.int_only_name_not_allowed[user_lang])
+        elif not (1 <= len(cond) <= 20):  # 1~20文字を超過している場合
+            return await error_embed(ctx, self.bot.text.name_length_between_1_20[user_lang])
+        save_data.append({
+                "name": cond,
+                "code": await self.bot.db.get_canvas(ctx.author.id)
+        })
+        await self.bot.db.update_save_work(ctx.author.id, save_data)
+        await success_embed(ctx, self.bot.text.saved_work[user_lang].format(cond))
 
     @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
     async def set(self, ctx, *, code) -> None:
@@ -346,8 +313,8 @@ class Costume(commands.Cog):
         elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
                 (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
                 (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
+            await self.bot.db.set_canvas(ctx.author.id, code)
             await self.make_image(ctx, *item)
-            # TODO: db にコードを保存: code
         else:
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
