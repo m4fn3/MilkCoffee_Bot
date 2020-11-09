@@ -154,12 +154,12 @@ class Menu:
                     if page == max_page:
                         page = 1
                     else:
-                        page = page + 1
+                        page += 1
                 elif str(reaction.emoji) == self.bot.data.emoji.left:
                     if page == 1:
                         page = max_page
                     else:
-                        page = page - 1
+                        page -= 1
                 embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[self.lang], color=0xffce9e)
                 embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, page)
                 embed.set_footer(text=self.bot.text.showing_page[self.lang].format(page, max_page))
@@ -465,13 +465,13 @@ class Menu:
         base = Image.open(f"./Assets/base/{base_id}.png")
         character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
         weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
-        head = Image.open(f"./Assets/head/{head_id}.png")
-        body = Image.open(f"./Assets/body/{body_id}.png")
-        back = Image.open(f"./Assets/back/{back_id}.png")
+        head_img = Image.open(f"./Assets/head/{head_id}.png")
+        body_img = Image.open(f"./Assets/body/{body_id}.png")
+        back_img = Image.open(f"./Assets/back/{back_id}.png")
         base.paste(character, (0, 0), character)
-        base.paste(head, (0, 0), head)
-        base.paste(body, (0, 0), body)
-        base.paste(back, (0, 0), back)
+        base.paste(head, (0, 0), head_img)
+        base.paste(body, (0, 0), body_img)
+        base.paste(back, (0, 0), back_img)
         base.paste(weapon, (0, 0), weapon)
         imgByteArr = io.BytesIO()
         base.save(imgByteArr, format=base.format)

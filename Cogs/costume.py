@@ -7,7 +7,6 @@ import re
 from typing import Any
 
 import discord
-import traceback2
 from PIL import Image
 from discord.ext import commands
 
@@ -117,20 +116,17 @@ class Costume(commands.Cog):
 
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
-        try:
-            if ctx.author.id in self.menu_users:
-                return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
-            elif ctx.channel.id in self.menu_channels:
-                return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
-            self.menu_users.add(ctx.author.id)
-            self.menu_channels.add(ctx.channel.id)
-            user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-            menu = Menu(ctx, self.bot, user_lang)
-            await menu.run()
-            self.menu_users.remove(ctx.author.id)
-            self.menu_channels.remove(ctx.channel.id)
-        except:
-            print(traceback2.format_exc())
+        if ctx.author.id in self.menu_users:
+            return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
+        elif ctx.channel.id in self.menu_channels:
+            return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
+        self.menu_users.add(ctx.author.id)
+        self.menu_channels.add(ctx.channel.id)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        menu = Menu(ctx, self.bot, user_lang)
+        await menu.run()
+        self.menu_users.remove(ctx.author.id)
+        self.menu_channels.remove(ctx.channel.id)
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
     async def show(self, ctx) -> None:
