@@ -340,8 +340,15 @@ class Costume(commands.Cog):
         self.bot.loop.create_task(self.list_selector_emoji(msg, selector_emoji))
         page = 1
         while True:
-            # TODO: タイムアウト実装
-            react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == ctx.author )
+            try:
+                react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == ctx.author )
+            except asyncio.TimeoutError:
+                try:
+                    await msg.clear_reactions()
+                except:
+                    pass
+                finally:
+                    return
             try:  # 簡便のためユーザーのリアクションを削除
                 await msg.remove_reaction(react, user)
             except:
