@@ -1,22 +1,21 @@
+import asyncio
 import difflib
 import io
+import math
 import random
 import re
 from typing import Any
 
-import asyncio
 import discord
 import traceback2
 from PIL import Image
 from discord.ext import commands
 
-from .utils.item_parser import *
-
 from .data.command_data import CmdData
 from .menu import Menu
 from .milkcoffee import MilkCoffee
+from .utils.item_parser import *
 from .utils.messenger import error_embed, success_embed
-from .utils.multilingual import *
 
 cmd_data = CmdData()
 
@@ -80,6 +79,7 @@ class Costume(commands.Cog):
             await self.bot.on_new_user(ctx)
 
     async def cog_command_error(self, ctx, error):
+        """エラー発生時"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if isinstance(error, commands.MissingRequiredArgument):
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
@@ -115,29 +115,6 @@ class Costume(commands.Cog):
         embed.description = desc
         await ctx.send(embed=embed, file=discord.File(fp=io.BytesIO(base), filename=f"{code}.png"))
 
-    async def page_reaction_mover(self, message, author: int, max_page: int, now_page: int) -> (int, Any):
-        """ リアクションページ移動処理 """
-        new_page: int
-        try:
-            reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == message.id and u == author and str(r.emoji) in ["◀️", "▶️"])
-            if str(reaction.emoji) == "▶️":
-                if now_page == max_page:
-                    new_page = 1
-                else:
-                    new_page = now_page + 1
-            elif str(reaction.emoji) == "◀️":
-                if now_page == 1:
-                    new_page = max_page
-                else:
-                    new_page = now_page - 1
-            else:
-                new_page = now_page
-            return 1, new_page
-        except asyncio.TimeoutError:
-            await message.remove_reaction("◀️", self.bot.user)
-            await message.remove_reaction("▶️", self.bot.user)
-            return 0, None
-
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
         try:
@@ -147,9 +124,8 @@ class Costume(commands.Cog):
                 return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
             self.menu_users.add(ctx.author.id)
             self.menu_channels.add(ctx.channel.id)
-            code = "41ihuiq3m"  # TODO: ユーザーの作業場の装飾コードで初期化 - db
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-            menu = Menu(ctx, self.bot, user_lang, code)
+            menu = Menu(ctx, self.bot, user_lang)
             await menu.run()
             self.menu_users.remove(ctx.author.id)
             self.menu_channels.remove(ctx.channel.id)
@@ -191,12 +167,12 @@ class Costume(commands.Cog):
         num_back = random.randint(self.bot.data.back.min, self.bot.data.back.max)
         await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
 
-    @commands.command(aliases=["list", "mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
+    @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     async def my(self, ctx) -> None:
         """保存済みの作品リストを表示"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         save_data = await self.bot.db.get_save_work(ctx.author.id)
-        total_pages = len(save_data) // 5 + 1  # 必要なページ数を取得
+        total_pages = math.ceil(len(save_data) / 5)  # 必要なページ数を取得
         current_page = 1
         msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
         if total_pages == 1:
@@ -226,11 +202,11 @@ class Costume(commands.Cog):
     def my_embed(self, lang, save, current, total) -> discord.Embed:
         embed = discord.Embed(title=self.bot.text.my_title[lang].format(current, total))
         desc = ""
-        for index in range(current * 5 - 5, current * 5 - 1):  # 0~4, 5~9 ...と代入
+        for index in range(current * 5 - 5, current * 5):  # 0~4, 5~9 ...と代入
             if index >= len(save):  # 保存数以上の場合終了
                 break
             item_list = code_to_list(save[index]["code"])
-            desc += f"`{str(index+1).ljust(3)}:` **{save[index]['name']}**\n" \
+            desc += f"`{str(index + 1).ljust(3)}:` **{save[index]['name']}**\n" \
                     f"`{str(save[index]['code']).rjust(10)}` {getattr(self.bot.data.base.emoji, 'e' + str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e' + str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e' + str(item_list[2]))} " \
                     f"{getattr(self.bot.data.head.emoji, 'e' + str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e' + str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e' + str(item_list[5]))}\n"
         embed.description = desc
@@ -238,8 +214,8 @@ class Costume(commands.Cog):
 
     async def my_add_emoji(self, msg):
         await asyncio.gather(
-            msg.add_reaction(self.bot.data.emoji.right),
-            msg.add_reaction(self.bot.data.emoji.left)
+            msg.add_reaction(self.bot.data.emoji.left),
+            msg.add_reaction(self.bot.data.emoji.right)
         )
 
     @commands.command(aliases=["del", "remove", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
@@ -288,8 +264,9 @@ class Costume(commands.Cog):
         """作品を保存"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         save_data = await self.bot.db.get_save_work(ctx.author.id)
+        if len(save_data) >= 20:
+            return await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
         used_names = [data["name"] for data in save_data]  # 使用済みの名前のリストを取得
-        index: int
         if cond in used_names:  # 使用済みの場合
             return await error_embed(ctx, self.bot.text.name_already_used[user_lang])
         elif cond.isdigit():  # 数字のみの場合
@@ -297,8 +274,8 @@ class Costume(commands.Cog):
         elif not (1 <= len(cond) <= 20):  # 1~20文字を超過している場合
             return await error_embed(ctx, self.bot.text.name_length_between_1_20[user_lang])
         save_data.append({
-                "name": cond,
-                "code": await self.bot.db.get_canvas(ctx.author.id)
+            "name": cond,
+            "code": await self.bot.db.get_canvas(ctx.author.id)
         })
         await self.bot.db.update_save_work(ctx.author.id, save_data)
         await success_embed(ctx, self.bot.text.saved_work[user_lang].format(cond))

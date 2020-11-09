@@ -13,12 +13,12 @@ from .utils.messenger import error_embed, success_embed
 
 
 class Menu:
-    def __init__(self, ctx, bot, lang, code):
+    def __init__(self, ctx, bot, lang):
         self.ctx = ctx
         self.bot = bot  # type: MilkCoffee
         self.lang = lang
-        self.code = code
-        self.item = code_to_list(code)
+        self.code: str = ""
+        self.item: list = []
         self.msg: Optional[discord.Message] = None
 
     async def destroy(self):
@@ -45,6 +45,8 @@ class Menu:
         """メインメニューの作成"""
         if self.msg is not None:
             await self.msg.delete()
+        self.code = await self.bot.db.get_canvas(self.ctx.author.id)
+        self.item = code_to_list(self.code)
         embed = discord.Embed(color=0x9effce)
         desc = self.bot.data.emoji.num + " " + self.bot.text.menu_code[self.lang] + ": `" + self.code + "`\n"
         desc += self.bot.data.emoji.base + " " + self.bot.text.menu_base[self.lang] + f"{str(self.item[0]).rjust(3)}` {getattr(self.bot.data.base.emoji, 'e' + str(self.item[0]))} {getattr(self.bot.data.base.name, 'n' + str(self.item[0]))}\n"
@@ -174,8 +176,7 @@ class Menu:
                         break
                 else:
                     self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
-                    self.code = list_to_code(self.item)
-                    # TODO: db にコードを保存
+                    await self.bot.db.set_canvas(self.ctx.author.id, list_to_code(self.item))
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
@@ -222,8 +223,7 @@ class Menu:
                         break
                 else:
                     self.item[getattr(self.bot.data, result[0]).index] = int(result[1])
-                    self.code = list_to_code(self.item)
-                    # TODO: db にコードを保存
+                    await self.bot.db.set_canvas(self.ctx.author.id, list_to_code(self.item))
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
@@ -262,9 +262,7 @@ class Menu:
                 elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
                         (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
                         (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
-                    self.item = item
-                    self.code = list_to_code(item)
-                    # TODO: db にコードを保存
+                    await self.bot.db.set_canvas(self.ctx.author.id, self.code)
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
@@ -306,10 +304,11 @@ class Menu:
         msg = await self.ctx.send(embed=embed)
         config_emoji = [self.bot.data.emoji.goback]
         emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg, config_emoji))
-        # TODO: db 既に20個保存されている場合
-        # await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
-        # return 2
-        used_name_list = []  # TODO: db 保存された作品の名前のリスト
+        save_data = await self.bot.db.get_save_work(self.ctx.author.id)
+        if len(save_data) >= 20:
+            await error_embed(self.ctx, self.bot.text.save_up_to_20[self.lang])
+            return 2
+        used_names = [data["name"] for data in save_data]  # 使用済みの名前のリストを取得
         # 入力待機
         flag: int
         count = 0
@@ -328,15 +327,15 @@ class Menu:
                 break
             elif done_task.get_name() == "msg":
                 rmsg = done_task.result()
-                name = rmsg.content
+                cond = rmsg.content
                 error = False
-                if name.isdigit():
-                    await error_embed(self.ctx, self.bot.text.int_only_name_not_allowed[self.lang])
-                    error = True
-                elif name in used_name_list:
+                if cond in used_names:  # 使用済みの場合
                     await error_embed(self.ctx, self.bot.text.name_already_used[self.lang])
                     error = True
-                elif len(name) < 1 or 20 < len(name):
+                elif cond.isdigit():  # 数字のみの場合
+                    await error_embed(self.ctx, self.bot.text.int_only_name_not_allowed[self.lang])
+                    error = True
+                elif not (1 <= len(cond) <= 20):  # 1~20文字を超過している場合
                     await error_embed(self.ctx, self.bot.text.name_length_between_1_20[self.lang])
                     error = True
                 if error:
@@ -345,8 +344,12 @@ class Menu:
                         flag = 2
                         break
                 else:
-                    # TODO: db nameでcanvasのデータを保存
-                    await success_embed(self.ctx, self.bot.text.saved_work[self.lang].format(name))
+                    save_data.append({
+                        "name": cond,
+                        "code": await self.bot.db.get_canvas(self.ctx.author.id)
+                    })
+                    await self.bot.db.update_save_work(self.ctx.author.id, save_data)
+                    await success_embed(self.ctx, self.bot.text.saved_work[self.lang].format(cond))
                     flag = 2
                     break
         emoji_task.cancel()
@@ -378,37 +381,34 @@ class Menu:
                 break
             elif done_task.get_name() == "msg":
                 rmsg = done_task.result()
-                index = rmsg.content
+                cond = rmsg.content
+                save_data = await self.bot.db.get_save_work(self.ctx.author.id)
                 error = False
-                item_index = 1
-                # TODO: dbの部分はループ外で処理すると効率よいかも
-                if index.isdigit() and 1 <= int(index) <= 20:
-                    item_count = 1  # TODO db そのユーザーの保存数
-                    if 0 <= int(index) <= item_count:
-                        item_index = int(index) - 1
-                    else:
-                        await error_embed(self.ctx, self.bot.text.no_th_saved_work[self.lang].format(index))
+                load_data = {}
+                if cond.isdigit():  # 数字->インデックスの場合
+                    if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
+                        load_data = save_data[int(cond) - 1]
+                    else:  # 番号にあった作品がない場合
+                        await error_embed(self.ctx, self.bot.text.no_th_saved_work[self.lang].format(int(cond)))
                         error = True
-                elif index.isdigit():
-                    await error_embed(self.ctx, self.bot.text.specify_between_1_20[self.lang])
-                    error = True
-                else:
-                    used_name_list = [d.get("name") for d in []]  # TODO: db []の部分にユーザーの保存されたデータリスト
-                    if index in used_name_list:
-                        item_index = used_name_list.index(index)
-                    else:
+                else:  # 名前の場合
+                    filtered_data = [d for d in save_data if d["name"] == cond]
+                    if filtered_data:  # 名前にあった作品が見つかった場合
+                        load_data = filtered_data[0]
+                    else:  # 名前にあった作品がない場合
                         await error_embed(self.ctx, self.bot.text.not_found_with_name[self.lang])
                         error = True
-                if error:
+                if error:  # エラーの場合
                     count += 1
                     if count == 3:
                         flag = 2
                         break
                 else:
-                    # TODO: db 作業場データにitem_index番目に保存済みのデータを読み込む
-                    await success_embed(self.ctx, self.bot.text.loaded_work[self.lang].format(item_index + 1, "読み込んだ作品の名前"))  # TODO: db 作品名
+                    await self.bot.db.set_canvas(self.ctx.author.id, load_data["code"])
+                    await success_embed(self.ctx, self.bot.text.loaded_work[self.lang].format(save_data.index(load_data) + 1, load_data["name"]))
                     flag = 2
                     break
+
         emoji_task.cancel()
         await msg.delete()
         return flag
