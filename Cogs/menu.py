@@ -256,22 +256,22 @@ class Menu:
                 break
             elif done_task.get_name() == "msg":
                 rmsg = done_task.result()
-                item = code_to_list(rmsg.content.lower())
+                cond = rmsg.content.lower()
+                item = code_to_list(cond)
                 if item is None:
                     await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
                 elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
                         (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
                         (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
-                    await self.bot.db.set_canvas(self.ctx.author.id, self.code)
+                    await self.bot.db.set_canvas(self.ctx.author.id, cond)
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
-                else:
-                    count += 1
-                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
-                    if count == 3:
-                        flag = 2
-                        break
+                count += 1
+                await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
+                if count == 3:
+                    flag = 2
+                    break
         emoji_task.cancel()
         await msg.delete()
         return flag
@@ -469,9 +469,9 @@ class Menu:
         body_img = Image.open(f"./Assets/body/{body_id}.png")
         back_img = Image.open(f"./Assets/back/{back_id}.png")
         base.paste(character, (0, 0), character)
-        base.paste(head, (0, 0), head_img)
-        base.paste(body, (0, 0), body_img)
-        base.paste(back, (0, 0), back_img)
+        base.paste(head_img, (0, 0), head_img)
+        base.paste(body_img, (0, 0), body_img)
+        base.paste(back_img, (0, 0), back_img)
         base.paste(weapon, (0, 0), weapon)
         imgByteArr = io.BytesIO()
         base.save(imgByteArr, format=base.format)
