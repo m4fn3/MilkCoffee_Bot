@@ -173,6 +173,8 @@ class Costume(commands.Cog):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         save_data = await self.bot.db.get_save_work(ctx.author.id)
         total_pages = math.ceil(len(save_data) / 5)  # 必要なページ数を取得
+        if total_pages == 0:
+            return await error_embed(ctx, self.bot.text.no_any_saved_work[user_lang])
         current_page = 1
         msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
         if total_pages == 1:
@@ -295,7 +297,7 @@ class Costume(commands.Cog):
         else:
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
-    @commands.group()
+    @commands.group(hidden=True)
     async def list(self, ctx):
         if ctx.invoked_subcommand is None:
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -363,7 +365,46 @@ class Costume(commands.Cog):
         for emoji in emoji_list:
             await msg.add_reaction(emoji)
 
+    @commands.group(hidden=True)
+    async def add(self, ctx):
+        if ctx.invoked_subcommand is None:
+            user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+            await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX, "add"))
 
+    @add.command(name="base")
+    async def add_base(self, ctx, *, cond):
+        await self.add_selector(ctx, "base", cond)
+
+    @add.command(name="character")
+    async def add_character(self, ctx, *, cond):
+        await self.add_selector(ctx, "character", cond)
+
+    @add.command(name="weapon")
+    async def add_weapon(self, ctx, *, cond):
+        await self.add_selector(ctx, "weapon", cond)
+
+    @add.command(name="head")
+    async def add_head(self, ctx, *, cond):
+        await self.add_selector(ctx, "head", cond)
+
+    @add.command(name="body")
+    async def add_body(self, ctx, *, cond):
+        await self.add_selector(ctx, "body", cond)
+
+    @add.command(name="back")
+    async def add_back(self, ctx, *, cond):
+        await self.add_selector(ctx, "back", cond)
+
+    async def add_selector(self, ctx, item_type, cond):
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        code, result = self.find_item(cond, index=True, item_type=item_type)
+        if code == 0:  # アイテムが見つかりませんでした
+            await error_embed(ctx, result[user_lang])
+        else:
+            item = code_to_list(await self.bot.db.get_canvas(ctx.author.id))
+            item[getattr(self.bot.data, result[0]).index] = int(result[1])
+            await self.bot.db.set_canvas(ctx.author.id, list_to_code(item))
+            await self.make_image(ctx, *item)
 
 def setup(bot):
     bot.add_cog(Costume(bot))

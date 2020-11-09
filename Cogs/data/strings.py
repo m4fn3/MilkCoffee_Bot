@@ -69,6 +69,7 @@ class Strings:
                       ]
     deleted_work = ["{}番目の{}を削除したよ!", "The {} th {} has been deleted!", "{} 번째 {}를 삭제 했어!", "¡El {} th {} ha sido eliminado!"]
     not_found_with_number = ["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"]
+    no_any_saved_work = ["まだ保存された作品はありません", "You haven't saved yet", "당신은 아직 저장하지 않습니다", "Aún no has guardado"]
     # add
     this_item_found = ["このアイテムが見つかったよ!: {} {}", "This data was found!: {} {}", "이 항목을 발견 했어!: {} {}", "¡Este elemento fue encontrado!: {} {}"]
     showing_page_1 = ["1 / {} ページを表示中", "current page 1 / {} ", "1 / {} 페이를보기", "1 / {} Página de visualización"]
