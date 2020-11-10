@@ -7,7 +7,6 @@ from discord.ext import commands
 from .data.command_data import CmdData
 from .milkcoffee import MilkCoffee
 from .utils.messenger import error_embed, success_embed
-from .utils.multilingual import *
 
 cmd_data = CmdData()
 
@@ -113,11 +112,11 @@ class Notify(commands.Cog):
                 reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.twitter, self.bot.data.emoji.facebook, self.bot.data.emoji.youtube])
                 res = None
                 if str(reaction.emoji) == self.bot.data.emoji.twitter:
-                    res = await self.setup_notify(ctx, "twitter", notify, user_lang, msg)
+                    res = await self.setup_notify(ctx, "twitter", notify, user_lang)
                 elif str(reaction.emoji) == self.bot.data.emoji.facebook:
-                    res = await self.setup_notify(ctx, facebook, notify, user_lang, msg)
+                    res = await self.setup_notify(ctx, facebook, notify, user_lang)
                 elif str(reaction.emoji) == self.bot.data.emoji.youtube:
-                    res = await self.setup_notify(ctx, "youtube", notify, user_lang, msg)
+                    res = await self.setup_notify(ctx, "youtube", notify, user_lang)
                 if res is None:
                     break
                 notify = res
@@ -135,7 +134,7 @@ class Notify(commands.Cog):
         else:
             await self.bot.db.update_notify_data(ctx.guild.id, notify)
 
-    async def setup_notify(self, ctx, notify_type, notify, user_lang, msg):
+    async def setup_notify(self, ctx, notify_type, notify, user_lang):
         try:
             embed = discord.Embed(title=self.bot.text.notice_select_channel[user_lang])
             embed.description = self.bot.text.notice_select_desc[user_lang].format(ctx.channel.mention)
