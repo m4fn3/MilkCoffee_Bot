@@ -104,3 +104,8 @@ class Strings:
     # ad
     tell_you_after_10_min = ["10分後にまたお知らせするね!", "I'll let you know in 10 minutes!", "10 분 후에 다시 알려주세요!", "¡Te lo haré saber en 10 minutos!"]
     passed_10_min = ["{}さん!\n10分経ったよ!", "{}\n10 minutes have passed!", "{} 님! \n10분 후 요!", "{}\n ¡Han pasado 10 minutos!"]
+    # NOTE: help.py
+    help_error_title = ["ヘルプ表示のエラー", "Error displaying help", "도움말 표시 오류", "Ayuda mostrando error"]
+    help_command_not_found = ["`{}` というコマンドは見つかりませんでした。コマンド名を再確認してください", "Couldn't find the command `{}`. Double check the command name!", "`{}`명령을 찾을 수 없습니다. 명령 이름을 다시 확인하십시오!", "No pude encontrar el comando {}. ¡Verifique el nombre del comando!"]
+    help_subcommand_not_found = ["`{1}` に `{0}` というサブコマンドは存在しません。`{2}help {1}` で使い方を確認できます", "The subcommand `{0}` is not registered in `{1}`. Please check the usage with `{2}help {1}`!", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"]
+    help_no_subcommand = ["`{0}` にサブコマンドは存在しません。`{1}help {0}` で使い方を確認できます", "No subcommands are registered in `{0}`. Please check the usage with `{1}help {0}`!", "`{0}`에 등록 된 하위 명령이 없습니다.`{1}help {0}`로 사용법을 확인하세요!", "No hay subcomandos registrados en `{0}`.¡Compruebe el uso con la `{1}help {0}`!"]

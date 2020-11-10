@@ -3,12 +3,9 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from .utils.multilingual import *
-
 
 class Help(commands.HelpCommand):
     def __init__(self):
-        print("help init")
         super().__init__()
         self.no_category = "Help"
         self.command_attrs["description"] = "コマンド一覧を表示します"
@@ -62,7 +59,7 @@ class Help(commands.HelpCommand):
                         page -= 1
                 elif str(reaction.emoji) == self.context.bot.data.emoji.help:  # 記号説明ページ
                     embed = discord.Embed(title=self.context.bot.text.help_how_title[user_lang], color=0x9f563a)
-                    embed.description = self.footer_message[user_lang].format(self.context.bot.PREFIX) + "\n" + self.description_message[user_lang].format(self.context.bot.static_data.server) + "\n"
+                    embed.description = self.footer_message[user_lang].format(self.context.bot.PREFIX) + "\n\n" + self.description_message[user_lang].format(self.context.bot.static_data.server) + "\n"
                     embed.description += self.context.bot.text.help_main[user_lang]
                     await message.edit(embed=embed)
                     continue
@@ -177,20 +174,18 @@ class Help(commands.HelpCommand):
         if self.context.author.id not in self.context.bot.cache_users:  # 未登録ユーザーの場合
             await self.context.bot.on_new_user(self.context)
         user_lang = await self.context.bot.db.get_lang(self.context.author.id, self.context.guild.region)
-        embed = discord.Embed(title=["ヘルプ表示のエラー", "Error displaying help", "도움말 표시 오류", "Ayuda mostrando error"][user_lang], description=error, color=0xff0000)
+        embed = discord.Embed(title=self.context.bot.text.help_error_title[user_lang], color=discord.Colour.red())
+        embed.description = error[user_lang]
         embed.set_footer(text=self.footer_message[user_lang].format(self.context.bot.PREFIX))
         await self.get_destination().send(embed=embed)
 
     def command_not_found(self, string):
-        user_lang = await self.context.bot.db.get_lang(self.context.author.id, self.context.guild.region)
-        return ["`{}` というコマンドは見つかりませんでした。コマンド名を再確認してください", "Couldn't find the command `{}`. Double check the command name!", "`{}`명령을 찾을 수 없습니다. 명령 이름을 다시 확인하십시오!", "No pude encontrar el comando {}. ¡Verifique el nombre del comando!"][user_lang].format(string)
+        return [error.format(string) for error in self.context.bot.text.help_command_not_found]
 
     def subcommand_not_found(self, cmd, string):
-        user_lang = await self.context.bot.db.get_lang(self.context.author.id, self.context.guild.region)
         if isinstance(cmd, commands.Group) and len(cmd.all_commands) > 0:
-            return ["`{1}` に `{0}` というサブコマンドは存在しません。`{2}help {1}` で使い方を確認できます", "The subcommand `{0}` is not registered in `{1}`. Please check the usage with `{2}help {1}`!", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"][user_lang].format(string, cmd.qualified_name,
-                                                                                                                                                                                                                                                                                                                                                              self.context.bot.PREFIX)
-        return ["`{0}` にサブコマンドは存在しません。`{1}help {0}` で使い方を確認できます", "No subcommands are registered in `{0}`. Please check the usage with `{1}help {0}`!", "`{0}`에 등록 된 하위 명령이 없습니다.`{1}help {0}`로 사용법을 확인하세요!", "No hay subcomandos registrados en `{0}`.¡Compruebe el uso con la `{1}help {0}`!"][user_lang].format(cmd.qualified_name, self.context.bot.PREFIX)
+            return [error.format(string, cmd.qualified_name, self.context.bot.PREFIX) for error in self.context.bot.text.help_subcommand_not_found]
+        return [error.format(cmd.qualified_name, self.context.bot.PREFIX) for error in self.context.bot.text.help_no_subcommand]
 
     def filter_hidden_commands(self, command_list, sort=False):
         """コマンドリストの中から隠し属性を持つコマンドを削除"""

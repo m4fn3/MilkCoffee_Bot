@@ -341,7 +341,7 @@ class Costume(commands.Cog):
         page = 1
         while True:
             try:
-                react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == ctx.author )
+                react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: str(r.emoji) in selector_emoji and r.message.id == msg.id and u == ctx.author)
             except asyncio.TimeoutError:
                 try:
                     await msg.clear_reactions()
@@ -412,6 +412,7 @@ class Costume(commands.Cog):
             item[getattr(self.bot.data, result[0]).index] = int(result[1])
             await self.bot.db.set_canvas(ctx.author.id, list_to_code(item))
             await self.make_image(ctx, *item)
+
 
 def setup(bot):
     bot.add_cog(Costume(bot))
