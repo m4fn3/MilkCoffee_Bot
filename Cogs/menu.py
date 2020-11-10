@@ -267,8 +267,9 @@ class Menu:
                     # 新版で画像を生成してメニューを新しく表示
                     flag = 2
                     break
+                else:
+                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
                 count += 1
-                await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
                 if count == 3:
                     flag = 2
                     break

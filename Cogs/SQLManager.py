@@ -1,8 +1,9 @@
 import json
-from typing import Optional, List, Set
-from .utils.multilingual import get_lg
+from typing import Optional, List
 
 import asyncpg
+
+from .utils.multilingual import get_lg
 
 
 class SQLManager:
@@ -86,3 +87,24 @@ class SQLManager:
         """保存された作品のデータを更新"""
         await self.con.execute("UPDATE user_data SET save = $1 WHERE id = $2", json.dumps(new_data), user_id)
 
+    async def get_notify_data(self, guild_id: int) -> Optional[dict]:
+        """通知設定データを取得"""
+        res = await self.con.fetchrow("SELECT * FROM notify WHERE id = $1", guild_id)
+        if res is None:
+            return None
+        else:
+            return dict(res)
+
+    async def update_notify_data(self, guild_id: int, new_data: dict) -> None:
+        """通知設定データを更新"""
+        await self.con.execute(
+            "UPDATE notify SET twitter = $1, facebook_jp = $2, facebook_en = $3, facebook_kr = $4, facebook_es = $5, youtube = $6 WHERE id = $7"
+            , new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"], guild_id
+        )
+
+    async def set_notify_data(self, guild_id: int, new_data: dict) -> None:
+        """通知設定データを追加"""
+        await self.con.execute(
+            "INSERT INTO notify values($1, $2, $3, $4, $5, $6, $7)"
+            , guild_id, new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"]
+        )

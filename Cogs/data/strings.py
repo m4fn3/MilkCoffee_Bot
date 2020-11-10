@@ -101,6 +101,13 @@ class Strings:
                           'Si presiona la reacción a continuación, se configurará si no está configurado en el canal de notificación, y se cancelará si ya se configuró.']
     subscribe_update = ["{0} を{1}更新通知用チャンネルに設定したよ!", "I've set {0} as the {1} update notification channel!", "{0}을 (를) {1} 업데이트 알림 채널로 설정했습니다!", "Configuré {0} como el {1} ​​canal de notificación de actualizaciones."]
     unsubscribe_update = ["{0} の{1}更新通知設定を解除したよ!", "I canceled the {1} update notification setting for {0}!", "{0}에 대한 {1} 업데이트 알림 설정을 취소했습니다!", "canceló la {1} configuración de notificación de actualización para {0}!"]
+    notice_perm_error = ["この操作を行うにはコマンド使用者に**メッセージの管理**権限が必要です", "To use this command, you need **manage_messages** permission", "이 명령어를 사용하려면 **메시지 관리** 권한이 필요합니다.", "Para usar este comando, necesita permiso **administrar mensajes**"]
+    notice_select_channel = ["通知先チャンネル選択", "Select notification channel", "알림 채널 선택", "Seleccionar canal de notificación"]
+    notice_select_desc = ["通知を設定したいチャンネルを指定してください\n例: {}\noff と入力すると通知を無効化します.", "Enter the channel that you want to receive notification\nFor example: {}\nType off to disable notification", "알림을 수신 할 채널을 입력하십시오. \n 예 : {} \n 알림을 비활성화하려면 off를 입력하십시오.", "Ingrese el canal en el que desea recibir la notificación \nPor ejemplo: {} \nEscriba off para deshabilitar la notificación"]
+    notice_channel_not_found = ["チャンネルが見つかりませんでした.", "Channel not found", "채널을 찾을 수 없습니다.", "Canal no encontrado"]
+    notice_off = ["{}の通知をオフにしました", "Turned off {} notifications", "{}의 알림을 해제했습니다", "Desactivó {} notificaciones"]
+    notice_perm_send = ["BOTに{}内での**メッセージの送信**権限がありません", "BOT missing **send_message** permission in {}", "{}에서 **문자 보내** 권한이 BOT 누락 됨", "BOT no tiene permiso **enviar mensaje** en {}"]
+    notice_success = ["{0}の通知先を{1}に設定しました", "Successfully set the notification of {0} at {1}", "{1}에 {0}의 알림을 설정했습니다.", "Estableció correctamente la notificación de {0} en {1}"]
     # ad
     tell_you_after_10_min = ["10分後にまたお知らせするね!", "I'll let you know in 10 minutes!", "10 분 후에 다시 알려주세요!", "¡Te lo haré saber en 10 minutos!"]
     passed_10_min = ["{}さん!\n10分経ったよ!", "{}\n10 minutes have passed!", "{} 님! \n10분 후 요!", "{}\n ¡Han pasado 10 minutos!"]

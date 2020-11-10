@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 
 import discord
 from discord.ext import commands
@@ -91,48 +92,85 @@ class Notify(commands.Cog):
     @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description, brief=cmd_data.notice.brief)
     async def notice(self, ctx):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        language_text = "en"
-        if user_lang == (LanguageCode.JAPANESE.value - 1):
-            language_text = "jp"
-        elif user_lang == (LanguageCode.KOREAN.value - 1):
-            language_text = "kr"
-        elif user_lang == (LanguageCode.SPANISH.value - 1):
-            language_text = "es"
-        cmd = ctx.message.content.split()
-        if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
-            target_channel = ctx.message.channel_mentions[0]
-        else:
-            target_channel = ctx.channel
-        if len(cmd) == 1 or (len(cmd) == 2 and cmd[1] not in ["twitter", "facebook", "youtube"]):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await error_embed(ctx, self.bot.text.notice_perm_error[user_lang])
+        facebook = "facebook_" + ("jp" if user_lang == 0 else "en" if user_lang == 1 else "kr" if user_lang == 2 else "es")
+        notify = await self.bot.db.get_notify_data(ctx.guild.id)  # 通知設定情報を取得
+        is_new_guild = False  # 未登録のサーバーであるか
+        if notify is None:  # 未登録の場合
+            notify = {"twitter": None, "facebook_jp": None, "facebook_en": None, "facebook_kr": None, "facebook_es": None, "youtube": None}
+            is_new_guild = True
+        # 選択画面の作成
+        while True:
             embed = discord.Embed(title=self.bot.text.notice_title[user_lang])
-            embed.description = f"""
-{self.bot.text.notice_description[user_lang]}
-{self.bot.data.emoji.twitter} ... Twitter
-{self.bot.data.emoji.facebook} ... FaceBook
-{self.bot.data.emoji.youtube} ... YouTube
-"""
+            embed.description = self.bot.text.notice_description[user_lang] + "\n"
+            embed.description += f"{self.bot.data.emoji.twitter} `Twitter  :` {'<#' + str(notify['twitter']) + '>' if notify['twitter'] else ':x:'}\n"
+            embed.description += f"{self.bot.data.emoji.facebook} `FaceBook :` {'<#' + str(notify[facebook]) + '>' if notify[facebook] else ':x:'}\n"
+            embed.description += f"{self.bot.data.emoji.youtube} `YouTube  :` {'<#' + str(notify['youtube']) + '>' if notify['youtube'] else ':x:'}\n"
             msg = await ctx.send(embed=embed)
-            await msg.add_reaction(self.bot.data.emoji.twitter)
-            await msg.add_reaction(self.bot.data.emoji.facebook)
-            await msg.add_reaction(self.bot.data.emoji.youtube)
-
-            def check(r, u):
-                return r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.twitter, self.bot.data.emoji.facebook, self.bot.data.emoji.youtube]
-
-            while True:
-                try:
-                    reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=check)
-                    if str(reaction.emoji) == self.bot.data.emoji.twitter:
-                        await self.setup_message(ctx, target_channel, "twitter")
-                    elif str(reaction.emoji) == self.bot.data.emoji.facebook:
-                        await self.setup_message(ctx, target_channel, "facebook_" + language_text)
-                    elif str(reaction.emoji) == self.bot.data.emoji.youtube:
-                        await self.setup_message(ctx, target_channel, "youtube")
-                except asyncio.TimeoutError:
-                    await msg.remove_reaction(self.bot.data.emoji.twitter, self.bot.user)
-                    await msg.remove_reaction(self.bot.data.emoji.facebook, self.bot.user)
-                    await msg.remove_reaction(self.bot.data.emoji.youtube, self.bot.user)
+            emoji_task = self.bot.loop.create_task(self.add_notice_emoji(msg))
+            try:
+                reaction, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.twitter, self.bot.data.emoji.facebook, self.bot.data.emoji.youtube])
+                res = None
+                if str(reaction.emoji) == self.bot.data.emoji.twitter:
+                    res = await self.setup_notify(ctx, "twitter", notify, user_lang, msg)
+                elif str(reaction.emoji) == self.bot.data.emoji.facebook:
+                    res = await self.setup_notify(ctx, facebook, notify, user_lang, msg)
+                elif str(reaction.emoji) == self.bot.data.emoji.youtube:
+                    res = await self.setup_notify(ctx, "youtube", notify, user_lang, msg)
+                if res is None:
                     break
+                notify = res
+                emoji_task.cancel()
+                await msg.delete()
+            except asyncio.TimeoutError:
+                try:
+                    await msg.clear_reactions()
+                except:
+                    pass
+                break
+        # データ保存
+        if is_new_guild:
+            await self.bot.db.set_notify_data(ctx.guild.id, notify)
+        else:
+            await self.bot.db.update_notify_data(ctx.guild.id, notify)
+
+    async def setup_notify(self, ctx, notify_type, notify, user_lang, msg):
+        try:
+            embed = discord.Embed(title=self.bot.text.notice_select_channel[user_lang])
+            embed.description = self.bot.text.notice_select_desc[user_lang].format(ctx.channel.mention)
+            desc_msg = await ctx.send(embed=embed)
+            message = await self.bot.wait_for("message", timeout=30, check=lambda m: m.author == ctx.message.author and m.channel == ctx.channel)
+            target_channel: Optional[discord.TextChannel]
+            if message.content.lower() == "off":
+                target_channel = None
+            elif message.channel_mentions:
+                target_channel = message.channel_mentions[0]
+            elif ch := discord.utils.get(ctx.guild.channels, name=message.content):
+                target_channel = ch
+            else:
+                await error_embed(ctx, self.bot.text.notice_channel_not_found[user_lang])
+                return notify
+            if target_channel is None:
+                notify[notify_type] = None
+                await success_embed(ctx, self.bot.text.notice_off[user_lang].format(notify_type))
+            else:
+                if not target_channel.permissions_for(ctx.guild.me).send_messages:
+                    await error_embed(ctx, self.bot.text.notice_perm_send[user_lang].format(target_channel.mention))
+                    return notify
+                notify[notify_type] = target_channel.id if target_channel else None
+                await success_embed(ctx, self.bot.text.notice_success[user_lang].format(notify_type, target_channel.mention))
+            await desc_msg.delete()
+            return notify
+        except asyncio.TimeoutError:
+            return None
+
+    async def add_notice_emoji(self, msg):
+        await asyncio.gather(
+            msg.add_reaction(self.bot.data.emoji.twitter),
+            msg.add_reaction(self.bot.data.emoji.facebook),
+            msg.add_reaction(self.bot.data.emoji.youtube)
+        )
 
     async def setup_message(self, ctx, target_channel, update_type):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
