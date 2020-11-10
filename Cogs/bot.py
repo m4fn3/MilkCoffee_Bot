@@ -33,6 +33,7 @@ class Bot(commands.Cog):
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
     @commands.command(aliases=["inv", "about", "info"], usage=cmd_data.invite.usage, description=cmd_data.invite.description, brief=cmd_data.invite.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def invite(self, ctx):
         """招待リンクを送信"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -46,6 +47,7 @@ class Bot(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["lang"], usage=cmd_data.language.usage, description=cmd_data.language.description, brief=cmd_data.language.brief)
+    @commands.cooldown(2, 10, commands.BucketType.user)
     async def language(self, ctx):
         """言語を設定"""
         text = ctx.message.content.split()
@@ -70,6 +72,7 @@ class Bot(commands.Cog):
                 await success_embed(ctx, ":flag_es: Establecer idioma en __Español__!")
             else:
                 await error_embed(ctx, self.bot.text.lang_not_found[self.bot.db.get_lang(ctx.author.id, ctx.guild.region)])
+                ctx.command.reset_cooldown()
 
     async def language_selector(self, ctx):
         """言語選択画面"""

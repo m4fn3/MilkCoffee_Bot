@@ -117,22 +117,20 @@ class Costume(commands.Cog):
 
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx):
-        try:
-            if ctx.author.id in self.menu_users:
-                return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
-            elif ctx.channel.id in self.menu_channels:
-                return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
-            self.menu_users.add(ctx.author.id)
-            self.menu_channels.add(ctx.channel.id)
-            user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-            menu = Menu(ctx, self.bot, user_lang)
-            await menu.run()
-            self.menu_users.remove(ctx.author.id)
-            self.menu_channels.remove(ctx.channel.id)
-        except:
-            print(traceback2.format_exc())
+        if ctx.author.id in self.menu_users:
+            return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
+        elif ctx.channel.id in self.menu_channels:
+            return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
+        self.menu_users.add(ctx.author.id)
+        self.menu_channels.add(ctx.channel.id)
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        menu = Menu(ctx, self.bot, user_lang)
+        await menu.run()
+        self.menu_users.remove(ctx.author.id)
+        self.menu_channels.remove(ctx.channel.id)
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def show(self, ctx) -> None:
         """保存番号または保存名称から画像を生成"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -168,6 +166,7 @@ class Costume(commands.Cog):
         await self.make_image(ctx, num_base, num_character, num_weapon, num_head, num_body, num_back)
 
     @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def my(self, ctx) -> None:
         """保存済みの作品リストを表示"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -221,6 +220,7 @@ class Costume(commands.Cog):
         )
 
     @commands.command(aliases=["del", "remove", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def delete(self, ctx, *, cond) -> None:
         """保存済みの作品を削除"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -242,6 +242,7 @@ class Costume(commands.Cog):
         await success_embed(ctx, self.bot.text.deleted_work[user_lang].format(index + 1, rm_work["name"]))
 
     @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, brief=cmd_data.load.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def load(self, ctx, *, cond) -> None:
         """保存済み作品を読み込み"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -262,6 +263,7 @@ class Costume(commands.Cog):
         await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(save_data.index(load_data) + 1, load_data["name"]))
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def save(self, ctx, *, cond) -> None:
         """作品を保存"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -283,6 +285,7 @@ class Costume(commands.Cog):
         await success_embed(ctx, self.bot.text.saved_work[user_lang].format(cond))
 
     @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def set(self, ctx, *, code) -> None:
         """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -298,6 +301,7 @@ class Costume(commands.Cog):
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
     @commands.group(hidden=True)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def list(self, ctx):
         if ctx.invoked_subcommand is None:
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
@@ -373,6 +377,7 @@ class Costume(commands.Cog):
             await msg.add_reaction(emoji)
 
     @commands.group(hidden=True)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def add(self, ctx):
         if ctx.invoked_subcommand is None:
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)

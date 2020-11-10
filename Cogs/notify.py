@@ -75,8 +75,12 @@ class Notify(commands.Cog):
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
     @commands.command(usage=cmd_data.follow.usage, description=cmd_data.follow.description, brief=cmd_data.follow.brief)
+    @commands.cooldown(1, 3, commands.BucketType.channel)
     async def follow(self, ctx):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        if not ctx.author.guild_permissions.manage_webhooks:
+            ctx.command.reset_cooldown()
+            return await error_embed(ctx, self.bot.text.follow_perm_error[user_lang])
         channel_id: int
         if ctx.message.channel_mentions:  # チャンネルのメンションがあった場合
             target_channel = ctx.message.channel_mentions[0]
