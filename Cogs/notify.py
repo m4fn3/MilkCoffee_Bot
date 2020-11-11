@@ -24,49 +24,42 @@ class Notify(commands.Cog):
 
     async def on_GM_update(self, message: discord.Message) -> None:
         """運営からの通知が届いた場合"""
-        # TODO: 新形式に合わせてメッセージ転送処理
         if message.channel.id == self.bot.static_data.GM_update_channel[0]:  # Twitter
             for channel_id in await self.bot.db.get_notify_channels("twitter"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("twitter")
                 except:
-                    await self.bot.db.remove_notify_channel("twitter", channel_id)
+                    pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[1]:  # FaceBookJP
             for channel_id in await self.bot.db.get_notify_channels("facebook_jp"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("facebook_jp")
                 except:
-                    await self.bot.db.remove_notify_channel("facebook_jp", channel_id)
+                    pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[2]:  # FaceBookEN
             for channel_id in await self.bot.db.get_notify_channels("facebook_en"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("facebook_en")
                 except:
-                    await self.bot.db.remove_notify_channel("facebook_en", channel_id)
+                    pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[3]:  # FaceBookKR
             for channel_id in await self.bot.db.get_notify_channels("facebook_kr"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("facebook_kr")
                 except:
-                    await self.bot.db.remove_notify_channel("facebook_kr", channel_id)
+                    pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[4]:  # FaceBookES
             for channel_id in await self.bot.db.get_notify_channels("facebook_es"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("facebook_es")
                 except:
-                    await self.bot.db.remove_notify_channel("facebook_es", channel_id)
+                    pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[5]:  # YouTube
             for channel_id in await self.bot.db.get_notify_channels("youtube"):
                 try:
-                    self.bot.get_channel(channel_id)
-                    await self.bot.get_channel(channel_id).send(message.content)
+                    await self.bot.get_channel(channel_id).send("youtube")
                 except:
-                    await self.bot.db.remove_notify_channel("youtube", channel_id)
+                    pass
 
     async def cog_command_error(self, ctx: commands.Context, error) -> None:
         """エラー発生時"""

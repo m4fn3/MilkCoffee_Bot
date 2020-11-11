@@ -24,6 +24,7 @@ class SQLManager:
         else:
             return True
 
+    # User
     async def get_registered_users(self) -> List[int]:
         """登録済みユーザーのリストを取得"""
         res = await self.con.fetchrow("SELECT array_agg(id) FROM user_data")
@@ -47,22 +48,7 @@ class SQLManager:
         """言語を変更"""
         await self.con.execute("UPDATE user_data SET language = $1 WHERE id = $2", lang, user_id)
 
-    async def get_notify_channels(self, notify_type: str) -> List[int]:
-        """通知に登録されているチャンネルのリストを取得"""
-        res = await self.con.fetchrow("SELECT guild FROM notify where type = $1", notify_type)
-        if res is None or res["guild"] is None:
-            return []
-        else:
-            return res["guild"]
-
-    async def add_notify_channel(self, notify_type: str, channel_id: int) -> None:
-        """通知に新規登録"""
-        await self.con.execute("UPDATE notify SET guild = array_append(guild, $1) where type = $2", channel_id, notify_type)
-
-    async def remove_notify_channel(self, notify_type: str, channel_id: int) -> None:
-        """通知登録を解除"""
-        await self.con.execute("UPDATE notify SET guild = array_remove(guild, $1) where type = $2", channel_id, notify_type)
-
+    # Costume
     async def get_canvas(self, user_id: int) -> str:
         """作業中の装飾データを取得"""
         res = await self.con.fetchrow("SELECT canvas FROM user_data WHERE id = $1", user_id)
@@ -87,6 +73,7 @@ class SQLManager:
         """保存された作品のデータを更新"""
         await self.con.execute("UPDATE user_data SET save = $1 WHERE id = $2", json.dumps(new_data), user_id)
 
+    # Notify
     async def get_notify_data(self, guild_id: int) -> Optional[dict]:
         """通知設定データを取得"""
         res = await self.con.fetchrow("SELECT * FROM notify WHERE id = $1", guild_id)
@@ -98,13 +85,21 @@ class SQLManager:
     async def update_notify_data(self, guild_id: int, new_data: dict) -> None:
         """通知設定データを更新"""
         await self.con.execute(
-            "UPDATE notify SET twitter = $1, facebook_jp = $2, facebook_en = $3, facebook_kr = $4, facebook_es = $5, youtube = $6 WHERE id = $7"
-            , new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"], guild_id
+            "UPDATE notify SET twitter = $1, facebook_jp = $2, facebook_en = $3, facebook_kr = $4, facebook_es = $5, youtube = $6 WHERE id = $7",
+            new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"], guild_id
         )
 
     async def set_notify_data(self, guild_id: int, new_data: dict) -> None:
         """通知設定データを追加"""
         await self.con.execute(
-            "INSERT INTO notify values($1, $2, $3, $4, $5, $6, $7)"
-            , guild_id, new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"]
+            "INSERT INTO notify values($1, $2, $3, $4, $5, $6, $7)",
+            guild_id, new_data["twitter"], new_data["facebook_jp"], new_data["facebook_en"], new_data["facebook_kr"], new_data["facebook_es"], new_data["youtube"]
         )
+
+    async def get_notify_channels(self, notify_type: str) -> List[int]:
+        """通知チャンネルのリストを取得"""
+        res = await self.con.execute("SELECT array_agg($1) FROM notify", notify_type)
+        if res is None or res["array_agg"] is None:
+            return []
+        else:
+            return [ch for ch in res["array_agg"] if ch is not None]
