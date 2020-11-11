@@ -7,7 +7,6 @@ import re
 from typing import Any
 
 import discord
-import traceback2
 from PIL import Image
 from discord.ext import commands
 

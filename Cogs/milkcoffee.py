@@ -12,12 +12,12 @@ from .utils.messenger import normal_embed
 
 class MilkCoffee(commands.Bot):
 
-    def __init__(self, main_prefix, db_url, command_prefix, help_command, status, activity, intents):
+    def __init__(self, main_prefix, db_url, command_prefix, help_command, status, activity, intents) -> None:
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
         self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
 
-        self.db_ready = False
+        self.db_ready = False  # データベース準備フラグ
 
         # データベース接続
         self.db = SQLManager(db_url, self.loop)
@@ -31,21 +31,21 @@ class MilkCoffee(commands.Bot):
         for cog in self.bot_cogs:  # Cogの読み込み
             self.load_extension(cog)
 
-        self.uptime = time.time()
+        self.uptime = time.time()  # 起動時間の記録
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         """キャッシュ準備完了"""
         print(f"Logged in to [{self.user}]")
         if not self.db.is_connected():  # データベースに接続しているか確認
             await self.db.connect()  # データベースに接続
             self.cache_users = self.cache_users.union(set(await self.db.get_registered_users()))
-            self.db_ready = True
+            self.db_ready = True  # データベース接続完了フラグ
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message) -> None:
         """メッセージ送信時"""
-        if not (self.is_ready() and self.db_ready):
+        if not (self.is_ready() and self.db_ready):  # 準備が完了していない場合
             return
         elif message.channel.id in self.static_data.GM_update_channel:  # 更新通知チャンネルの場合
             notify_cog = self.get_cog("Notify")
@@ -57,7 +57,7 @@ class MilkCoffee(commands.Bot):
         else:  # コマンドとして処理
             await self.process_commands(message)
 
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild: discord.Guild) -> None:
         """サーバー参加時"""
         # サーバー参加ログを送信
         embed = discord.Embed(title=f"{guild.name} に参加しました。", color=0x00ffff)
@@ -65,9 +65,10 @@ class MilkCoffee(commands.Bot):
         # embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.static_data.log_channel).send(embed=embed)
+        # ステータスを更新
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
-    async def on_guild_remove(self, guild):
+    async def on_guild_remove(self, guild: discord.Guild) -> None:
         """サーバー退出時"""
         # サーバー退出ログを送信
         embed = discord.Embed(title=f"{guild.name} を退出しました。", color=0xff1493)
@@ -75,15 +76,16 @@ class MilkCoffee(commands.Bot):
         # embed.description = f"サーバーID: {guild.id}\nメンバー数: {len(guild.members)}\nサーバー管理者: {str(guild.owner)} ({guild.owner.id})"
         embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.static_data.log_channel).send(embed=embed)
+        # ステータスを更新
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
-    async def on_command(self, ctx):
+    async def on_command(self, ctx: commands.Context) -> None:
         """コマンド実行時"""
         pass  # await self.get_channel(self.datas["command_log_channel"]).send(f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.guild.name} ({ctx.guild.id}) | {ctx.channel.name} ({ctx.channel.id})")
         # TODO: テストのため一時無効化 - コマンドログ
 
-    async def on_new_user(self, ctx):
+    async def on_new_user(self, ctx: commands.Context) -> None:
         """新規ユーザーが使用した時"""
-        self.cache_users.add(ctx.author.id)
-        await self.db.register_new_user(ctx.author.id)
+        self.cache_users.add(ctx.author.id)  # キャッシュに追加
+        await self.db.register_new_user(ctx.author.id)  # ユーザー登録
         await self.get_cog("Bot").language_selector(ctx)  # 言語選択
