@@ -123,5 +123,5 @@ class Bot(commands.Cog):
         )
 
 
-def setup(bot):
+def setup(bot: MilkCoffee) -> None:
     bot.add_cog(Bot(bot))

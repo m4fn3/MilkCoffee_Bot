@@ -418,5 +418,5 @@ class Costume(commands.Cog):
             await self.make_image(ctx, *item)
 
 
-def setup(bot):
+def setup(bot: MilkCoffee) -> None:
     bot.add_cog(Costume(bot))
