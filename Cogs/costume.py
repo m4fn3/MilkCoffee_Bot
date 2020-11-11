@@ -22,26 +22,26 @@ cmd_data = CmdData()
 class Costume(commands.Cog):
     """装飾シミュレータを操作できます^Operate the costume simulator^코의상 시뮬레이터 작동^Operar el simulador de vestuario"""
 
-    def __init__(self, bot):
-        self.bot = bot  # type: MilkCoffee
+    def __init__(self, bot: MilkCoffee) -> None:
+        self.bot = bot
         self.menu_channels = set()
         self.menu_users = set()
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """アイテムを名前または番号で検索"""
         type_list: list
-        if index and item_name.isdigit():
+        if index and item_name.isdigit():  # 番号指定の場合
             if getattr(self.bot.data, item_type).min <= int(item_name) <= getattr(self.bot.data, item_type).max:
                 return 1, [item_type, item_name]
-            else:
+            else:  # 間違った番号の場合
                 return 0, self.bot.text.wrong_item_index
-        elif index:
+        elif index:  # 対象の種類名
             type_list = [item_type]
-        else:
+        else:  # 全アイテム(全種類)対象の場合
             type_list = [type_name for type_name in self.bot.data.regex]
         match_per = -1
         item_info = []
-        for i in type_list:
+        for i in type_list:  # それぞれのアイテム名との一致率を計算
             for j in self.bot.data.regex[i]:
                 match_obj = re.search(self.bot.data.regex[i][j], item_name, re.IGNORECASE)
                 if match_obj is not None:
@@ -49,9 +49,9 @@ class Costume(commands.Cog):
                     if diff_per > match_per:
                         match_per = diff_per
                         item_info = [i, j]
-        if match_per == -1:
+        if match_per == -1:  # マッチしなかった場合
             return 0, self.bot.text.item_not_found
-        else:
+        else:  # 見つかった場合
             return 1, item_info
 
     def convert_to_bytes(self, image: Image) -> bytes:
@@ -62,46 +62,50 @@ class Costume(commands.Cog):
 
     def get_list(self, item_type: str, page: int) -> str:
         """指定した種類のアイテムリストテキストを生成"""
-        item_count = getattr(self.bot.data, item_type).max
+        item_count = getattr(self.bot.data, item_type).max  # そのアイテムの最大数
         text = ""
         start_index = getattr(self.bot.data, item_type).min + 10 * (page - 1)
-        for item_index in range(start_index, start_index + 10):
-            if item_index > item_count:
+        for item_index in range(start_index, start_index + 10):  # その範囲での番号リストを取得
+            if item_index > item_count:  # 範囲を超えた場合
                 break
             emoji = getattr(getattr(self.bot.data, item_type).emoji, "e" + str(item_index))
             name = getattr(getattr(self.bot.data, item_type).name, "n" + str(item_index))
             text += f"`{str(item_index).ljust(3)}:` {emoji} {name}\n"
         return text
 
-    async def cog_before_invoke(self, ctx):
+    async def cog_before_invoke(self, ctx: commands.Context) -> None:
+        """コマンド実行の前処理"""
         if ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
-            await self.bot.on_new_user(ctx)
+            await self.bot.on_new_user(ctx)  # 新規登録
 
-    async def cog_command_error(self, ctx, error):
+    async def cog_command_error(self, ctx: commands.Context, error) -> None:
         """エラー発生時"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        if isinstance(error, commands.MissingRequiredArgument):
+        if isinstance(error, commands.MissingRequiredArgument):  # 引数不足
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
-        elif isinstance(error, commands.CommandOnCooldown):
+        elif isinstance(error, commands.CommandOnCooldown):  # クールダウン
             await error_embed(ctx, self.bot.text.interval_too_fast[user_lang].format(error.retry_after))
-        else:
+        else:  # 未知のエラー
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
-    async def make_image(self, ctx, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
+    async def make_image(self, ctx: commands.Context, base_id: int, character_id: int, weapon_id: int, head_id: int, body_id: int, back_id: int) -> None:
         """ アイテム番号から画像を構築 """
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
+        # 対象の画像を取得
         base = Image.open(f"./Assets/base/{base_id}.png")
         character = Image.open(f"./Assets/character/{base_id}/{character_id}.png")
         weapon = Image.open(f"./Assets/weapon/{weapon_id}.png")
         head_img = Image.open(f"./Assets/head/{head_id}.png")
         body_img = Image.open(f"./Assets/body/{body_id}.png")
         back_img = Image.open(f"./Assets/back/{back_id}.png")
+        # 画像を結合
         base.paste(character, (0, 0), character)
         base.paste(head_img, (0, 0), head_img)
         base.paste(body_img, (0, 0), body_img)
         base.paste(back_img, (0, 0), back_img)
         base.paste(weapon, (0, 0), weapon)
         base = self.convert_to_bytes(base)
+        # 本体の作成
         embed = discord.Embed(color=0x9effce)
         code = list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])
         desc = self.bot.data.emoji.num + " " + self.bot.text.menu_code[user_lang] + ": `" + code + "`\n"
@@ -115,22 +119,23 @@ class Costume(commands.Cog):
         await ctx.send(embed=embed, file=discord.File(fp=io.BytesIO(base), filename=f"{code}.png"))
 
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
-    async def menu(self, ctx):
-        if ctx.author.id in self.menu_users:
+    async def menu(self, ctx: commands.Context) -> None:
+        """シミュレータ操作メニューを作成"""
+        if ctx.author.id in self.menu_users:  # 既に実行中のユーザーの場合
             return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
-        elif ctx.channel.id in self.menu_channels:
+        elif ctx.channel.id in self.menu_channels:  # 既に実行中のチャンネルの場合
             return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
-        self.menu_users.add(ctx.author.id)
+        self.menu_users.add(ctx.author.id)  # 実行中のリストに追加
         self.menu_channels.add(ctx.channel.id)
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        menu = Menu(ctx, self.bot, user_lang)
-        await menu.run()
-        self.menu_users.remove(ctx.author.id)
+        menu = Menu(ctx, self.bot, user_lang)  # メニュー初期化
+        await menu.run()  # メニュー開始
+        self.menu_users.remove(ctx.author.id)  # 実行中のリストから削除
         self.menu_channels.remove(ctx.channel.id)
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def show(self, ctx) -> None:
+    async def show(self, ctx: commands.Context) -> None:
         """保存番号または保存名称から画像を生成"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         args = ctx.message.content.split(" ", 1)  # 名称に空白が含まれることを苦慮して,1回のみ区切る
@@ -155,7 +160,9 @@ class Costume(commands.Cog):
 
     @commands.command(usage=cmd_data.random.usage, description=cmd_data.random.description, brief=cmd_data.random.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def random(self, ctx):
+    async def random(self, ctx: commands.Context) -> None:
+        """ランダムな装飾を表示"""
+        # ランダムな各部位の番号を生成
         num_base = random.randint(self.bot.data.base.min, self.bot.data.base.max)
         num_character = random.randint(self.bot.data.character.min, self.bot.data.character.max)
         num_weapon = random.randint(self.bot.data.weapon.min, self.bot.data.weapon.max)
@@ -166,12 +173,12 @@ class Costume(commands.Cog):
 
     @commands.command(aliases=["mylist"], usage=cmd_data.my.usage, description=cmd_data.my.description, brief=cmd_data.my.brief)
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def my(self, ctx) -> None:
+    async def my(self, ctx: commands.Context) -> None:
         """保存済みの作品リストを表示"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         save_data = await self.bot.db.get_save_work(ctx.author.id)
         total_pages = math.ceil(len(save_data) / 5)  # 必要なページ数を取得
-        if total_pages == 0:
+        if total_pages == 0:  # 保存済み作品がない場合
             return await error_embed(ctx, self.bot.text.no_any_saved_work[user_lang])
         current_page = 1
         msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
@@ -181,8 +188,8 @@ class Costume(commands.Cog):
         while True:
             try:  # リアクション待機
                 react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.right, self.bot.data.emoji.left])
-            except asyncio.TimeoutError:
-                try:
+            except asyncio.TimeoutError:  # タイムアウト時
+                try:  # リアクション削除
                     await msg.clear_reactions()
                 except:
                     pass
@@ -199,7 +206,8 @@ class Costume(commands.Cog):
                     current_page -= 1
             await msg.edit(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
 
-    def my_embed(self, lang, save, current, total) -> discord.Embed:
+    def my_embed(self, lang: int, save: dict, current: int, total: int) -> discord.Embed:
+        """myでのEmbedを作成"""
         embed = discord.Embed(title=self.bot.text.my_title[lang].format(current, total))
         desc = ""
         for index in range(current * 5 - 5, current * 5):  # 0~4, 5~9 ...と代入
@@ -212,18 +220,19 @@ class Costume(commands.Cog):
         embed.description = desc
         return embed
 
-    async def my_add_emoji(self, msg):
+    async def my_add_emoji(self, msg: discord.Message):
+        """myでの絵文字追加"""
         await asyncio.gather(
             msg.add_reaction(self.bot.data.emoji.left),
             msg.add_reaction(self.bot.data.emoji.right)
         )
 
     @commands.command(aliases=["del", "remove", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
-    @commands.cooldown(1, 3, commands.BucketType.user)
-    async def delete(self, ctx, *, cond) -> None:
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def delete(self, ctx: commands.Context, *, cond: str) -> None:
         """保存済みの作品を削除"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        save_data = await self.bot.db.get_save_work(ctx.author.id)  # 保存済み作品の取得
         index: int
         if cond.isdigit():  # 数字->インデックスの場合
             if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
@@ -236,16 +245,16 @@ class Costume(commands.Cog):
                 index = filtered_data[0]
             else:  # 名前にあった作品がない場合
                 return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-        rm_work = save_data.pop(index)
-        await self.bot.db.update_save_work(ctx.author.id, save_data)
+        rm_work = save_data.pop(index)  # 対象データの削除
+        await self.bot.db.update_save_work(ctx.author.id, save_data)  # データを更新
         await success_embed(ctx, self.bot.text.deleted_work[user_lang].format(index + 1, rm_work["name"]))
 
     @commands.command(usage=cmd_data.load.usage, description=cmd_data.load.description, brief=cmd_data.load.brief)
-    @commands.cooldown(1, 3, commands.BucketType.user)
-    async def load(self, ctx, *, cond) -> None:
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def load(self, ctx: commands.Context, *, cond: str) -> None:
         """保存済み作品を読み込み"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        save_data = await self.bot.db.get_save_work(ctx.author.id)  # 保存済みデータの読み込み
         load_data: dict
         if cond.isdigit():  # 数字->インデックスの場合
             if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
@@ -258,15 +267,15 @@ class Costume(commands.Cog):
                 load_data = filtered_data[0]
             else:  # 名前にあった作品がない場合
                 return await error_embed(ctx, self.bot.text.not_found_with_name[user_lang])
-        await self.bot.db.set_canvas(ctx.author.id, load_data["code"])
+        await self.bot.db.set_canvas(ctx.author.id, load_data["code"])  # 作業場データを更新
         await success_embed(ctx, self.bot.text.loaded_work[user_lang].format(save_data.index(load_data) + 1, load_data["name"]))
 
     @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
-    @commands.cooldown(1, 3, commands.BucketType.user)
-    async def save(self, ctx, *, cond) -> None:
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def save(self, ctx: commands.Context, *, cond: str) -> None:
         """作品を保存"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        save_data = await self.bot.db.get_save_work(ctx.author.id)
+        save_data = await self.bot.db.get_save_work(ctx.author.id)  # 保存済みデータの取得
         if len(save_data) >= 20:
             return await error_embed(ctx, self.bot.text.save_up_to_20[user_lang])
         used_names = [data["name"] for data in save_data]  # 使用済みの名前のリストを取得
@@ -276,58 +285,58 @@ class Costume(commands.Cog):
             return await error_embed(ctx, self.bot.text.int_only_name_not_allowed[user_lang])
         elif not (1 <= len(cond) <= 20):  # 1~20文字を超過している場合
             return await error_embed(ctx, self.bot.text.name_length_between_1_20[user_lang])
-        save_data.append({
+        save_data.append({  # 新規データを追加
             "name": cond,
-            "code": await self.bot.db.get_canvas(ctx.author.id)
+            "code": await self.bot.db.get_canvas(ctx.author.id)  # 現在の作業場のデータを取得
         })
-        await self.bot.db.update_save_work(ctx.author.id, save_data)
+        await self.bot.db.update_save_work(ctx.author.id, save_data)  # データを保存
         await success_embed(ctx, self.bot.text.saved_work[user_lang].format(cond))
 
     @commands.command(usage=cmd_data.set.usage, description=cmd_data.set.description, help=cmd_data.set.help, brief=cmd_data.set.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def set(self, ctx, *, code) -> None:
+    async def set(self, ctx: commands.Context, *, code: str) -> None:
         """ 装飾コードまたは各装飾の番号から全種類のアイテムを一括で登録 """
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
-        item = code_to_list(code)
-        if item is None:
+        item = code_to_list(code)  # 指定されたコードをリストに変換
+        if item is None:  # 不正な装飾コードの場合
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
         elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
                 (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
                 (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
             await self.bot.db.set_canvas(ctx.author.id, code)
             await self.make_image(ctx, *item)
-        else:
+        else:  # 各装飾番号が不正な場合
             await error_embed(ctx, self.bot.text.wrong_costume_code[user_lang])
 
     @commands.group(hidden=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def list(self, ctx):
+    async def list(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
             await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX, "list"))
 
     @list.command(name="base")
-    async def list_base(self, ctx):
+    async def list_base(self, ctx: commands.Context):
         await self.list_selector(ctx, "base")
 
     @list.command(name="character")
-    async def list_character(self, ctx):
+    async def list_character(self, ctx: commands.Context):
         await self.list_selector(ctx, "character")
 
     @list.command(name="weapon")
-    async def list_weapon(self, ctx):
+    async def list_weapon(self, ctx: commands.Context):
         await self.list_selector(ctx, "weapon")
 
     @list.command(name="head")
-    async def list_head(self, ctx):
+    async def list_head(self, ctx: commands.Context):
         await self.list_selector(ctx, "head")
 
     @list.command(name="body")
-    async def list_body(self, ctx):
+    async def list_body(self, ctx: commands.Context):
         await self.list_selector(ctx, "body")
 
     @list.command(name="back")
-    async def list_back(self, ctx):
+    async def list_back(self, ctx: commands.Context):
         await self.list_selector(ctx, "back")
 
     async def list_selector(self, ctx, item_type):
@@ -377,7 +386,7 @@ class Costume(commands.Cog):
 
     @commands.group(hidden=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def add(self, ctx):
+    async def add(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
             await ctx.send(self.bot.text.missing_subcommand[user_lang].format(self.bot.PREFIX, "add"))
