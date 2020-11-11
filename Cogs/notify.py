@@ -2,6 +2,7 @@ import asyncio
 from typing import Optional
 
 import discord
+import traceback2
 from discord.ext import commands
 
 from .data.command_data import CmdData
@@ -27,38 +28,44 @@ class Notify(commands.Cog):
         if message.channel.id == self.bot.static_data.GM_update_channel[0]:  # Twitter
             for channel_id in await self.bot.db.get_notify_channels("twitter"):
                 try:
-                    await self.bot.get_channel(channel_id).send("twitter")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[1]:  # FaceBookJP
             for channel_id in await self.bot.db.get_notify_channels("facebook_jp"):
                 try:
-                    await self.bot.get_channel(channel_id).send("facebook_jp")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[2]:  # FaceBookEN
             for channel_id in await self.bot.db.get_notify_channels("facebook_en"):
                 try:
-                    await self.bot.get_channel(channel_id).send("facebook_en")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[3]:  # FaceBookKR
             for channel_id in await self.bot.db.get_notify_channels("facebook_kr"):
                 try:
-                    await self.bot.get_channel(channel_id).send("facebook_kr")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[4]:  # FaceBookES
             for channel_id in await self.bot.db.get_notify_channels("facebook_es"):
                 try:
-                    await self.bot.get_channel(channel_id).send("facebook_es")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
         elif message.channel.id == self.bot.static_data.GM_update_channel[5]:  # YouTube
             for channel_id in await self.bot.db.get_notify_channels("youtube"):
                 try:
-                    await self.bot.get_channel(channel_id).send("youtube")
+                    await self.bot.get_channel(channel_id).send(message.content)
                 except:
+                    print(traceback2.format_exc())
                     pass
 
     async def cog_command_error(self, ctx: commands.Context, error) -> None:

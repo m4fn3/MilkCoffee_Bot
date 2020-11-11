@@ -98,7 +98,7 @@ class SQLManager:
 
     async def get_notify_channels(self, notify_type: str) -> List[int]:
         """通知チャンネルのリストを取得"""
-        res = await self.con.execute("SELECT array_agg($1) FROM notify", notify_type)
+        res = await self.con.fetchrow("SELECT array_agg(%s) FROM notify" % notify_type)
         if res is None or res["array_agg"] is None:
             return []
         else:
