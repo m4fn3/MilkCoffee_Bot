@@ -119,7 +119,7 @@ class Menu:
         max_page = getattr(self.bot.data, item_type).page
         embed = discord.Embed(title=self.bot.text.list_base_title[self.lang], color=0xffce9e)
         embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, 1)
-        embed.set_footer(text=self.bot.text.showing_page_1[self.lang].format(max_page))
+        embed.set_footer(text=self.bot.text.showing_page[self.lang].format(1, max_page))
         msg = await self.ctx.send(embed=embed)
         selector_emoji = []
         if max_page == 1:

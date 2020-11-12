@@ -181,7 +181,7 @@ class Costume(commands.Cog):
         if total_pages == 0:  # 保存済み作品がない場合
             return await error_embed(ctx, self.bot.text.no_any_saved_work[user_lang])
         current_page = 1
-        msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
+        msg = await ctx.send(embed=self.my_embed(user_lang, save_data, current_page, total_pages, user_lang))
         if total_pages == 1:
             return  # 1ページのみの場合ページは不要なので終了
         await self.my_add_emoji(msg)
@@ -204,11 +204,11 @@ class Costume(commands.Cog):
                     current_page = total_pages
                 else:
                     current_page -= 1
-            await msg.edit(embed=self.my_embed(user_lang, save_data, current_page, total_pages))
+            await msg.edit(embed=self.my_embed(user_lang, save_data, current_page, total_pages, user_lang))
 
-    def my_embed(self, lang: int, save: dict, current: int, total: int) -> discord.Embed:
+    def my_embed(self, lang: int, save: dict, current: int, total: int, user_lang: int) -> discord.Embed:
         """myでのEmbedを作成"""
-        embed = discord.Embed(title=self.bot.text.my_title[lang].format(current, total))
+        embed = discord.Embed(title=self.bot.text.my_title[lang])
         desc = ""
         for index in range(current * 5 - 5, current * 5):  # 0~4, 5~9 ...と代入
             if index >= len(save):  # 保存数以上の場合終了
@@ -218,6 +218,7 @@ class Costume(commands.Cog):
                     f"`{str(save[index]['code']).rjust(10)}` {getattr(self.bot.data.base.emoji, 'e' + str(item_list[0]))} {getattr(self.bot.data.character.emoji, 'e' + str(item_list[1]))} {getattr(self.bot.data.weapon.emoji, 'e' + str(item_list[2]))} " \
                     f"{getattr(self.bot.data.head.emoji, 'e' + str(item_list[3]))} {getattr(self.bot.data.body.emoji, 'e' + str(item_list[4]))} {getattr(self.bot.data.back.emoji, 'e' + str(item_list[5]))}\n"
         embed.description = desc
+        embed.set_footer(text=self.bot.text.showing_page[user_lang].format(current, total))
         return embed
 
     async def my_add_emoji(self, msg: discord.Message):
@@ -344,7 +345,7 @@ class Costume(commands.Cog):
         max_page = getattr(self.bot.data, item_type).page
         embed = discord.Embed(title=self.bot.text.list_base_title[user_lang], color=0xffce9e)
         embed.description = self.bot.text.list_description[user_lang] + self.get_list(item_type, 1)
-        embed.set_footer(text=self.bot.text.showing_page_1[user_lang].format(max_page))
+        embed.set_footer(text=self.bot.text.showing_page[user_lang].format(1, max_page))
         msg = await ctx.send(embed=embed)
         if max_page == 1:
             return
