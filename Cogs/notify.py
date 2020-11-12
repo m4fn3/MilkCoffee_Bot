@@ -186,7 +186,8 @@ class Notify(commands.Cog):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         await success_embed(ctx, self.bot.text.tell_you_after_10_min[user_lang])
         await asyncio.sleep(10 * 60)  # 10分待機
-        await ctx.send(self.bot.text.passed_10_min[user_lang].format(ctx.author.mention))
+        embed = discord.Embed(description=self.bot.text.passed_10_min[user_lang], color=discord.Color.blue())
+        await ctx.send(ctx.author.mention, embed=embed)
 
 
 def setup(bot: MilkCoffee) -> None:
