@@ -5,16 +5,16 @@ import dataclasses
 class Strings:
     """多言語対応置換用テキスト"""
     # NOTE: common
-    your_account_banned = ["あなたのアカウントはBANされています(´;ω;｀)\nBANに対する異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます。", "Your account is banned (´; ω;`)\nIf you have an objection to BAN, please use the official server <#{}>.", "당신의 계정은 차단되어 있습니다 ( '; ω;`)\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida (´; ω;`)\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."]
-    missing_arguments = ["引数が不足しているよ!\n使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Not enough arguments! \nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"]
-    interval_too_fast = ["コマンド実行の間隔が速すぎるよ! `{:.2f}`秒後に再度使用できるよ!", "The command execution interval is too fast! You can use it again in `{:.2f}` seconds!", "명령 실행 간격이 너무 빠릅니다! `{:.2f}` 초 후에 다시 사용할 수 있습니다!", "¡El intervalo de ejecución del comando es demasiado rápido! ¡Puede volver a utilizarlo en `{:.2f}` segundos!"]
-    error_occurred = ["エラーが発生しました。管理者にお尋ねください。\n{}", "An error has occurred. Please ask the BOT administrator.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"]
-    missing_subcommand = ["サブコマンドが不足しているよ!\n`{}help {}`で使い方を確認してね!", "Missing subcommands!\n`{}help {}` to see how to use it!", "하위 명령이 부족한거야! \n`{}help {}` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{}help {}` para ver cómo se usa!"]
+    your_account_banned = ["あなたのアカウントはブロックされています.\n異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます", "Your account is blocked\nIf you have an objection, please come to <#{}> in Official Server", "당신의 계정은 차단되어 있습니다\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."]
+    missing_arguments = ["必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Missing required arguments!\nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "f 인수가 충분하지 않습니다. \n사용법 :`{0} {1}`\n 자세한 내용은`{0}help {2}", "No hay suficientes argumentos. \nUso: {0} {1} \nPara obtener más información, `{0}help {2}"]
+    interval_too_fast = ["このコマンドの使用が速すぎます!\n`{:.2f}`秒後に再度使用できます.", "You are using this command too quickly!\nTry again in `{:.2f}` seconds.", "명령 실행 간격이 너무 빠릅니다! `{:.2f}` 초 후에 다시 사용할 수 있습니다!", "¡El intervalo de ejecución del comando es demasiado rápido! ¡Puede volver a utilizarlo en `{:.2f}` segundos!"]
+    error_occurred = ["未知のエラーが発生しました.開発者にお尋ねください.\n{}", "Unknown error has occurred.Please contact to the developer.\n{}", "오류가 발생했습니다.관리자에게 문의하십시오.\n{}", "Se ha producido un error. Pregunte al administrador.\n{}"]
+    missing_subcommand = ["サブコマンドが不足しています!\n`{}help {}`で使い方を確認して下さい.", "Missing subcommand!\n`{}help {}` to know usage.", "하위 명령이 부족한거야! \n`{}help {}` 사용법을 확인 해!", "¡Faltan subcomandos! \n`{}help {}` para ver cómo se usa!"]
     # NOTE: main.py
-    prefix_of_the_bot = ["このBOTのprefixは`{}`です!\n`{}help`で詳しい使い方を確認できます。", "The prefix for this bot is `{}`! \n`{}help` for more details on how to use it.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."]
+    prefix_of_the_bot = ["MilkCoffeeのprefixは`{}`です!\n`{}help`で使い方を確認して下さい.", "The prefix for MilkCoffee is `{}`\n`{}help` to know usage.", "이 봇의 접두사는`{}`입니다! 사용 방법에 대한 자세한 내용은 \n` {} 도움말`을 참조하세요.", "¡El prefijo de este bot es `{}`! \n`{}help` para obtener más detalles sobre cómo usarlo."]
     # NOTE: help.py
-    help_how_title = ["コマンド説明の見方", "How to read the command description", "명령 설명 견해", "Cómo leer la descripción del comando"]
-    help_how_description = ['メッセージの下にあるリアクションを押してページ移動できるよ！', 'You can move the page by pressing the reaction below the message', '메시지의 반응을 눌러 페이지 이동 할 수 있어!', '¡Puede leer más acerca del comando presionando la reacción debajo del mensaje!']
+    help_how_title = ["ヘルプの見方", "How to read the help", "명령 설명 견해", "Cómo leer la descripción del comando"]
+    help_how_description = ['リアクションを使用してページ移動できます.', 'You can move the page by the reaction', '메시지의 반응을 눌러 페이지 이동 할 수 있어!', '¡Puede leer más acerca del comando presionando la reacción debajo del mensaje!']
     help_main = [
         "`[引数]　 :` __必須__の引数\n`(引数)　 :` __オプション__の引数\n`[A|B]   :` AまたはB",
         "`[argument] :` __required__ argument\n`(argument) :` __optional__ argument\n`[A|B]      :` either A or B",
@@ -30,18 +30,18 @@ class Strings:
     menu_body = ["`体装飾　　　 :", "`body     :", "`몸　　 :", "`cuerpo    :"]
     menu_back = ["`背中装飾　　 :", "`back     :", "`허리　 :", "`espalda   :"]
     menu_code = ["装飾コード", "CostumeCode", "장식 코드", "código de decoración"]
-    item_not_found = ["検索結果がありません.もう一度名前を確認してください.", "No results. Please check name again.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
-    wrong_item_index = ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Wrong data number.(The number is too small or too large)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
-    menu_find_item = ["アイテム検索", "Search data", "항목 검색", "Artículo de búsqueda"]
-    menu_find_description = ["追加したアイテムの名前を入力してね!", "Enter the data name you want to add!", "추가 할 항목 이름을 입력하세요!", "Ingrese el nombre del artículo que desea agregar!"]
-    menu_config = ["データ設定", "Data setup", "데이터 설정", "Configuración de datos"]
-    menu_config_description = ["読み込みか保存かを選択してください.\n{}: 保存\n{}: 読み込み", "Select either save or load.\n{}: save\n{}: load", "저장 또는로드를 선택하십시오.\n{}: 저장\n{}: 로드", "Seleccione guardar o cargar.\n{}: guardar\n{}: cargar"]
+    item_not_found = ["検索結果がありません.アイテム名が正しいことを確認してください.", "No results. Make sure that item name is correct.", "결과가 없습니다. 이름을 다시 확인하십시오.", "No hay resultados. Vuelva a comprobar el nombre."]
+    wrong_item_index = ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Invalid item number. (too big or too small)", "항목 번호가 잘못되었습니다. (숫자가 너무 작거나 큽니다)", "Número de artículo incorrecto (el número es demasiado pequeño o demasiado grande)"]
+    menu_find_item = ["アイテム検索", "Search item", "항목 검색", "Artículo de búsqueda"]
+    menu_find_description = ["追加するアイテムの名前を入力してください.", "Enter the item name you want to add.", "추가 할 항목 이름을 입력하세요!", "Ingrese el nombre del artículo que desea agregar!"]
+    menu_config = ["データ設定", "Data Setup", "데이터 설정", "Configuración de datos"]
+    menu_config_description = ["読み込みか保存かをリアクションで選択してください.\n{}: 保存\n{}: 読み込み", "Select either save or load by the reaction.\n{}: save\n{}: load", "저장 또는로드를 선택하십시오.\n{}: 저장\n{}: 로드", "Seleccione guardar o cargar.\n{}: guardar\n{}: cargar"]
     menu_save = ["保存", "Save", "저장", "Salvar"]
-    menu_save_description = ["保存時につける名前を入力してください.", "Enter the name you want to give.", "제공 할 이름을 입력하십시오.", "Ingrese el nombre que desea dar."]
+    menu_save_description = ["保存時につける名前を入力してください.", "Enter the save name you want to give.", "제공 할 이름을 입력하십시오.", "Ingrese el nombre que desea dar."]
     menu_load = ["読み込み", "Load", "하중", "Carga"]
-    menu_load_description = ["読み込みたい作品の名前または番号を入力してください.", "Enter the name or index that you want to load.", "로드하려는 이름 또는 색인을 입력하십시오.", "Ingrese el nombre o índice que desea cargar."]
+    menu_load_description = ["読み込みたい保存済み作品の名前または番号を入力してください.", "Enter the saved work name or index that you want to load.", "로드하려는 이름 또는 색인을 입력하십시오.", "Ingrese el nombre o índice que desea cargar."]
     menu_cc = ["装飾コードで設定", "Set the costume code", "의상 코드로 설정", "Establecer el código"]
-    menu_cc_description = ["設定したい装飾コードを入力してください", "Enter the costume code you want to set", "설정하려는 의상 코드를 입력하세요.", "Ingrese el código de vestuario que desea configurar"]
+    menu_cc_description = ["設定したい装飾コードを入力してください.", "Enter the costume code you want to set", "설정하려는 의상 코드를 입력하세요.", "Ingrese el código de vestuario que desea configurar"]
     # costume_table
     costume_table_base = ["ベース色", "base", "색상", "base"]
     costume_table_character = ["キャラクター", "character", "캐릭터", "caracteres"]
@@ -52,13 +52,15 @@ class Strings:
     costume_table_code = ["装飾コード: {}", "CostumeCode: {}", "장식 코드: {}", "código de decoración: {}"]
     wrong_costume_code = ["間違った装飾コードです.", "Invalid CostumeCode", "잘못된 장식 코드", "Inválido código de decoración"]
     # my, load, save
-    no_th_saved_work = ["{}番目に保存された作品はないよ!", "There is no {}th saved work!", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"]
-    specify_between_1_20 = ["1~20の間で指定してね!.", "Please specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."]
-    not_found_with_name = ["そのような名前の作品はないよ!", "There is no work with that name!", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"]
-    loaded_work = ["{}番目の\"{}\"を読み込みました.", "loaded {}th {}", "{} 번째 \"{}\"을 읽어 습니다.", "{}th \"{}\" cargado"]
-    save_up_to_20 = ["保存できるのは20個までだよ! 不要なものを削除してから保存してね!", "You can save up to 20! Delete unnecessary ones before saving!", "불필요한 것들은 빼고 20개까지 저장해줄거야!", "¡Puedes guardar hasta 20! ¡Elimina los innecesarios antes de guardar!"]
-    int_only_name_not_allowed = ["数字のみの名前は使用できないよ!", "You can't use numbers-only names!", "숫자를 이름으로는 사용할 수 없어!", "¡No puedes usar nombres de solo números!"]
-    name_already_used = ["この名前は既に他の作品についてるよ!.", "This name is already on other works !", "이 이름은 이미 다른 작품에 사용되었어요!", "¡Este nombre ya está en otros trabajos!"]
+    no_th_saved_work = ["{}番目に保存された作品はありません.", "No {}th saved work found.", "{} 번째로 저장된 작품은 아니야!", "¡No hay {}th trabajo guardado!"]
+    specify_between_1_20 = ["1~20の間で指定して下さい!.", "Specify between 1 and 20 !.", "1 ~ 20 사이의 값을!.", "Por favor, especifique entre 1 y 20."]
+    not_found_with_name = ["そのような名前の作品はありません.", "No saved work found with such name.", "그런 이름의 작품은 아니에요!", "¡No hay obra con tal nombre!"]
+    loaded_work = ["{}番目の\"{}\"を読み込みました.", "Successfully loaded {}th \"{}\"", "{} 번째 \"{}\"을 읽어 습니다.", "{}th \"{}\" cargado"]
+    save_up_to_20 = ["保存上限数に達しました.", "You reached to max save count.", "불필요한 것들은 빼고 20개까지 저장해줄거야!", "¡Puedes guardar hasta 20! ¡Elimina los innecesarios antes de guardar!"]
+    # TODO: 保存上限数 - 英語
+    int_only_name_not_allowed = ["数字のみの名前は使用できません!", "Numbers-only names are not allowed!", "숫자를 이름으로는 사용할 수 없어!", "¡No puedes usar nombres de solo números!"]
+    name_already_used = ["この名前は既に他の作品で使用しています.", "You already used this name on another work.", "이 이름은 이미 다른 작품에 사용되었어요!", "¡Este nombre ya está en otros trabajos!"]
+    # TODO: ここから
     name_length_between_1_20 = ["名称は1文字以上20文字以下で指定してね!", "Please specify the name with 1 to 20 characters!", "이름은 1 ~ 20자로 지정주세요!", "Por favor, especifique el nombre con 1 a 20 caracteres."]
     saved_work = ["保存したよ! 名称: '{}'", "Saved! Name: '{}'", "저장 했어! 이름: '{}'", "¡Guardado!. Nombre: '{}'"]
     page_number_between = ["ページ数は1~{}で指定してね!", "Specify the number of pages from 1 to {}!", "페이지 수는 1 ~ {} 중에서 지정주세요!", "¡Especifique el número de páginas de 1 a {}!"]

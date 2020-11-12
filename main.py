@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 PREFIX = "m!"
 PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！"]
 
-# NOTE: テスト
+# TODO: テスト
 PREFIXES += ["m?"]
 
 if __name__ == '__main__':
