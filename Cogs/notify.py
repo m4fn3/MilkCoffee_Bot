@@ -97,6 +97,7 @@ class Notify(commands.Cog):
             await error_embed(ctx, self.bot.text.missing_manage_webhook[user_lang].format(self.bot.static_data.announce_channel))
 
     @commands.command(usage=cmd_data.notice.usage, description=cmd_data.notice.description, brief=cmd_data.notice.brief)
+    @commands.cooldown(1, 30, commands.BucketType.guild)
     async def notice(self, ctx: commands.Context) -> None:
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if not ctx.author.guild_permissions.manage_messages:  # メッセージ管理権限がない場合は終了
@@ -181,6 +182,7 @@ class Notify(commands.Cog):
         )
 
     @commands.command(usage=cmd_data.ads.usage, description=cmd_data.ads.description, brief=cmd_data.ads.brief)
+    @commands.cooldown(1, 600, commands.BucketType.user)
     async def ads(self, ctx: commands.Context) -> None:
         """10分のタイマーを設定"""
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
