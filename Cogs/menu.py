@@ -117,8 +117,8 @@ class Menu:
         """選択画面"""
         # 選択画面作成
         max_page = getattr(self.bot.data, item_type).page
-        embed = discord.Embed(title=self.bot.text.list_base_title[self.lang], color=0xffce9e)
-        embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, 1)
+        embed = discord.Embed(title=getattr(self.bot.text, "list_"+item_type+"_title")[self.lang], color=0xffce9e)
+        embed.description = "**__" + self.bot.text.menu_selector_desc[self.lang] + "__**\n" + self.get_list(item_type, 1)
         embed.set_footer(text=self.bot.text.showing_page[self.lang].format(1, max_page))
         msg = await self.ctx.send(embed=embed)
         selector_emoji = []
@@ -161,7 +161,7 @@ class Menu:
                     else:
                         page -= 1
                 embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[self.lang], color=0xffce9e)
-                embed.description = self.bot.text.list_description[self.lang] + self.get_list(item_type, page)
+                embed.description = "**__" + self.bot.text.menu_selector_desc[self.lang] + "__**\n" + self.get_list(item_type, page)
                 embed.set_footer(text=self.bot.text.showing_page[self.lang].format(page, max_page))
                 await msg.edit(embed=embed)
             elif done_task.get_name() == "msg":
@@ -170,7 +170,7 @@ class Menu:
                 if code == 0:
                     count += 1
                     # アイテムが見つかりませんでした
-                    await error_embed(self.ctx, result[self.lang])
+                    await error_embed(self.ctx, result[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                     if count == 3:
                         flag = 2
                         break
@@ -217,7 +217,7 @@ class Menu:
                 if code == 0:
                     count += 1
                     # アイテムが見つかりませんでした
-                    await error_embed(self.ctx, result[self.lang])
+                    await error_embed(self.ctx, result[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                     if count == 3:
                         flag = 2
                         break
@@ -259,7 +259,7 @@ class Menu:
                 cond = rmsg.content.lower()
                 item = code_to_list(cond)
                 if item is None:
-                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
+                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                 elif (self.bot.data.base.min <= item[0] <= self.bot.data.base.max) and (self.bot.data.character.min <= item[1] <= self.bot.data.character.max) and \
                         (self.bot.data.weapon.min <= item[2] <= self.bot.data.weapon.max) and (self.bot.data.head.min <= item[3] <= self.bot.data.head.max) and \
                         (self.bot.data.body.min <= item[4] <= self.bot.data.body.max) and (self.bot.data.back.min <= item[5] <= self.bot.data.back.max):
@@ -268,7 +268,7 @@ class Menu:
                     flag = 2
                     break
                 else:
-                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang])
+                    await error_embed(self.ctx, self.bot.text.wrong_costume_code[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                 count += 1
                 if count == 3:
                     flag = 2
@@ -331,13 +331,13 @@ class Menu:
                 cond = rmsg.content
                 error = False
                 if cond in used_names:  # 使用済みの場合
-                    await error_embed(self.ctx, self.bot.text.name_already_used[self.lang])
+                    await error_embed(self.ctx, self.bot.text.name_already_used[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                     error = True
                 elif cond.isdigit():  # 数字のみの場合
-                    await error_embed(self.ctx, self.bot.text.int_only_name_not_allowed[self.lang])
+                    await error_embed(self.ctx, self.bot.text.int_only_name_not_allowed[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                     error = True
                 elif not (1 <= len(cond) <= 20):  # 1~20文字を超過している場合
-                    await error_embed(self.ctx, self.bot.text.name_length_between_1_20[self.lang])
+                    await error_embed(self.ctx, self.bot.text.name_length_between_1_20[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                     error = True
                 if error:
                     count += 1
@@ -397,7 +397,7 @@ class Menu:
                     if filtered_data:  # 名前にあった作品が見つかった場合
                         load_data = filtered_data[0]
                     else:  # 名前にあった作品がない場合
-                        await error_embed(self.ctx, self.bot.text.not_found_with_name[self.lang])
+                        await error_embed(self.ctx, self.bot.text.not_found_with_name[self.lang] + "\n" + self.bot.text.menu_try_again[self.lang])
                         error = True
                 if error:  # エラーの場合
                     count += 1

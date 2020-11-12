@@ -344,7 +344,7 @@ class Costume(commands.Cog):
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         max_page = getattr(self.bot.data, item_type).page
         embed = discord.Embed(title=self.bot.text.list_base_title[user_lang], color=0xffce9e)
-        embed.description = self.bot.text.list_description[user_lang] + self.get_list(item_type, 1)
+        embed.description = self.get_list(item_type, 1)
         embed.set_footer(text=self.bot.text.showing_page[user_lang].format(1, max_page))
         msg = await ctx.send(embed=embed)
         if max_page == 1:
@@ -377,7 +377,7 @@ class Costume(commands.Cog):
                 else:
                     page -= 1
             embed = discord.Embed(title=getattr(self.bot.text, f"list_{item_type}_title")[user_lang], color=0xffce9e)
-            embed.description = self.bot.text.list_description[user_lang] + self.get_list(item_type, page)
+            embed.description = self.get_list(item_type, page)
             embed.set_footer(text=self.bot.text.showing_page[user_lang].format(page, max_page))
             await msg.edit(embed=embed)
 

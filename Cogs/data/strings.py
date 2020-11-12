@@ -30,6 +30,7 @@ class Strings:
     menu_body = ["`体装飾　　　 :", "`body     :", "`몸　　 :", "`cuerpo    :"]
     menu_back = ["`背中装飾　　 :", "`back     :", "`허리　 :", "`espalda   :"]
     menu_code = ["装飾コード", "CostumeCode", "장식 코드", "código de decoración"]
+    menu_selector_desc = ["追加したいアイテムの名前または番号を入力してください!", "Enter the item name or number that you want to add!", "추가 할 항목의 이름 또는 번호를 입력하십시오!", "Ingrese el nombre o número del artículo que desea agregar."]
     item_not_found = ["検索結果がありません.アイテム名が正しいことを確認してください.", "No results. Make sure that item name is correct.", "결과가 없습니다. 항목의 이름이 올바른지 확인하십시오.", "No hay resultados. Asegúrese de que el nombre del artículo sea correcto."]
     wrong_item_index = ["アイテム番号が間違っています. (番号が小さすぎるか大きすぎます)", "Invalid item number. (too big or too small)", "잘못된 항목 번호입니다. (너무 크거나 작음)", "Número de artículo no válido. (demasiado grande o demasiado pequeño)"]
     menu_find_item = ["アイテム検索", "Search item", "상품 검색", "Búsqueda de artículos"]
@@ -42,6 +43,7 @@ class Strings:
     menu_load_description = ["読み込みたい保存済み作品の名前または番号を入力してください.", "Enter the saved works name or index that you want to load.", "불러 오려는 저장된 작품 명 또는 색인을 입력합니다.", "Introduzca el nombre o índice de las obras guardadas que desee cargar."]
     menu_cc = ["装飾コードで設定", "Set the costume code", "장식 코드 설정", "Establecer el código"]
     menu_cc_description = ["設定したい装飾コードを入力してください.", "Enter the costume code you want to set", "설정하려는 의상 코드를 입력하세요.", "Ingrese el código de vestuario que desea configurar"]
+    menu_try_again = ["もう一度お試しください.3回無効なアイテム名を指定すると自動的にメニューに戻ります.", "Try again. If you give an invalid item name three times, it will automatically return to the menu.", "다시 시도하십시오. 잘못된 항목 이름을 세 번 입력하면 자동으로 메뉴로 돌아갑니다.", "Inténtalo de nuevo. Si da un nombre de elemento inválido tres veces, automáticamente regresará al menú."]
     # costume_table
     costume_table_base = ["ベース色", "base", "색상", "base"]
     costume_table_character = ["キャラクター", "character", "캐릭터", "caracteres"]
