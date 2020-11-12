@@ -173,9 +173,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         msg = ""
         try:
             output = await self.run_subprocess(text, loop=self.bot.loop)
-            for i in range(len(output)):
-                msg += output[i]
-            await ctx.send(msg)
+            await ctx.send("\n".join(output))
         except:
             await ctx.send(file=discord.File(fp=io.StringIO(msg), filename="output.txt"))
 

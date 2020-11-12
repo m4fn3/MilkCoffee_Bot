@@ -1,7 +1,9 @@
+import io
+import os
 import time
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from .SQLManager import SQLManager
 from .data.item_data import ItemData
@@ -40,6 +42,8 @@ class MilkCoffee(commands.Bot):
             await self.db.connect()  # データベースに接続
             self.cache_users = self.cache_users.union(set(await self.db.get_registered_users()))
             self.db_ready = True  # データベース接続完了フラグ
+        if not self.backup_database.is_running():
+            self.backup_database.start()
         # ステータスを変更
         await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
@@ -89,3 +93,12 @@ class MilkCoffee(commands.Bot):
         self.cache_users.add(ctx.author.id)  # キャッシュに追加
         await self.db.register_new_user(ctx.author.id)  # ユーザー登録
         await self.get_cog("Bot").language_selector(ctx)  # 言語選択
+
+    @tasks.loop(hours=1)
+    async def backup_database(self):
+        output = await self.get_cog("Developer").run_subprocess(f"pg_dump {os.getenv('DB_URL')}")
+        output = "\n".join(output)
+        await self.get_channel(self.static_data.backup_channel).send(
+            file=discord.File(fp=io.StringIO(output), filename="dump")
+        )
+
