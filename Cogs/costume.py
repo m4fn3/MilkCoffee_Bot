@@ -121,8 +121,9 @@ class Costume(commands.Cog):
     @commands.command(aliases=["m"], usage=cmd_data.menu.usage, description=cmd_data.menu.description, brief=cmd_data.menu.brief)
     async def menu(self, ctx: commands.Context) -> None:
         """シミュレータ操作メニューを作成"""
+        user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         if ctx.author.id in self.menu_users:  # 既に実行中のユーザーの場合
-            return await error_embed(ctx, "あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!")
+            return await error_embed(ctx, self.bot.text.menu_already_channel[user_lang])
         elif ctx.channel.id in self.menu_channels:  # 既に実行中のチャンネルの場合
             return await error_embed(ctx, "このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!")
         self.menu_users.add(ctx.author.id)  # 実行中のリストに追加

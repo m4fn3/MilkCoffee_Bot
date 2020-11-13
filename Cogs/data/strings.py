@@ -7,7 +7,7 @@ class Strings:
     # NOTE: common
     your_account_banned = ["あなたのアカウントはブロックされています.\n異議申し立ては、公式サーバーの <#{}> にてご対応させていただきます", "Your account is blocked\nIf you have an objection, please come to <#{}> in Official Server", "당신의 계정은 차단되어 있습니다\n차단에 대한 이의 신청은 공식 서버 <#{}> 에서 대응하겠습니다.", "Su cuenta está prohibida\nSi tiene una objeción a la BAN, utilice <#{}> en el servidor oficial."]
     missing_arguments = ["必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`", "Missing required arguments!\nUsage: `{0}help {1}` \nFor more information `{0}help {2}", "필수 인수가 없습니다.\n사용법:`{0}help {1}`\n자세한 내용은 `{0}help {2}", "¡Faltan argumentos obligatorios!\nUso: `{0}help {1}`\nPara obtener más información `{0}help {2}"]
-    interval_too_fast = ["このコマンドの使用が速すぎます!\n`{:.2f}`秒後に再度使用できます.", "You are using this command too quickly!\nTry again in `{:.2f}` seconds.", "이 명령을 너무 빨리 사용하고 있습니다!\n`{:.2f}`초 후에 다시 시도하십시오.", "¡Está usando este comando demasiado rápido! \ Vuelva a intentarlo en `{: .2f}` segundos."]
+    interval_too_fast = ["このコマンドの使用が速すぎます!\n`{:.2f}`秒後に再度使用できます.", "You are using this command too quickly!\nTry again in `{:.2f}` seconds.", "이 명령을 너무 빨리 사용하고 있습니다!\n`{:.2f}`초 후에 다시 시도하십시오.", "¡Está usando este comando demasiado rápido!\nVuelva a intentarlo en `{:.2f}` segundos."]
     error_occurred = ["未知のエラーが発生しました.開発者にお尋ねください.\n{}", "Unknown error has occurred.Please contact to the developer.\n{}", "알 수없는 오류가 발생했습니다. 개발자에게 문의하십시오. \n {}", "Se produjo un error desconocido. Comuníquese con el desarrollador.\n{}"]
     missing_subcommand = ["サブコマンドが不足しています!\n`{}help {}`で使い方を確認して下さい.", "Missing subcommand!\n`{}help {}` to know usage.", "하위 명령이 없습니다! \n 사용법을 알기위한 `{}help {}`.", "Falta el subcomando. \n`{}help {}` para conocer el uso."]
     # NOTE: main.py
@@ -45,6 +45,8 @@ class Strings:
     menu_cc_description = ["設定したい装飾コードを入力してください.", "Enter the costume code you want to set", "설정하려는 의상 코드를 입력하세요.", "Ingrese el código de vestuario que desea configurar"]
     menu_try_again = ["もう一度お試しください.3回無効なアイテム名を指定すると自動的にメニューに戻ります.", "Try again. If you give an invalid item name three times, it will automatically return to the menu.", "다시 시도하십시오. 잘못된 항목 이름을 세 번 입력하면 자동으로 메뉴로 돌아갑니다.", "Inténtalo de nuevo. Si da un nombre de elemento inválido tres veces, automáticamente regresará al menú."]
     menu_main_footer = ["下部のリアクションを押して各部位の装飾を設定できます!", "Press the reaction below to set the each part of costume!", "반응을 눌러 의상의 각 부분을 설정합니다!", "Presione la reacción para configurar cada parte del disfraz!"]
+    menu_already_user = ["あなたは既にメニューを実行中です！既存のメニューを閉じてから再実行してね!", "You already run the menu. Close previous one and try again!", "이미 메뉴를 실행했습니다. 이전 항목을 닫고 다시 시도하십시오!", "Ya ejecuta el menú. ¡Cierre el anterior y vuelva a intentarlo!"]
+    menu_already_channel = ["このチャンネルでは,現在他の人がメニューを実行中です!他のチャンネルで再実行してね!", "On here another user is running menu. Try again in another channel.", "여기에서 다른 사용자가 메뉴를 실행하고 있습니다. 다른 채널에서 다시 시도하십시오.", "Aquí otro usuario está ejecutando el menú. Vuelve a intentarlo en otro canal."]
     # costume_table
     costume_table_base = ["ベース色", "base", "색상", "base"]
     costume_table_character = ["キャラクター", "character", "캐릭터", "caracteres"]
