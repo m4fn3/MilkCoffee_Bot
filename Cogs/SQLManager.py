@@ -2,13 +2,14 @@ import json
 from typing import Optional, List
 
 import asyncpg
+import asyncio
 
 from .utils.multilingual import get_lg
 
 
 class SQLManager:
-    def __init__(self, database_url: str, bot_loop):
-        self.loop = bot_loop
+    def __init__(self, database_url: str, bot_loop=None):
+        self.loop = bot_loop or asyncio.get_event_loop()
         self.con = None
         self.database_url = database_url
 
