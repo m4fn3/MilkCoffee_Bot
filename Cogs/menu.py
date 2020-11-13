@@ -56,6 +56,7 @@ class Menu:
         desc += self.bot.data.emoji.body + " " + self.bot.text.menu_body[self.lang] + f"{str(self.item[4]).rjust(3)}` {getattr(self.bot.data.body.emoji, 'e' + str(self.item[4]))} {getattr(self.bot.data.body.name, 'n' + str(self.item[4]))}\n"
         desc += self.bot.data.emoji.back + " " + self.bot.text.menu_back[self.lang] + f"{str(self.item[5]).rjust(3)}` {getattr(self.bot.data.back.emoji, 'e' + str(self.item[5]))} {getattr(self.bot.data.back.name, 'n' + str(self.item[5]))}\n"
         embed.description = desc
+        embed.set_footer(text=self.bot.text.menu_main_footer[self.lang])
         img = self.make_image(*self.item)
         self.msg = await self.ctx.send(embed=embed, file=img)
         # リアクションを追加
@@ -477,4 +478,4 @@ class Menu:
         imgByteArr = io.BytesIO()
         base.save(imgByteArr, format=base.format)
         base = imgByteArr.getvalue()
-        return discord.File(fp=io.BytesIO(base), filename="result.png")
+        return discord.File(fp=io.BytesIO(base), filename=f"{list_to_code([base_id, character_id, weapon_id, head_id, body_id, back_id])}.png")

@@ -44,6 +44,7 @@ class Strings:
     menu_cc = ["装飾コードで設定", "Set the costume code", "장식 코드 설정", "Establecer el código"]
     menu_cc_description = ["設定したい装飾コードを入力してください.", "Enter the costume code you want to set", "설정하려는 의상 코드를 입력하세요.", "Ingrese el código de vestuario que desea configurar"]
     menu_try_again = ["もう一度お試しください.3回無効なアイテム名を指定すると自動的にメニューに戻ります.", "Try again. If you give an invalid item name three times, it will automatically return to the menu.", "다시 시도하십시오. 잘못된 항목 이름을 세 번 입력하면 자동으로 메뉴로 돌아갑니다.", "Inténtalo de nuevo. Si da un nombre de elemento inválido tres veces, automáticamente regresará al menú."]
+    menu_main_footer = ["下部のリアクションを押して各部位の装飾を設定できます!", "Press the reaction below to set the each part of costume!", "반응을 눌러 의상의 각 부분을 설정합니다!", "Presione la reacción para configurar cada parte del disfraz!"]
     # costume_table
     costume_table_base = ["ベース色", "base", "색상", "base"]
     costume_table_character = ["キャラクター", "character", "캐릭터", "caracteres"]
