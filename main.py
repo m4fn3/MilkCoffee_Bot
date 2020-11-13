@@ -19,9 +19,6 @@ logging.basicConfig(level=logging.INFO)
 PREFIX = "m!"
 PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！", "M! ", "M！ ", "Ｍ! ", "Ｍ！ ", "M!　", "M！　", "Ｍ!　", "Ｍ！　", "M!", "M！", "Ｍ!", "Ｍ！"]
 
-# TODO: テスト
-PREFIXES += ["m?"]
-
 if __name__ == '__main__':
     intents = discord.Intents.default()
     intents.typing = False
