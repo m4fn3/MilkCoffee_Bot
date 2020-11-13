@@ -194,6 +194,10 @@ class Costume(commands.Cog):
                 except:
                     pass
                 return
+            try:  # 簡便のためユーザーのリアクションを削除
+                await msg.remove_reaction(react, user)
+            except:
+                pass
             if str(react.emoji) == self.bot.data.emoji.right:
                 if current_page == total_pages:
                     current_page = 1
