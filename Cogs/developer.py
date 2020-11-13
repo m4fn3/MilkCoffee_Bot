@@ -147,7 +147,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         except:
             temp = ["N/A"]
         process = psutil.Process(os.getpid())
-        using_mem = f"{(process.memory_info().rss//1000000):.1f} MB"
+        using_mem = f"{(process.memory_info().rss // 1000000):.1f} MB"
         embed = discord.Embed(title="Process")
         embed.add_field(name="Server", value=f"```yaml\nCPU: [{cpu_per}%]\nMemory: [{mem_per}%] {mem_used:.2f}GiB / {mem_total:.2f}GiB\nSwap: [{swap_per}%] {swap_used:.2f}GiB / {swap_total:.2f}GiB\nTemperature: {','.join(temp)}\nUsingMem: {using_mem}```", inline=False)
         embed.add_field(name="Discord", value=f"```yaml\nServers: {guilds}\nTextChannels: {text_channels}\nVoiceChannels: {voice_channels}\nUsers: {users}\nConnectedVC: {vcs}```", inline=False)

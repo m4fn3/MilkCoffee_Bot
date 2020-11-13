@@ -117,7 +117,7 @@ class Menu:
         """選択画面"""
         # 選択画面作成
         max_page = getattr(self.bot.data, item_type).page
-        embed = discord.Embed(title=getattr(self.bot.text, "list_"+item_type+"_title")[self.lang], color=0xffce9e)
+        embed = discord.Embed(title=getattr(self.bot.text, "list_" + item_type + "_title")[self.lang], color=0xffce9e)
         embed.description = "**__" + self.bot.text.menu_selector_desc[self.lang] + "__**\n" + self.get_list(item_type, 1)
         embed.set_footer(text=self.bot.text.showing_page[self.lang].format(1, max_page))
         msg = await self.ctx.send(embed=embed)

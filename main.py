@@ -5,8 +5,8 @@ from os.path import join, dirname
 import discord
 from dotenv import load_dotenv
 
-from Cogs.milkcoffee import MilkCoffee
 from Cogs.help import Help
+from Cogs.milkcoffee import MilkCoffee
 
 load_dotenv(verbose=True)
 load_dotenv(join(dirname(__file__), '.env'))
