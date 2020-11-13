@@ -133,7 +133,7 @@ class Costume(commands.Cog):
         self.menu_users.remove(ctx.author.id)  # 実行中のリストから削除
         self.menu_channels.remove(ctx.channel.id)
 
-    @commands.command(usage=cmd_data.save.usage, description=cmd_data.save.description, brief=cmd_data.save.brief)
+    @commands.command(usage=cmd_data.show.usage, description=cmd_data.show.description, brief=cmd_data.show.brief)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def show(self, ctx: commands.Context) -> None:
         """保存番号または保存名称から画像を生成"""
