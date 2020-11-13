@@ -1,11 +1,9 @@
 import io
-import json
 import os
 import time
 
-import discord
 import aiohttp
-import traceback2
+import discord
 from discord.ext import commands, tasks
 
 from .SQLManager import SQLManager
@@ -93,7 +91,7 @@ class MilkCoffee(commands.Bot):
         self.commands_run += 1
         content = {'content': f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.channel.name} ({ctx.channel.id}) | {ctx.guild.name} ({ctx.guild.id})"}
         headers = {'Content-Type': 'application/json'}
-        r = await self.aiohttp_session.post(os.getenv("LOG_WH"), json=content, headers=headers)
+        await self.aiohttp_session.post(os.getenv("LOG_WH"), json=content, headers=headers)
 
     async def on_new_user(self, ctx: commands.Context) -> None:
         """新規ユーザーが使用した時"""
@@ -108,4 +106,3 @@ class MilkCoffee(commands.Bot):
         await self.get_channel(self.static_data.backup_channel).send(
             file=discord.File(fp=io.StringIO(output), filename="dump")
         )
-
