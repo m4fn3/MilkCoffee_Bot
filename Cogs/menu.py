@@ -67,6 +67,7 @@ class Menu:
         try:
             react, _ = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: str(r.emoji) in menu_emoji and r.message.id == self.msg.id and u == self.ctx.author)
             emoji_add_task.cancel()
+            self.bot.commands_run += 1
             return str(react.emoji)
         except asyncio.TimeoutError:
             return None
