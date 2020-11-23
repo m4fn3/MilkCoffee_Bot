@@ -89,7 +89,7 @@ class MilkCoffee(commands.Bot):
     async def on_command(self, ctx: commands.Context) -> None:
         """コマンド実行時"""
         self.commands_run += 1
-        content = {'content': f"`{ctx.message.content}` | {str(ctx.author)} ({ctx.author.id}) | {ctx.channel.name} ({ctx.channel.id}) | {ctx.guild.name} ({ctx.guild.id})"}
+        content = {'content': f"[`{ctx.message.content}`]({ctx.message.jump_url}) | {str(ctx.author)} | {ctx.channel.name} | {ctx.guild.name}"}
         headers = {'Content-Type': 'application/json'}
         await self.aiohttp_session.post(os.getenv("LOG_WH"), json=content, headers=headers)
 

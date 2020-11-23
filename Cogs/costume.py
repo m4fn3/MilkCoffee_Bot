@@ -148,7 +148,7 @@ class Costume(commands.Cog):
             save_data = await self.bot.db.get_save_work(ctx.author.id)
             if cond.isdigit():  # 数字->インデックスの場合
                 if 1 <= int(cond) <= len(save_data):  # 番号が保存済みの範囲である場合
-                    code = save_data[int(cond)]["code"]
+                    code = save_data[int(cond) - 1]["code"]
                 else:  # 番号にあった作品がない場合
                     return await error_embed(ctx, self.bot.text.no_th_saved_work[user_lang].format(int(cond)))
             else:  # 名前の場合
