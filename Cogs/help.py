@@ -84,9 +84,9 @@ class Help(commands.HelpCommand):
     def get_space_count(self, name: int, max_length: int) -> int:
         diff = max_length - name
         if diff < 0:
-            return 0
+            return 1  # 見やすさのためスペースを一つ分確保
         else:
-            return diff
+            return diff + 1
 
     def get_command_max_length(self, command_list):
         max_length = 6
