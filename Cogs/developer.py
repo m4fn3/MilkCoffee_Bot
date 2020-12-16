@@ -67,7 +67,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         python = sys.executable
         os.execl(python, python, *sys.argv)
 
-    @commands.command(aliases=["q"])
+    @commands.command()
     async def quit(self, ctx):
         await ctx.send(":closed_lock_with_key:BOTを停止します.")
         sys.exit()
