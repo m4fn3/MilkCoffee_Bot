@@ -6,6 +6,7 @@ import random
 import re
 from typing import Any
 
+import aiohttp
 import discord
 from PIL import Image
 from discord.ext import commands
@@ -85,6 +86,8 @@ class Costume(commands.Cog):
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):  # クールダウン
             await error_embed(ctx, self.bot.text.interval_too_fast[user_lang].format(error.retry_after))
+        elif isinstance(error, aiohttp.ClientOSError):
+            await error_embed(ctx, self.bot.text.server_error[user_lang])
         else:  # 未知のエラー
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 

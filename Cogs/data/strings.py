@@ -10,6 +10,7 @@ class Strings:
     interval_too_fast = ["このコマンドの使用が速すぎます!\n`{:.2f}`秒後に再度使用できます.", "You are using this command too quickly!\nTry again in `{:.2f}` seconds.", "이 명령을 너무 빨리 사용하고 있습니다!\n`{:.2f}`초 후에 다시 시도하십시오.", "¡Está usando este comando demasiado rápido!\nVuelva a intentarlo en `{:.2f}` segundos."]
     error_occurred = ["未知のエラーが発生しました.開発者にお尋ねください.\n{}", "Unknown error has occurred.Please contact to the developer.\n{}", "알 수없는 오류가 발생했습니다. 개발자에게 문의하십시오. \n {}", "Se produjo un error desconocido. Comuníquese con el desarrollador.\n{}"]
     missing_subcommand = ["サブコマンドが不足しています!\n`{}help {}`で使い方を確認して下さい.", "Missing subcommand!\n`{}help {}` to know usage.", "하위 명령이 없습니다! \n 사용법을 알기위한 `{}help {}`.", "Falta el subcomando. \n`{}help {}` para conocer el uso."]
+    server_error = ["グローバルサーバ接続が不安定です。しばらくして再度お試しください。", "The server connection is unstable. Please try again later.", "글로벌 서버 접속이 불안정합니다. 잠시후 다시 시도해 주십시오.", "La conexión del servidor es inestable. Por favor, inténtelo de nuevo más tarde."]
     # NOTE: main.py
     prefix_of_the_bot = ["MilkCoffeeのprefixは`{}`です!\n`{}help`で使い方を確認して下さい.", "The prefix for MilkCoffee is `{}`\n`{}help` to know usage.", "MilkCoffee의 접두사는 사용법을 알기위한 `{}`\n`{}help` 입니다.", "El prefijo de MilkCoffee es `{}` \n`{} help` para conocer el uso."]
     # NOTE: help.py

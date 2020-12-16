@@ -1,6 +1,7 @@
 import asyncio
 from typing import Optional
 
+import aiohttp
 import discord
 import traceback2
 from discord.ext import commands
@@ -75,6 +76,8 @@ class Notify(commands.Cog):
             await error_embed(ctx, self.bot.text.missing_arguments[user_lang].format(self.bot.PREFIX, ctx.command.usage.split("^")[user_lang], ctx.command.qualified_name))
         elif isinstance(error, commands.CommandOnCooldown):  # クールダウン
             await error_embed(ctx, self.bot.text.interval_too_fast[user_lang].format(error.retry_after))
+        elif isinstance(error, aiohttp.ClientOSError):
+            await error_embed(ctx, self.bot.text.server_error[user_lang])
         else:  # 未知のエラー
             await error_embed(ctx, self.bot.text.error_occurred[user_lang].format(error))
 
