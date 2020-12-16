@@ -76,7 +76,7 @@ class Bot(commands.Cog):
                 await success_embed(ctx, ":flag_es: Establecer idioma en __Español__!")
             else:  # 言語が見つからなかった場合
                 await error_embed(ctx, self.bot.text.lang_not_found[await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)])
-                ctx.command.reset_cooldown()
+                ctx.command.reset_cooldown(ctx)
 
     async def language_selector(self, ctx: commands.Context) -> None:
         """言語選択画面"""
