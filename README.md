@@ -1,4 +1,6 @@
 # MilkCoffee
+[![Discord Bots](https://top.gg/api/widget/status/742952261176655882.svg)](https://top.gg/bot/742952261176655882)
+
 The Discord BOT for MilkChocoOnline-FPS Players to test outfits and receive new updates easily.
 
 [Official Server Here](https://milkcoffee.cf/links/server) | [Invite MilkCoffee](https://milkcoffee.cf/links/invite)
