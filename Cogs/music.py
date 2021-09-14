@@ -268,6 +268,7 @@ class Music(commands.Cog):
         if player.queue.empty():
             return await ctx.sned("予約曲無")
         random.shuffle(player.queue._queue)
+        await ctx.send("シャッフル完了")
 
     @commands.command(aliases=["l"], usage=cmd_data.loop.usage, description=cmd_data.loop.description, brief=cmd_data.loop.brief)
     async def loop(self, ctx):
