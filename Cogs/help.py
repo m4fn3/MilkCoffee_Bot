@@ -27,7 +27,7 @@ class Help(commands.HelpCommand):
         user_lang = await self.context.bot.db.get_lang(self.context.author.id, self.context.guild.region)
         cogs: list
         page = 1
-        cogs = ["Costume", "Notify", "Bot"]
+        cogs = ["Music", "Costume", "Notify", "Bot"]
         # 一枚目の全コマンドリストEmbedを作成
         embed_org = discord.Embed(title=f"{self.context.bot.user.name}", color=0x9f563a)
         embed_org.description = self.footer_message[user_lang].format(self.context.bot.PREFIX) + "\n" + self.description_message[user_lang].format(self.context.bot.static_data.server)

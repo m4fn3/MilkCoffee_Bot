@@ -17,7 +17,7 @@ class MilkCoffee(commands.Bot):
 
     def __init__(self, main_prefix, db_url, command_prefix, help_command, status, activity, intents) -> None:
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
-        self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer"]
+        self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer", "Cogs.music"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
 
         self.db_ready = False  # データベース準備フラグ
