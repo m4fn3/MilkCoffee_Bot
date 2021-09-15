@@ -225,7 +225,6 @@ class Music(commands.Cog):
             if len(text) >= 4000:
                 text = cache + "\n等..."
                 break
-
         text += f"\n\n現在{len(player.queue._queue)}曲が予約されています"
 
         embed = discord.Embed(description=text)

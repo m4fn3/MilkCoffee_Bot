@@ -174,14 +174,14 @@ class Shuffle:
 @dataclasses.dataclass(frozen=True)
 class Loop:
     usage = "loop^loop^loop^loop"
-    brief = "ループの設定^ループの設定^ループの設定^ループの設定^"
+    brief = "再生中の曲の繰り返し^再生中の曲の繰り返し^再生中の曲の繰り返し^再生中の曲の繰り返し"
     description = "再生中の1曲をループする設定をします^再生中の1曲をループする設定をします^再生中の1曲をループする設定をします^再生中の1曲をループする設定をします"
 
 
 @dataclasses.dataclass(frozen=True)
 class LoopQueue:
     usage = "loop_queue^loop_queue^loop_queue^loop_queue"
-    brief = "予約曲のループ設定^予約曲のループ設定^予約曲のループ設定^予約曲のループ設定"
+    brief = "予約曲全体の繰り返し^予約曲全体の繰り返し^予約曲全体の繰り返し^予約曲全体の繰り返し"
     description = "予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します"
 
 
@@ -203,6 +203,20 @@ class CmdData:
     follow = Follow()
     notice = Notice()
     ads = Ads()
+    # Music
+    play = Play()
+    join = Join()
+    disconnect = Disconnect()
+    queue = Queue()
+    pause = Pause()
+    resume = Resume()
+    skip = Skip()
+    now_playing = NowPlaying()
+    remove = Remove()
+    clear = Clear()
+    shuffle = Shuffle()
+    loop = Loop()
+    loop_queue = LoopQueue()
     # Music
     play = Play()
     join = Join()
