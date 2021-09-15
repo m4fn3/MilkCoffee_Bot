@@ -244,7 +244,7 @@ class Music(commands.Cog):
         if not voice_client or not voice_client.is_playing():
             return await error_embed(ctx, "現在再生中の音楽はありません")
         elif voice_client.is_paused():
-            return error_embed(ctx, "既に再生が一時停止されています")
+            return await error_embed(ctx, "既に再生が一時停止されています")
         voice_client.pause()
         await success_embed(ctx, "音楽の再生を一時停止しました")
 
@@ -255,9 +255,9 @@ class Music(commands.Cog):
         if not voice_client or not voice_client.is_connected():
             return await error_embed(ctx, "現在再生中の音楽はありません")
         elif not voice_client.is_paused():
-            return error_embed(ctx, "既に再生を再開しています")
+            return await error_embed(ctx, "既に再生を再開しています")
         voice_client.resume()
-        await success_embed(ctx, "音楽の再生を一時停止しました")
+        await success_embed(ctx, "音楽の再生を再開しました")
 
     @commands.command(aliases=["s"], usage=cmd_data.skip.usage, description=cmd_data.skip.description,
                       brief=cmd_data.skip.brief)
