@@ -8,7 +8,7 @@ async def error_embed(sendable, text: str, title: str = None):
     )
     if title:
         embed.title = title
-    await sendable.send(embed=embed)
+    return await sendable.send(embed=embed)
 
 
 async def success_embed(sendable, text: str, title: str = None):
@@ -18,7 +18,7 @@ async def success_embed(sendable, text: str, title: str = None):
     )
     if title:
         embed.title = title
-    await sendable.send(embed=embed)
+    return await sendable.send(embed=embed)
 
 
 async def warning_embed(sendable, text: str, title: str = None):
@@ -28,7 +28,7 @@ async def warning_embed(sendable, text: str, title: str = None):
     )
     if title:
         embed.title = title
-    await sendable.send(embed=embed)
+    return await sendable.send(embed=embed)
 
 
 async def normal_embed(sendable, text: str, title: str = None):
@@ -38,4 +38,4 @@ async def normal_embed(sendable, text: str, title: str = None):
     )
     if title:
         embed.title = title
-    await sendable.send(embed=embed)
+    return await sendable.send(embed=embed)

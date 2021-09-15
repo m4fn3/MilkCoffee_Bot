@@ -110,3 +110,7 @@ class Strings:
     help_command_not_found = ["`{}` というコマンドは存在しません.コマンド名を再確認してください.", "No command `{}` exists. Make sure that command name is correct.", "`{}`명령을 찾을 수 없습니다. 명령 이름을 다시 확인하십시오!", "No pude encontrar el comando {}. ¡Verifique el nombre del comando!"]
     help_subcommand_not_found = ["`{1}` に `{0}` というサブコマンドは存在しません。`{2}help {1}` で使い方を確認できます", "Subcommand `{0}` is not registered in `{1}`. Please check the correct usage with `{2}help {1}`", "하위 명령어`{0}`이 (가)`{1}`에 등록되지 않았습니다. `{2}help {1}`로 사용법을 확인하세요!", "El subcomando `{0}` no está registrado en `{1}`. ¡Compruebe el uso con la `{2}help {1}`!"]
     help_no_subcommand = ["`{0}` にサブコマンドは存在しません。`{1}help {0}` で使い方を確認できます", "No subcommand exists on `{0}`. Please check the correct usage with `{1}help {0}`", "`{0}`에 등록 된 하위 명령이 없습니다.`{1}help {0}`로 사용법을 확인하세요!", "No hay subcomandos registrados en `{0}`.¡Compruebe el uso con la `{1}help {0}`!"]
+    # NOTE: music.py
+    not_connected = ["先にボイスチャンネルに接続してください!","先にボイスチャンネルに接続してください!","先にボイスチャンネルに接続してください!","先にボイスチャンネルに接続してください!"]
+    no_playing = ["現在再生中の音楽はありません","現在再生中の音楽はありません","現在再生中の音楽はありません","現在再生中の音楽はありません"]
+

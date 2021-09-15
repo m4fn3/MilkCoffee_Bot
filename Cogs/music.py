@@ -4,7 +4,10 @@ import youtube_dl
 import asyncio
 from async_timeout import timeout
 import random
+import traceback2
 from .data.command_data import CmdData
+from .utils.messenger import error_embed, success_embed, warning_embed, normal_embed
+
 
 cmd_data = CmdData()
 ytdl_options = {
@@ -85,8 +88,10 @@ class Player:
                 return self.destroy(self.guild)
             try:
                 source = await YTDLSource.stream(data, loop=self.bot.loop)
-            except Exception as e:
-                await self.channel.send(f"音楽処理エラー\n```{e}```")
+            except asyncio.CancelledError:
+                return
+            except:
+                await self.channel.send(f"音楽処理エラー\n```{traceback2.format_exc()}```")
                 continue
             source.volume = self.volume
             self.current = source
@@ -155,51 +160,57 @@ class Music(commands.Cog):
                       brief=cmd_data.play.brief)
     async def play(self, ctx, *, search):
         if ctx.voice_client is None:
-            await ctx.invoke(self.join)
+            if await ctx.invoke(self.join) is not None:
+                return
         player = self.get_player(ctx)
+        wait_msg = await normal_embed(ctx, "読込中...(曲が多いプレイリストの場合は処理完了まで少し時間がかかります)")
         async with ctx.typing():
             data = await YTDLSource.create_source(search, loop=self.bot.loop)
-        if "entries" not in data:
+        await wait_msg.delete()
+        # import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
+        if data["extractor"] in ["youtube", "youtube:search"]:
+            if data["extractor"] == "youtube:search":
+                data = data["entries"][0]
             await player.queue.put(data)
-            await ctx.send(f"音楽追加完了\n{data['title']}")
-        else:
+            await success_embed(ctx, f"{data['title']}を追加しました")
+        elif data["extractor"] == "youtube:tab":
             for meta in data["entries"]:
                 await player.queue.put(meta)
-            await ctx.send(f"{len(data['entries'])}曲追加完了")
+            await success_embed(ctx, f"{data['title']}から{len(data['entries'])}曲を追加しました")
 
     @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description,
                       brief=cmd_data.join.brief)
     async def join(self, ctx):
         voice_client = ctx.voice_client
         if ctx.author.voice is None:
-            await ctx.send("VC未接続")
+            return await error_embed(ctx, "先にボイスチャンネルに接続してください!") 
         elif voice_client is None or not voice_client.is_connected:
             await ctx.author.voice.channel.connect()
-            await ctx.send("接続完了")
+            await success_embed(ctx, f"{ctx.author.voice.channel.name}に接続しました")
         elif voice_client.channel.id != ctx.author.voice.channel.id:
             await voice_client.move_to(ctx.author.voice.channel)
-            await ctx.send("移動完了")
+            await success_embed(ctx, f"{ctx.author.voice.channel.name}に移動しました")
         else:
-            await ctx.send("既に接続済")
+            await warning_embed(ctx, f"既に{ctx.author.voice.channel.name}に接続しています")
 
     @commands.command(aliases=["dc", "dis", "leave", "lv"], usage=cmd_data.disconnect.usage,
                       description=cmd_data.disconnect.description, brief=cmd_data.disconnect.brief)
     async def disconnect(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         await ctx.voice_client.disconnect()
-        await ctx.send("切断完了")
+        await success_embed(ctx, "切断しました")
 
     @commands.command(aliases=["q"], usage=cmd_data.queue.usage, description=cmd_data.queue.description,
                       brief=cmd_data.queue.brief)
     async def queue(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         text = "予約済み曲一覧"
         if voice_client.source is not None:
-            text = f"\n[再生中] {voice_client.source.title}"
+            text += f"\n[再生中] {voice_client.source.title}"
         player = self.get_player(ctx)
         for i, d in enumerate(player.queue._queue):
             text += f"\n[{i + 1}] {d['title']}"
@@ -212,41 +223,41 @@ class Music(commands.Cog):
     async def pause(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_playing():
-            return await ctx.send("再生無")
+            return await error_embed(ctx, "現在再生中の音楽はありません")
         elif voice_client.is_paused():
-            return await ctx.send("既に一時停止済")
+            return error_embed(ctx, "既に再生が一時停止されています")
         voice_client.pause()
-        await ctx.send("一時停止完了")
+        await success_embed(ctx, "音楽の再生を一時停止しました")
 
     @commands.command(aliases=["rs", "res"], usage=cmd_data.resume.usage, description=cmd_data.resume.description,
                       brief=cmd_data.resume.brief)
     async def resume(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("再生無")
+            return await error_embed(ctx, "現在再生中の音楽はありません")
         elif not voice_client.is_paused():
-            return await ctx.send("既に再開済")
+            return error_embed(ctx, "既に再生を再開しています")
         voice_client.resume()
-        await ctx.send("再開完了")
+        await success_embed(ctx, "音楽の再生を一時停止しました")
 
     @commands.command(aliases=["s"], usage=cmd_data.skip.usage, description=cmd_data.skip.description,
                       brief=cmd_data.skip.brief)
     async def skip(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_playing():
-            return await ctx.send("再生無")
+            return await error_embed(ctx, "現在再生中の音楽はありません")
         voice_client.stop()
-        await ctx.send("スキップ完了")
+        await success_embed(ctx, "音楽をスキップしました")
 
     @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description,
                       brief=cmd_data.now_playing.brief)
     async def now_playing(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         if player.current is None:
-            return await ctx.send("再生無")
+            return await error_embed(ctx, "現在再生中の音楽はありません")
         text = f"曲名: {voice_client.source.title}\nURL: {voice_client.source.url}"
         await ctx.send(text)
 
@@ -255,62 +266,61 @@ class Music(commands.Cog):
     async def remove(self, ctx, idx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
-        player = self.get_player(ctx)
-        if player.current is None:
-            return await ctx.send("再生無")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         if not idx.isdigit():
-            return await ctx.send("整数で位置番号指定")
+            return await error_embed(ctx, "整数で位置の番号を指定してください")
         player = self.get_player(ctx)
+        if player.queue.empty():
+            return await error_embed(ctx, "現在予約された曲はありません")
         idx = int(idx) - 1
         if 0 <= idx <= len(player.queue._queue) - 1:
             data = player.queue._queue[idx]
             del player.queue._queue[idx]
-            await ctx.send(f"削除完了\n{data['title']}")
+            await success_embed(ctx, f"予約された曲から{data['title']}を削除しました")
         else:
-            await ctx.send("範囲外の位置番号")
+            await error_embed(ctx, "指定された位置にあった音楽が存在しません")
 
     @commands.command(aliases=["cl"], usage=cmd_data.clear.usage, description=cmd_data.clear.description,
                       brief=cmd_data.clear.brief)
     async def clear(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         player.queue._queue.clear()
-        await ctx.send("クリア完了")
+        await success_embed(ctx, "予約された曲を全て削除しました")
 
     @commands.command(usage=cmd_data.shuffle.usage, description=cmd_data.shuffle.description,
                       brief=cmd_data.shuffle.brief)
     async def shuffle(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         if player.queue.empty():
-            return await ctx.sned("予約曲無")
+            return await error_embed(ctx, "現在予約された曲はありません")
         random.shuffle(player.queue._queue)
-        await ctx.send("シャッフル完了")
+        await success_embed(ctx, "予約された曲をシャッフルしました")
 
     @commands.command(aliases=["l"], usage=cmd_data.loop.usage, description=cmd_data.loop.description,
                       brief=cmd_data.loop.brief)
     async def loop(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         player.loop = not player.loop
-        await ctx.send(f"ループ{'オン' if player.loop else 'オフ'}完了")
+        await success_embed(ctx, f"現在再生中の曲の繰り返しを{'有効' if player.loop else '無効'}にしました")
 
     @commands.command(aliases=["lq", "loopqueue"], usage=cmd_data.loop_queue.usage,
                       description=cmd_data.loop_queue.description, brief=cmd_data.loop_queue.brief)
     async def loop_queue(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
-            return await ctx.send("VC未接続")
+            return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         player.loop_queue = not player.loop_queue
-        await ctx.send(f"キューループ{'オン' if player.loop_queue else 'オフ'}完了")
+        await success_embed(ctx, f"予約された曲全体の繰り返しを{'有効' if player.loop else '無効'}にしました")
 
 
 
