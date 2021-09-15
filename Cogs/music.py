@@ -353,7 +353,7 @@ class Music(commands.Cog):
             return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
         player.loop_queue = not player.loop_queue
-        await success_embed(ctx, f"予約された曲全体の繰り返しを{'有効' if player.loop else '無効'}にしました")
+        await success_embed(ctx, f"予約された曲全体の繰り返しを{'有効' if player.loop_queue else '無効'}にしました")
 
 
 
