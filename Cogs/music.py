@@ -103,11 +103,12 @@ class Player:
                 self.queue._queue.appendleft(data)
 
     def destroy(self, guild):
-        return self.bot.loop.create_task(self.cog.cleanup(guild))
+        return self.bot.loop.create_task(guild.voice_client.disconnect())
 
 
 class Music(commands.Cog):
     """音楽再生関連機能^音楽再生関連機能^音楽再生関連機能^音楽再生関連機能"""
+
     def __init__(self, bot):
         self.bot = bot
         self.players = {}
@@ -130,17 +131,28 @@ class Music(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if before.channel is not None and member.guild.get_member(self.bot.user.id) in before.channel.members:
-            voice_members = before.channel.members
-            if len(voice_members) == 1:  # or not [u for u in voice_members if not u.bot]:
-                if member.guild.id in self.players:
-                    player = self.get_player(member)
-                    player.destroy(member.guild)
-                    await player.channel.send("全員が退出したので便乗しました")
-                else:
-                    await self.cleanup(member.guild)
+        if before.channel is not None and after.channel is None:  # 退出
+            bot_member = member.guild.get_member(self.bot.user.id)
+            if member == bot_member:  # botの退出
+                try:
+                    self.players[member.guild.id].task.cancel()
+                    del self.players[member.guild.id]
+                except:
+                    pass
+            # MEMO: memberインテントがオフであるため正常にキャッシュが動作せず人数が正しいとは限らない
+            # elif bot_member in before.channel.members:  # この操作に関係がある
+            #     voice_members = before.channel.members
+            #     real_members = discord.utils.get(voice_members, bot=False)
+            #     if len(voice_members) == 1 or real_members is None:
+            #         if member.guild.id in self.players:
+            #             player = self.get_player(member)
+            #             player.destroy(member.guild)
+            #             await player.channel.send("全員が退出したので便乗しました")
+            #         else:
+            #             await member.guild.voice_client.disconnect()
 
-    @commands.command(aliases=["p"], usage=cmd_data.play.usage, description=cmd_data.play.description, brief=cmd_data.play.brief)
+    @commands.command(aliases=["p"], usage=cmd_data.play.usage, description=cmd_data.play.description,
+                      brief=cmd_data.play.brief)
     async def play(self, ctx, *, search):
         if ctx.voice_client is None:
             await ctx.invoke(self.join)
@@ -155,7 +167,8 @@ class Music(commands.Cog):
                 await player.queue.put(meta)
             await ctx.send(f"{len(data['entries'])}曲追加完了")
 
-    @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description, brief=cmd_data.join.brief)
+    @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description,
+                      brief=cmd_data.join.brief)
     async def join(self, ctx):
         voice_client = ctx.voice_client
         if ctx.author.voice is None:
@@ -169,15 +182,17 @@ class Music(commands.Cog):
         else:
             await ctx.send("既に接続済")
 
-    @commands.command(aliases=["dc", "dis", "leave", "lv"], usage=cmd_data.disconnect.usage, description=cmd_data.disconnect.description, brief=cmd_data.disconnect.brief)
+    @commands.command(aliases=["dc", "dis", "leave", "lv"], usage=cmd_data.disconnect.usage,
+                      description=cmd_data.disconnect.description, brief=cmd_data.disconnect.brief)
     async def disconnect(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
             return await ctx.send("VC未接続")
-        await self.cleanup(ctx.guild)
+        await ctx.voice_client.disconnect()
         await ctx.send("切断完了")
 
-    @commands.command(aliases=["q"], usage=cmd_data.queue.usage, description=cmd_data.queue.description, brief=cmd_data.queue.brief)
+    @commands.command(aliases=["q"], usage=cmd_data.queue.usage, description=cmd_data.queue.description,
+                      brief=cmd_data.queue.brief)
     async def queue(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -192,7 +207,8 @@ class Music(commands.Cog):
         if player.loop_queue: text += "\n[キューループ有効]"
         await ctx.send(text)
 
-    @commands.command(aliases=["ps", "stop"], usage=cmd_data.pause.usage, description=cmd_data.pause.description, brief=cmd_data.pause.brief)
+    @commands.command(aliases=["ps", "stop"], usage=cmd_data.pause.usage, description=cmd_data.pause.description,
+                      brief=cmd_data.pause.brief)
     async def pause(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_playing():
@@ -202,7 +218,8 @@ class Music(commands.Cog):
         voice_client.pause()
         await ctx.send("一時停止完了")
 
-    @commands.command(aliases=["rs", "res"], usage=cmd_data.resume.usage, description=cmd_data.resume.description, brief=cmd_data.resume.brief)
+    @commands.command(aliases=["rs", "res"], usage=cmd_data.resume.usage, description=cmd_data.resume.description,
+                      brief=cmd_data.resume.brief)
     async def resume(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -212,7 +229,8 @@ class Music(commands.Cog):
         voice_client.resume()
         await ctx.send("再開完了")
 
-    @commands.command(aliases=["s"], usage=cmd_data.skip.usage, description=cmd_data.skip.description, brief=cmd_data.skip.brief)
+    @commands.command(aliases=["s"], usage=cmd_data.skip.usage, description=cmd_data.skip.description,
+                      brief=cmd_data.skip.brief)
     async def skip(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_playing():
@@ -220,7 +238,8 @@ class Music(commands.Cog):
         voice_client.stop()
         await ctx.send("スキップ完了")
 
-    @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description, brief=cmd_data.now_playing.brief)
+    @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description,
+                      brief=cmd_data.now_playing.brief)
     async def now_playing(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -231,7 +250,8 @@ class Music(commands.Cog):
         text = f"曲名: {voice_client.source.title}\nURL: {voice_client.source.url}"
         await ctx.send(text)
 
-    @commands.command(aliases=["rm"], usage=cmd_data.remove.usage, description=cmd_data.remove.description, brief=cmd_data.remove.brief)
+    @commands.command(aliases=["rm"], usage=cmd_data.remove.usage, description=cmd_data.remove.description,
+                      brief=cmd_data.remove.brief)
     async def remove(self, ctx, idx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -250,7 +270,8 @@ class Music(commands.Cog):
         else:
             await ctx.send("範囲外の位置番号")
 
-    @commands.command(aliases=["cl"], usage=cmd_data.clear.usage, description=cmd_data.clear.description, brief=cmd_data.clear.brief)
+    @commands.command(aliases=["cl"], usage=cmd_data.clear.usage, description=cmd_data.clear.description,
+                      brief=cmd_data.clear.brief)
     async def clear(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -259,7 +280,8 @@ class Music(commands.Cog):
         player.queue._queue.clear()
         await ctx.send("クリア完了")
 
-    @commands.command(usage=cmd_data.shuffle.usage, description=cmd_data.shuffle.description, brief=cmd_data.shuffle.brief)
+    @commands.command(usage=cmd_data.shuffle.usage, description=cmd_data.shuffle.description,
+                      brief=cmd_data.shuffle.brief)
     async def shuffle(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -270,7 +292,8 @@ class Music(commands.Cog):
         random.shuffle(player.queue._queue)
         await ctx.send("シャッフル完了")
 
-    @commands.command(aliases=["l"], usage=cmd_data.loop.usage, description=cmd_data.loop.description, brief=cmd_data.loop.brief)
+    @commands.command(aliases=["l"], usage=cmd_data.loop.usage, description=cmd_data.loop.description,
+                      brief=cmd_data.loop.brief)
     async def loop(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -279,7 +302,8 @@ class Music(commands.Cog):
         player.loop = not player.loop
         await ctx.send(f"ループ{'オン' if player.loop else 'オフ'}完了")
 
-    @commands.command(aliases=["lq", "loopqueue"], usage=cmd_data.loop_queue.usage, description=cmd_data.loop_queue.description, brief=cmd_data.loop_queue.brief)
+    @commands.command(aliases=["lq", "loopqueue"], usage=cmd_data.loop_queue.usage,
+                      description=cmd_data.loop_queue.description, brief=cmd_data.loop_queue.brief)
     async def loop_queue(self, ctx):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -288,16 +312,6 @@ class Music(commands.Cog):
         player.loop_queue = not player.loop_queue
         await ctx.send(f"キューループ{'オン' if player.loop_queue else 'オフ'}完了")
 
-    async def cleanup(self, guild):
-        try:
-            await guild.voice_client.disconnect()
-        except Exception as e:
-            pass
-        try:
-            self.players[guild.id].task.cancel()
-            del self.players[guild.id]
-        except Exception as e:
-            pass
 
 
 def setup(bot):
