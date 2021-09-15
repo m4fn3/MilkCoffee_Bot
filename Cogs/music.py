@@ -42,6 +42,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.url = data["webpage_url"]
         self.duration = data["duration"]
 
+    def __getitem__(self, item):
+        return self.data[item]
+
     @classmethod
     async def create_source(cls, search: str, *, loop):
         loop = loop or asyncio.get_event_loop()
@@ -84,14 +87,14 @@ class Player:
                 async with timeout(300):
                     data = await self.queue.get()
             except asyncio.TimeoutError:
-                await self.channel.send("一定時間操作がなかったため切断しました")
+                await warning_embed(self.channel, "一定時間、操作がなかったため接続を切りました。")
                 return self.destroy(self.guild)
             try:
                 source = await YTDLSource.stream(data, loop=self.bot.loop)
             except asyncio.CancelledError:
                 return
             except:
-                await self.channel.send(f"音楽処理エラー\n```{traceback2.format_exc()}```")
+                await error_embed(self.channel, f"音楽の処理中にエラーが発生しました\n```{traceback2.format_exc()}```")
                 continue
             source.volume = self.volume
             self.current = source
@@ -128,7 +131,7 @@ class Music(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("引数不足")
+            await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name))
         elif isinstance(error, commands.errors.CommandNotFound):
             return
         else:
@@ -167,7 +170,7 @@ class Music(commands.Cog):
         async with ctx.typing():
             data = await YTDLSource.create_source(search, loop=self.bot.loop)
         await wait_msg.delete()
-        # import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
+        #import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
         if data["extractor"] in ["youtube", "youtube:search"]:
             if data["extractor"] == "youtube:search":
                 data = data["entries"][0]
@@ -208,15 +211,31 @@ class Music(commands.Cog):
         voice_client = ctx.voice_client
         if not voice_client or not voice_client.is_connected():
             return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
-        text = "予約済み曲一覧"
-        if voice_client.source is not None:
-            text += f"\n[再生中] {voice_client.source.title}"
+
+        text = ""
         player = self.get_player(ctx)
+        if voice_client.source is not None:
+            text += f"\n再生中:\n [{voice_client.source.title}]({voice_client.source.url}) | {self.duration_to_text(voice_client.source.duration)}\n"
+        elif player.queue.empty():
+            return await error_embed(ctx, "現在予約された曲はありません")
+
         for i, d in enumerate(player.queue._queue):
-            text += f"\n[{i + 1}] {d['title']}"
-        if player.loop: text += "\n[ループ有効]"
-        if player.loop_queue: text += "\n[キューループ有効]"
-        await ctx.send(text)
+            cache = text
+            text += f"\n{i + 1}. [{d['title']}]({d['webpage_url']}) | {self.duration_to_text(d['duration'])}"
+            if len(text) >= 4000:
+                text = cache + "\n等..."
+                break
+
+        text += f"\n\n現在{len(player.queue._queue)}曲が予約されています"
+
+        embed = discord.Embed(description=text)
+        if player.loop and player.loop_queue:
+            embed.set_footer(text="現在再生中の曲、予約した曲全体の繰り返し機能が有効です(loopとloop_queue)")
+        elif player.loop:
+            embed.set_footer(text="現在再生中の曲の繰り返し機能が有効です(loop)")
+        elif player.loop_queue:
+            embed.set_footer(text="予約した曲全体の繰り返し機能が有効です(loop_queue)")
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["ps", "stop"], usage=cmd_data.pause.usage, description=cmd_data.pause.description,
                       brief=cmd_data.pause.brief)
@@ -249,6 +268,17 @@ class Music(commands.Cog):
         voice_client.stop()
         await success_embed(ctx, "音楽をスキップしました")
 
+    def duration_to_text(self, seconds):
+        seconds =  seconds % (24 * 3600)
+        hour = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+        if hour > 0:
+            return "%d:%02d:%02d" % (hour, minutes, seconds)
+        else:
+            return "%02d:%02d" % (minutes, seconds)
+
     @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description,
                       brief=cmd_data.now_playing.brief)
     async def now_playing(self, ctx):
@@ -258,8 +288,12 @@ class Music(commands.Cog):
         player = self.get_player(ctx)
         if player.current is None:
             return await error_embed(ctx, "現在再生中の音楽はありません")
-        text = f"曲名: {voice_client.source.title}\nURL: {voice_client.source.url}"
-        await ctx.send(text)
+        duration = self.duration_to_text(voice_client.source.duration)
+        embed = discord.Embed(
+            description=f"[{voice_client.source.title}]({voice_client.source.url})\n\n{duration}"
+        )
+        embed.set_thumbnail(url=voice_client.source["thumbnails"][0]["url"])
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["rm"], usage=cmd_data.remove.usage, description=cmd_data.remove.description,
                       brief=cmd_data.remove.brief)
