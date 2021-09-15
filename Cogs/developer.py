@@ -52,14 +52,17 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.command(aliases=["rl"])
     async def reload(self, ctx, text):
+        if text == "music":
+            players = self.bot.get_cog("Music").players
+            self.bot.reload_extension("Cogs.music")
+            self.bot.get_cog("Music").players = players
+            return await ctx.send("musicを再読み込みしました")
         try:
             self.bot.reload_extension(text)
         except:
             await ctx.send(f"{text}の再読み込みに失敗しました\n{traceback2.format_exc()}.")
         else:
             await ctx.send(f"{text}の再読み込みに成功しました.")
-        if text == "global_chat":
-            await self.bot.get_cog("GlobalChat").initialize_cog()
 
     @commands.command(aliases=["re"])
     async def restart(self, ctx):

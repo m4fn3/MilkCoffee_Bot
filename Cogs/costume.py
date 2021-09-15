@@ -236,7 +236,7 @@ class Costume(commands.Cog):
             msg.add_reaction(self.bot.data.emoji.right)
         )
 
-    @commands.command(aliases=["del", "remove", "rm"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
+    @commands.command(aliases=["del"], usage=cmd_data.delete.usage, description=cmd_data.delete.description, brief=cmd_data.delete.brief)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def delete(self, ctx: commands.Context, *, cond: str) -> None:
         """保存済みの作品を削除"""

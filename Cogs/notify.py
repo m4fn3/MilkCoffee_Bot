@@ -158,8 +158,8 @@ class Notify(commands.Cog):
                 target_channel = None
             elif message.channel_mentions:  # チャンネルメンションの場合
                 target_channel = message.channel_mentions[0]
-            elif ch := discord.utils.get(ctx.guild.channels, name=message.content):  # チャンネル名の場合
-                target_channel = ch
+            elif discord.utils.get(ctx.guild.channels, name=message.content):  # チャンネル名の場合
+                target_channel = discord.utils.get(ctx.guild.channels, name=message.content)
             else:  # チャンネルが見つからなかった場合
                 await error_embed(ctx, self.bot.text.notice_channel_not_found[user_lang])
                 return notify  # 変更せずにそのまま返す

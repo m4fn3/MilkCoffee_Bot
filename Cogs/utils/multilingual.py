@@ -2,6 +2,7 @@ from enum import IntEnum
 
 
 def get_lg(lang: int, region):
+    """Discord地域データから言語番号を取得"""
     if lang == LanguageCode.REGION:
         if str(region) == "japan":
             return LanguageCode.JAPANESE.value - 1

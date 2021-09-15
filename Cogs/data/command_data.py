@@ -95,6 +95,97 @@ class Ads:
 
 
 @dataclasses.dataclass(frozen=True)
+class Play:
+    usage = "play [曲名/URL]^play [曲名/URL]^play [曲名/URL]^play [曲名/URL]"
+    brief = "指定した音楽を再生^指定した音楽を再生^指定した音楽を再生^指定した音楽を再生"
+    description = "指定した音楽を再生します^指定した音楽を再生します^指定した音楽を再生します^指定した音楽を再生します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Join:
+    usage = "join^join^join^join"
+    brief = "VCに接続^VCに接続^VCに接続^VCに接続"
+    description = "VCに接続します^VCに接続します^VCに接続します^VCに接続します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Disconnect:
+    usage = "disconnect^disconnect^disconnect^disconnect"
+    brief = "VCから切断^VCから切断^VCから切断^VCから切断"
+    description = "VCから切断します^VCから切断します^VCから切断します^VCから切断します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Queue:
+    usage = "queue^queue^queue^queue"
+    brief = "予約済みの曲の表示^予約済みの曲の表示^予約済みの曲の表示^予約済みの曲の表示"
+    description = "予約済みの曲一覧を表示します^予約済みの曲一覧を表示します^予約済みの曲一覧を表示します^予約済みの曲一覧を表示します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Pause:
+    usage = "pause^pause^pause^pause"
+    brief = "再生を一時停止^再生を一時停止^再生を一時停止^再生を一時停止"
+    description = "音楽の再生を一時停止します^音楽の再生を一時停止します^音楽の再生を一時停止します^音楽の再生を一時停止します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Resume:
+    usage = "resume^resume^resume^resume"
+    brief = "再生の再開^再生の再開^再生の再開^再生の再開"
+    description = "音楽の再生を再開します^音楽の再生を再開します^音楽の再生を再開します^音楽の再生を再開します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Skip:
+    usage = "skip^skip^skip^skip"
+    brief = "音楽をスキップ^音楽をスキップ^音楽をスキップ^音楽をスキップ"
+    description = "再生中の音楽をスキップします^再生中の音楽をスキップします^再生中の音楽をスキップします^再生中の音楽をスキップします"
+
+
+@dataclasses.dataclass(frozen=True)
+class NowPlaying:
+    usage = "now_playing^now_playing^now_playing^now_playing"
+    brief = "再生中の曲の表示^再生中の曲の表示^再生中の曲の表示^再生中の曲の表示"
+    description = "再生中の曲を表示します^再生中の曲を表示します^再生中の曲を表示します^再生中の曲を表示します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Remove:
+    usage = "remove [位置番号]^remove [位置番号]^remove [位置番号]^remove [位置番号]"
+    brief = "予約済みの曲の削除^予約済みの曲の削除^予約済みの曲の削除^予約済みの曲の削除"
+    description = "予約済みの曲を削除します^予約済みの曲を削除します^予約済みの曲を削除します^予約済みの曲を削除します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Clear:
+    usage = "clear^clear^clear^clear"
+    brief = "予約曲のクリア^予約曲のクリア^予約曲のクリア^予約曲のクリア"
+    description = "予約済みの曲をすべて削除します^予約済みの曲をすべて削除します^予約済みの曲をすべて削除します^予約済みの曲をすべて削除します"
+
+
+@dataclasses.dataclass(frozen=True)
+class Shuffle:
+    usage = "shuffle^shuffle^shuffle^shuffle"
+    brief = "予約曲のシャッフル^予約曲のシャッフル^予約曲のシャッフル^予約曲のシャッフル"
+    description = "予約済みの曲をシャッフルします^予約済みの曲をシャッフルします^予約済みの曲をシャッフルします^予約済みの曲をシャッフルします"
+
+
+@dataclasses.dataclass(frozen=True)
+class Loop:
+    usage = "loop^loop^loop^loop"
+    brief = "ループの設定^ループの設定^ループの設定^ループの設定^"
+    description = "再生中の1曲をループする設定をします^再生中の1曲をループする設定をします^再生中の1曲をループする設定をします^再生中の1曲をループする設定をします"
+
+
+@dataclasses.dataclass(frozen=True)
+class LoopQueue:
+    usage = "loop_queue^loop_queue^loop_queue^loop_queue"
+    brief = "予約曲のループ設定^予約曲のループ設定^予約曲のループ設定^予約曲のループ設定"
+    description = "予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します^予約済みの曲全体のループを設定します"
+
+
+@dataclasses.dataclass(frozen=True)
 class CmdData:
     # Costume
     set = Set()
@@ -112,3 +203,17 @@ class CmdData:
     follow = Follow()
     notice = Notice()
     ads = Ads()
+    # Music
+    play = Play()
+    join = Join()
+    disconnect = Disconnect()
+    queue = Queue()
+    pause = Pause()
+    resume = Resume()
+    skip = Skip()
+    now_playing = NowPlaying()
+    remove = Remove()
+    clear = Clear()
+    shuffle = Shuffle()
+    loop = Loop()
+    loop_queue = LoopQueue()
