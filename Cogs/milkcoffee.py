@@ -1,6 +1,7 @@
 import io
 import os
 import time
+import pickle
 
 import aiohttp
 import discord
@@ -38,6 +39,9 @@ class MilkCoffee(commands.Bot):
         self.commands_run = 0
         self.aiohttp_session = aiohttp.ClientSession(loop=self.loop)
 
+        with open('guilds.pickle', 'rb') as f:
+            self.cache_guilds = pickle.load(f)
+
     async def on_ready(self) -> None:
         """キャッシュ準備完了"""
         print(f"Logged in to [{self.user}]")
@@ -48,7 +52,8 @@ class MilkCoffee(commands.Bot):
         if not self.backup_database.is_running():
             self.backup_database.start()
         # ステータスを変更
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(
+            f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
     async def on_message(self, message: discord.Message) -> None:
         """メッセージ送信時"""
@@ -60,7 +65,8 @@ class MilkCoffee(commands.Bot):
         elif message.author.bot:  # BOTからのメッセージの場合
             return
         elif message.content == f"<@!{self.user.id}>":  # BOTがメンションされた時
-            return await normal_embed(message.channel, self.text.prefix_of_the_bot[await self.db.get_lang(message.author.id, message.guild.region)].format(self.PREFIX, self.PREFIX))
+            return await normal_embed(message.channel, self.text.prefix_of_the_bot[
+                await self.db.get_lang(message.author.id, message.guild.region)].format(self.PREFIX, self.PREFIX))
         else:  # コマンドとして処理
             await self.process_commands(message)
 
@@ -73,7 +79,8 @@ class MilkCoffee(commands.Bot):
         embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.static_data.log_channel).send(embed=embed)
         # ステータスを更新
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(
+            f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
     async def on_guild_remove(self, guild: discord.Guild) -> None:
         """サーバー退出時"""
@@ -84,12 +91,15 @@ class MilkCoffee(commands.Bot):
         embed.description = f"サーバーID: {guild.id}"
         await self.get_channel(self.static_data.log_channel).send(embed=embed)
         # ステータスを更新
-        await self.change_presence(status=discord.Status.online, activity=discord.Game(f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
+        await self.change_presence(status=discord.Status.online, activity=discord.Game(
+            f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
 
     async def on_command(self, ctx: commands.Context) -> None:
         """コマンド実行時"""
         self.commands_run += 1
-        embed = discord.Embed(description=f"[{ctx.message.content}]({ctx.message.jump_url}) | {str(ctx.author)} | {ctx.channel.name} | {ctx.guild.name}", color=discord.Color.dark_theme())
+        embed = discord.Embed(
+            description=f"[{ctx.message.content}]({ctx.message.jump_url}) | {str(ctx.author)} | {ctx.channel.name} | {ctx.guild.name}",
+            color=discord.Color.dark_theme())
         content = {"embeds": [embed.to_dict()]}
         headers = {'Content-Type': 'application/json'}
         await self.aiohttp_session.post(os.getenv("LOG_WH"), json=content, headers=headers)
@@ -107,3 +117,5 @@ class MilkCoffee(commands.Bot):
         await self.get_channel(self.static_data.backup_channel).send(
             file=discord.File(fp=io.StringIO(output), filename="dump")
         )
+
+

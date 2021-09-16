@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import io
 import os
+import pickle
 import pprint
 import subprocess
 import sys
@@ -9,12 +10,14 @@ import textwrap
 import time
 from contextlib import redirect_stdout
 
+
 import discord
 import psutil
 import traceback2
 from discord.ext import commands
 
 from .milkcoffee import MilkCoffee
+from .utils.messenger import error_embed, success_embed, warning_embed, normal_embed
 
 
 # class
@@ -49,6 +52,43 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
             await ctx.send(f"引数が足りません。\nエラー詳細:\n{error}")
         else:
             await ctx.send(f"エラーが発生しました:\n{error}")
+
+    @commands.command(aliases=["ac"])
+    async def accept(self, ctx, guild_id):
+        try:
+            guild_id = int(guild_id)
+        except:
+            return await error_embed(ctx, "無効なIDです")
+        if guild_id not in self.bot.cache_guilds:
+            guild = self.bot.get_guild(guild_id)
+            if guild is None:
+                await error_embed(ctx, "そのサーバーに参加していません")
+            else:
+                self.bot.cache_guilds.add(guild_id)
+                await success_embed(ctx, f"{guild.name}での利用を承認しました")
+                with open('guilds.pickle', 'wb') as f:
+                    pickle.dump(self.bot.cache_guilds, f)
+        else:
+            await warning_embed(ctx, "そのサーバーはすでに承認されています")
+
+    @commands.command(aliases=["rf"])
+    async def refuse(self, ctx, guild_id):
+        try:
+            guild_id = int(guild_id)
+        except:
+            return await error_embed(ctx, "無効なIDです")
+        if guild_id in self.bot.cache_guilds:
+            guild = self.bot.get_guild(guild_id)
+            if guild is None:
+                self.bot.cache_guilds.discard(guild_id)
+                await error_embed(ctx, "そのサーバーでの使用を拒否しました")
+            else:
+                self.bot.cache_guilds.discard(guild_id)
+                await success_embed(ctx, f"{guild.name}での利用を拒否しました")
+            with open('guilds.pickle', 'wb') as f:
+                pickle.dump(self.bot.cache_guilds, f)
+        else:
+            await warning_embed(ctx, "そのサーバーはまだ承認されていません")
 
     @commands.command(aliases=["rl"])
     async def reload(self, ctx, text):

@@ -129,6 +129,18 @@ class Music(commands.Cog):
             self.players[ctx.guild.id] = player
         return player
 
+
+    def duration_to_text(self, seconds):
+        seconds =  seconds % (24 * 3600)
+        hour = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+        if hour > 0:
+            return "%d:%02d:%02d" % (hour, minutes, seconds)
+        else:
+            return "%02d:%02d" % (minutes, seconds)
+
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name))
@@ -184,6 +196,13 @@ class Music(commands.Cog):
     @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description,
                       brief=cmd_data.join.brief)
     async def join(self, ctx):
+        if ctx.guild.id not in self.bot.cache_guilds:
+            embed = discord.Embed(
+                description=f"サーバー負荷対策のため音楽機能は承認制になっています。\nミルクチョコプレイヤーの方は基本__誰でも__許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
+                color=discord.Color.blue()
+            )
+            return await ctx.send(f"{ctx.guild.id}\nhttps://discord.gg/h2ZNX9mSSN", embed=embed)
+
         voice_client = ctx.voice_client
         if ctx.author.voice is None:
             return await error_embed(ctx, "先にボイスチャンネルに接続してください!") 
@@ -267,16 +286,6 @@ class Music(commands.Cog):
         voice_client.stop()
         await success_embed(ctx, "音楽をスキップしました")
 
-    def duration_to_text(self, seconds):
-        seconds =  seconds % (24 * 3600)
-        hour = seconds // 3600
-        seconds %= 3600
-        minutes = seconds // 60
-        seconds %= 60
-        if hour > 0:
-            return "%d:%02d:%02d" % (hour, minutes, seconds)
-        else:
-            return "%02d:%02d" % (minutes, seconds)
 
     @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description,
                       brief=cmd_data.now_playing.brief)
@@ -354,7 +363,6 @@ class Music(commands.Cog):
         player = self.get_player(ctx)
         player.loop_queue = not player.loop_queue
         await success_embed(ctx, f"予約された曲全体の繰り返しを{'有効' if player.loop_queue else '無効'}にしました")
-
 
 
 def setup(bot):

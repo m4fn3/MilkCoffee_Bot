@@ -17,7 +17,7 @@ DB_URL = os.getenv("DB_URL")
 logging.basicConfig(level=logging.INFO)
 
 PREFIX = "m!"
-PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！", "M! ", "M！ ", "Ｍ! ", "Ｍ！ ", "M!　", "M！　", "Ｍ!　", "Ｍ！　", "M!", "M！", "Ｍ!", "Ｍ！"]
+PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "ｍ！　", "m!", "m！", "ｍ!", "ｍ！", "M! ", "M！ ", "Ｍ! ", "Ｍ！ ", "M!　", "M！　", "Ｍ!　", "Ｍ！　", "M!", "M！", "Ｍ!", "Ｍ！", "."]
 
 if __name__ == '__main__':
     intents = discord.Intents.default()
