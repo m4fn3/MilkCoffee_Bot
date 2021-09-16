@@ -44,7 +44,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         return content.strip('` \n')
 
     async def cog_before_invoke(self, ctx):
-        if ctx.author.id not in [513136168112750593, 519760564755365888]:
+        if ctx.author.id not in [513136168112750593, 519760564755365888, 561359054165901347, 585351496523186187, 822814328238506014]:
             raise Exception("Developer-Admin-Error")
 
     async def cog_command_error(self, ctx, error):

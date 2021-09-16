@@ -198,7 +198,7 @@ class Music(commands.Cog):
     async def join(self, ctx):
         if ctx.guild.id not in self.bot.cache_guilds:
             embed = discord.Embed(
-                description=f"サーバー負荷対策のため音楽機能は承認制になっています。\nミルクチョコプレイヤーの方は基本__誰でも__許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
+                description=f"負荷対策のため音楽機能はサーバーごとの承認制になっています。\nミルクチョコプレイヤーの方は基本__誰でも__許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
                 color=discord.Color.blue()
             )
             return await ctx.send(f"{ctx.guild.id}\nhttps://discord.gg/h2ZNX9mSSN", embed=embed)
