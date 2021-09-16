@@ -198,7 +198,7 @@ class Music(commands.Cog):
     async def join(self, ctx):
         if ctx.guild.id not in self.bot.cache_guilds:
             embed = discord.Embed(
-                description=f"負荷対策のため音楽機能はサーバーごとの承認制になっています。\nミルクチョコプレイヤーの方は基本__誰でも__許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
+                description=f"負荷対策のため音楽機能はサーバーごとの承認制になっています。\n__**ミルクチョコプレイヤーの方**__は基本誰でも許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
                 color=discord.Color.blue()
             )
             return await ctx.send(f"{ctx.guild.id}\nhttps://discord.gg/h2ZNX9mSSN", embed=embed)
@@ -351,6 +351,8 @@ class Music(commands.Cog):
         if not voice_client or not voice_client.is_connected():
             return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
+        if not player.loop and player.loop_queue:
+            player.loop_queue = False
         player.loop = not player.loop
         await success_embed(ctx, f"現在再生中の曲の繰り返しを{'有効' if player.loop else '無効'}にしました")
 
@@ -361,6 +363,8 @@ class Music(commands.Cog):
         if not voice_client or not voice_client.is_connected():
             return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
         player = self.get_player(ctx)
+        if player.loop and not player.loop_queue:
+            player.loop = False
         player.loop_queue = not player.loop_queue
         await success_embed(ctx, f"予約された曲全体の繰り返しを{'有効' if player.loop_queue else '無効'}にしました")
 
