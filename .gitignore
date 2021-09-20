@@ -5,3 +5,4 @@ FBUpdateDetector/
 .idea/
 *.pyc
 .env
+guilds.pickle
