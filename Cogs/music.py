@@ -207,8 +207,11 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             return await error_embed(ctx, "先にボイスチャンネルに接続してください!") 
         elif voice_client is None or not voice_client.is_connected:
-            await ctx.author.voice.channel.connect()
-            await success_embed(ctx, f"{ctx.author.voice.channel.name}に接続しました")
+            voice_channel = ctx.author.voice.channel
+            await voice_channel.connect()
+            await success_embed(ctx, f"{voice_channel.name}に接続しました")
+            if voice_channel.type == discord.ChannelType.stage_voice and voice_channel.permissions_for(ctx.me).manage_channels:
+                await ctx.me.edit(suppress=False)
         elif voice_client.channel.id != ctx.author.voice.channel.id:
             await voice_client.move_to(ctx.author.voice.channel)
             await success_embed(ctx, f"{ctx.author.voice.channel.name}に移動しました")
