@@ -1,3 +1,5 @@
+import re
+
 from discord.ext import commands
 import discord
 import youtube_dl
@@ -7,7 +9,6 @@ import random
 import traceback2
 from .data.command_data import CmdData
 from .utils.messenger import error_embed, success_embed, warning_embed, normal_embed
-
 
 cmd_data = CmdData()
 ytdl_options = {
@@ -46,9 +47,9 @@ class YTDLSource(discord.PCMVolumeTransformer):
         return self.data[item]
 
     @classmethod
-    async def create_source(cls, search: str, *, loop):
+    async def create_source(cls, search: str, *, loop, process=True):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url=search, download=False))
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url=search, download=False, process=process))
         return data
 
     @classmethod
@@ -129,9 +130,8 @@ class Music(commands.Cog):
             self.players[ctx.guild.id] = player
         return player
 
-
     def duration_to_text(self, seconds):
-        seconds =  seconds % (24 * 3600)
+        seconds = seconds % (24 * 3600)
         hour = seconds // 3600
         seconds %= 3600
         minutes = seconds // 60
@@ -143,7 +143,10 @@ class Music(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name))
+            await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(self.bot.PREFIX,
+                                                                                                 ctx.command.usage.split(
+                                                                                                     "^")[0],
+                                                                                                 ctx.command.qualified_name))
         elif isinstance(error, commands.errors.CommandNotFound):
             return
         else:
@@ -174,24 +177,40 @@ class Music(commands.Cog):
     @commands.command(aliases=["p"], usage=cmd_data.play.usage, description=cmd_data.play.description,
                       brief=cmd_data.play.brief)
     async def play(self, ctx, *, search):
-        if ctx.voice_client is None:
-            if await ctx.invoke(self.join) is not None:
-                return
-        player = self.get_player(ctx)
-        wait_msg = await normal_embed(ctx, "読込中...(曲が多いプレイリストの場合は処理完了まで少し時間がかかります)")
-        async with ctx.typing():
-            data = await YTDLSource.create_source(search, loop=self.bot.loop)
-        await wait_msg.delete()
-        #import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
-        if data["extractor"] in ["youtube", "youtube:search"]:
-            if data["extractor"] == "youtube:search":
-                data = data["entries"][0]
-            await player.queue.put(data)
-            await success_embed(ctx, f"{data['title']}を追加しました")
-        elif data["extractor"] == "youtube:tab":
-            for meta in data["entries"]:
-                await player.queue.put(meta)
-            await success_embed(ctx, f"{data['title']}から{len(data['entries'])}曲を追加しました")
+        try:
+            if ctx.voice_client is None:
+                if await ctx.invoke(self.join) is not None:
+                    return
+            player = self.get_player(ctx)
+            wait_msg = await normal_embed(ctx, "読込中...")
+            async with ctx.typing():
+                if search.startswith(("http://", "https://")) and "list=" in search:  # playlist
+                    match = re.search("[a-zA-Z0-9_-]{34}", search)
+                    if match is not None:
+                        search = "https://www.youtube.com/playlist?list=" + match.group()
+                    data = await YTDLSource.create_source(search, loop=self.bot.loop, process=False)
+                else:  # video, search
+                    data = await YTDLSource.create_source(search, loop=self.bot.loop)
+                # import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
+            await wait_msg.delete()
+            if data is None:
+                return await error_embed(ctx, "一致する検索結果はありませんでした")
+            elif data["extractor"] in ["youtube", "youtube:search"]:
+                if data["extractor"] == "youtube:search":
+                    if not data["entries"]:
+                        return await error_embed(ctx, "一致する検索結果はありませんでした")
+                    data = data["entries"][0]
+                await player.queue.put(data)
+                await success_embed(ctx, f"{data['title']}を追加しました")
+            elif data["extractor"] == "youtube:tab":
+                meta_count = 0
+                for meta in data["entries"]:
+                    meta["webpage_url"] = "https://www.youtube.com/watch?v=" + meta["id"]
+                    await player.queue.put(meta)
+                    meta_count += 1
+                await success_embed(ctx, f"{data['title']}から{meta_count}曲を追加しました")
+        except:
+            print(traceback2.format_exc())
 
     @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description,
                       brief=cmd_data.join.brief)
@@ -205,12 +224,13 @@ class Music(commands.Cog):
 
         voice_client = ctx.voice_client
         if ctx.author.voice is None:
-            return await error_embed(ctx, "先にボイスチャンネルに接続してください!") 
+            return await error_embed(ctx, "先にボイスチャンネルに接続してください!")
         elif voice_client is None or not voice_client.is_connected:
             voice_channel = ctx.author.voice.channel
             await voice_channel.connect()
             await success_embed(ctx, f"{voice_channel.name}に接続しました")
-            if voice_channel.type == discord.ChannelType.stage_voice and voice_channel.permissions_for(ctx.me).manage_channels:
+            if voice_channel.type == discord.ChannelType.stage_voice and voice_channel.permissions_for(
+                    ctx.me).manage_channels:
                 await ctx.me.edit(suppress=False)
         elif voice_client.channel.id != ctx.author.voice.channel.id:
             await voice_client.move_to(ctx.author.voice.channel)
@@ -288,7 +308,6 @@ class Music(commands.Cog):
             return await error_embed(ctx, "現在再生中の音楽はありません")
         voice_client.stop()
         await success_embed(ctx, "音楽をスキップしました")
-
 
     @commands.command(aliases=["np"], usage=cmd_data.now_playing.usage, description=cmd_data.now_playing.description,
                       brief=cmd_data.now_playing.brief)
