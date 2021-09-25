@@ -12,7 +12,9 @@ load_dotenv(verbose=True)
 load_dotenv(join(dirname(__file__), '.env'))
 
 TOKEN = os.getenv("TOKEN")
-DB_URL = os.getenv("DB_URL")
+DB_NAME = os.getenv("DB_URL")
+DB_USER = os.getenv("DB_USER")
+DB_PSWD = os.getenv("DB_PSWD")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,5 +24,5 @@ PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "
 if __name__ == '__main__':
     intents = discord.Intents.default()
     intents.typing = False
-    bot = MilkCoffee(PREFIX, DB_URL, command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
+    bot = MilkCoffee(PREFIX, [DB_NAME, DB_USER, DB_PSWD], command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
     bot.run(TOKEN)

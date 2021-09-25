@@ -16,7 +16,7 @@ from .utils.messenger import normal_embed
 
 class MilkCoffee(commands.Bot):
 
-    def __init__(self, main_prefix, db_url, command_prefix, help_command, status, activity, intents) -> None:
+    def __init__(self, main_prefix, db_data, command_prefix, help_command, status, activity, intents) -> None:
         super().__init__(command_prefix, help_command, status=status, activity=activity, intents=intents)
         self.bot_cogs = ["Cogs.costume", "Cogs.notify", "Cogs.bot", "Cogs.developer", "Cogs.music"]
         self.PREFIX = main_prefix  # メインPREFIXを設定
@@ -24,7 +24,7 @@ class MilkCoffee(commands.Bot):
         self.db_ready = False  # データベース準備フラグ
 
         # データベース接続
-        self.db = SQLManager(db_url, self.loop)
+        self.db = SQLManager(*db_data, self.loop)
         self.cache_users = set()  # 登録済みユーザーのリスト
 
         # 読み込み

@@ -8,15 +8,20 @@ from .utils.multilingual import get_lg
 
 
 class SQLManager:
-    def __init__(self, database_url: str, bot_loop=None):
+    def __init__(self, name: str, user: str, password: str, bot_loop):
         self.loop = bot_loop or asyncio.get_event_loop()
         self.con: Optional[asyncpg.pool.Pool] = None
-        self.database_url = database_url
+        self.database_name = name
+        self.database_user = user
+        self.database_password = password
 
     # Connection
     async def connect(self) -> asyncpg.connection:
         """データベースに接続"""
-        self.con = await asyncpg.create_pool(self.database_url, loop=self.loop)
+        self.con = await asyncpg.create_pool(
+            user=self.database_user, database=self.database_name, password=self.database_password,
+            loop=self.loop
+        )
 
     def is_connected(self) -> bool:
         """データベースに接続しているか確認"""
