@@ -105,7 +105,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
         else:
             await ctx.send(f"{text}の再読み込みに成功しました.")
 
-    @commands.command(aliases=["re"])
+    @commands.command()
     async def restart(self, ctx):
         await ctx.send(":closed_lock_with_key:BOTを再起動します.")
         python = sys.executable

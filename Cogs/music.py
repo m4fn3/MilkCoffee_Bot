@@ -289,7 +289,7 @@ class Music(commands.Cog):
         voice_client.pause()
         await success_embed(ctx, "音楽の再生を一時停止しました")
 
-    @commands.command(aliases=["rs", "res"], usage=cmd_data.resume.usage, description=cmd_data.resume.description,
+    @commands.command(aliases=["re", "rs", "res"], usage=cmd_data.resume.usage, description=cmd_data.resume.description,
                       brief=cmd_data.resume.brief)
     async def resume(self, ctx):
         voice_client = ctx.voice_client
