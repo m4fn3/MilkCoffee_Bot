@@ -186,6 +186,13 @@ class LoopQueue:
 
 
 @dataclasses.dataclass(frozen=True)
+class Player:
+    usage = "player^player^player^player"
+    brief = "操作パネルの表示^操作パネルの表示^操作パネルの表示^操作パネルの表示"
+    description = "音楽の操作パネルを表示します^音楽の操作パネルを表示します^音楽の操作パネルを表示します^音楽の操作パネルを表示します"
+
+
+@dataclasses.dataclass(frozen=True)
 class CmdData:
     # Costume
     set = Set()
@@ -231,3 +238,4 @@ class CmdData:
     shuffle = Shuffle()
     loop = Loop()
     loop_queue = LoopQueue()
+    player = Player()
