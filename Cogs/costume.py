@@ -133,7 +133,10 @@ class Costume(commands.Cog):
         self.menu_channels.add(ctx.channel.id)
         user_lang = await self.bot.db.get_lang(ctx.author.id, ctx.guild.region)
         menu = Menu(ctx, self.bot, user_lang)  # メニュー初期化
-        await menu.run()  # メニュー開始
+        try:
+            await menu.run()  # メニュー開始
+        except:  # menu_users, menu_channelsが解放されないバグ対策
+            pass
         self.menu_users.remove(ctx.author.id)  # 実行中のリストから削除
         self.menu_channels.remove(ctx.channel.id)
 
