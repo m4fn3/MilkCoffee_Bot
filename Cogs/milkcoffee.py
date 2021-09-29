@@ -45,6 +45,8 @@ class MilkCoffee(commands.Bot):
     async def on_ready(self) -> None:
         """キャッシュ準備完了"""
         print(f"Logged in to [{self.user}]")
+        if self.user.id != 742952261176655882:
+            self.command_prefix.append(",")
         if not self.db.is_connected():  # データベースに接続しているか確認
             await self.db.connect()  # データベースに接続
             self.cache_users = self.cache_users.union(set(await self.db.get_registered_users()))
