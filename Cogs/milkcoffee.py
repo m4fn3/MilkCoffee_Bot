@@ -116,7 +116,6 @@ class MilkCoffee(commands.Bot):
     async def backup_database(self):
         output = await self.get_cog("Developer").run_subprocess(f'PGPASSWORD="{os.getenv("DB_PASS")}" pg_dump {os.getenv("DB_NAME")}')
         output = "\n".join(output)
-        print(output)
         await self.get_channel(self.static_data.backup_channel).send(
             file=discord.File(fp=io.StringIO(output), filename="dump")
         )
