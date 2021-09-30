@@ -291,7 +291,7 @@ class Music(commands.Cog):
             #         else:
             #             await member.guild.voice_client.disconnect()
 
-    @commands.command(name="player", aliases=["pl"], hidden=True, usage=cmd_data.player.usage, description=cmd_data.player.description, brief=cmd_data.player.brief)
+    @commands.command(name="player", aliases=["pl"], usage=cmd_data.player.usage, description=cmd_data.player.description, brief=cmd_data.player.brief)
     async def player_(self, ctx):
         # VCに接続していることを確認
         if ctx.voice_client is None:
