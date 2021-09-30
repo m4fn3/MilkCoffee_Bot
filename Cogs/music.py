@@ -204,6 +204,7 @@ class Menu:
         text = ""
         if voice_client.source is not None:
             text += f"\n再生中:\n [{voice_client.source.title}]({voice_client.source.url}) | {duration_to_text(voice_client.source.duration)}\n"
+            text += "-------------------------------------------------"
         elif player.queue.empty():
             text += "まだ曲が追加されていません"
 
@@ -213,13 +214,8 @@ class Menu:
         if len(player.queue._queue) > 10:
             text += "\n等..."
 
-        text += f"\n\n現在{len(player.queue._queue)}曲が予約されています"
-
-        embed = discord.Embed(title="音楽操作パネル", description=text, color=discord.Color.blurple())
-        if player.loop:
-            embed.set_footer(text="現在再生中の曲の繰り返し機能が有効です(loop)")
-        elif player.loop_queue:
-            embed.set_footer(text="予約した曲全体の繰り返し機能が有効です(loop_queue)")
+        embed = discord.Embed(description=text, color=discord.Color.blurple())
+        embed.set_footer(text=f"\n\n現在{len(player.queue._queue)}曲が予約されています")
 
         if view is None:
             await self.msg.edit(content=None, embed=embed)
@@ -263,11 +259,10 @@ class Music(commands.Cog):
 
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(self.bot.PREFIX,
-                                                                                                 ctx.command.usage.split(
-                                                                                                     "^")[0],
-                                                                                                 ctx.command.qualified_name))
-        elif isinstance(error, commands.errors.CommandNotFound):
+            await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(
+                                    self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name)
+                              )
+        elif isinstance(error, commands.CommandNotFound):
             return
         else:
             print(error)
