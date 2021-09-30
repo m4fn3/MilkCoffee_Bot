@@ -87,7 +87,7 @@ class Player:
             self.next.clear()
             try:
                 if len(self.queue._queue) == 0 and self.menu is not None:
-                    await self.menu.update(self)  # 予約曲が0でメニューがある場合
+                    await self.menu.update()  # 予約曲が0でメニューがある場合
                 async with timeout(300):
                     data = await self.queue.get()
             except asyncio.TimeoutError:
@@ -107,7 +107,7 @@ class Player:
                 after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set)
             )
             if self.menu:  # 再生中の曲はソースから情報を取得するため再生処理の後に実行
-                await self.menu.update(self)
+                await self.menu.update()
             await self.next.wait()
             source.cleanup()
             self.current = None
@@ -126,16 +126,19 @@ class MenuView(discord.ui.View):
         self.ctx = ctx
         self.cog = ctx.bot.get_cog("Music")
 
-    @discord.ui.button(emoji="⏯", style=discord.ButtonStyle.grey)
+    @discord.ui.button(emoji="⏸")
     async def play(self, button: discord.ui.Button, interaction: discord.Interaction):
         voice_client = self.ctx.voice_client
-        msg = None
         if not voice_client or not voice_client.is_connected():  # 未接続
             msg = await error_embed(self.ctx, "現在再生中の音楽はありません")
         elif voice_client.is_playing():
+            button.emoji = "▶"
+            button.style = discord.ButtonStyle.green
             voice_client.pause()
             msg = await success_embed(self.ctx, "音楽の再生を一時停止しました")
         elif voice_client.is_paused():
+            button.emoji = "⏸"
+            button.style = discord.ButtonStyle.grey
             voice_client.resume()
             msg = await success_embed(self.ctx, "音楽の再生を再開しました")
         else:
@@ -150,6 +153,7 @@ class MenuView(discord.ui.View):
     @discord.ui.button(emoji="🔄")
     async def loop(self, button: discord.ui.Button, interaction: discord.Interaction):
         msg = await self.ctx.invoke(self.cog.loop_queue)
+        button.style = discord.ButtonStyle.green if self.cog.get_player(self.ctx).loop_queue else discord.ButtonStyle.grey
         await self.update(msg)
 
     @discord.ui.button(emoji="🔀")
@@ -157,12 +161,12 @@ class MenuView(discord.ui.View):
         msg = await self.ctx.invoke(self.cog.shuffle)
         await self.update(msg)
 
-    @discord.ui.button(emoji="⏹")
+    @discord.ui.button(label="■", style=discord.ButtonStyle.red)
     async def stop_(self, button: discord.ui.Button, interaction: discord.Interaction):
         await self.ctx.invoke(self.cog.disconnect)
 
     async def update(self, msg):  # 各アクション実行後に画面更新&メッセージ削除
-        await self.cog.get_player(self.ctx).menu.update()
+        await self.cog.get_player(self.ctx).menu.update(self)
         await msg.delete(delay=3)
 
 
@@ -176,9 +180,8 @@ class Menu:
 
     async def initialize(self):
         self.msg2 = await self.ctx.send(embed=discord.Embed(description=f"__パネルを閉じるまで<#{self.ctx.channel.id}>のチャットは全て曲名として扱われます!終了するには■を押してください.__", color=discord.Color.red()))
-        view = MenuView(self.ctx)
-        self.view = view
-        self.msg = await self.ctx.send("•¨♪♪•.¸¸♬•¨♪♪•.¸¸♬", view=view)
+        self.view = MenuView(self.ctx)
+        self.msg = await self.ctx.send("読込中...", view=self.view)
         await self.update()
         self.task = self.ctx.bot.loop.create_task(
             self.wait_message()
@@ -195,7 +198,7 @@ class Menu:
             await self.update()
             await msg.delete(delay=3)
 
-    async def update(self):
+    async def update(self, view=None):
         player = self.ctx.cog.get_player(self.ctx)
         voice_client = self.ctx.voice_client
         text = ""
@@ -217,12 +220,16 @@ class Menu:
             embed.set_footer(text="現在再生中の曲の繰り返し機能が有効です(loop)")
         elif player.loop_queue:
             embed.set_footer(text="予約した曲全体の繰り返し機能が有効です(loop_queue)")
-        await self.msg.edit(embed=embed)
+
+        if view is None:
+            await self.msg.edit(content=None, embed=embed)
+        else:
+            await self.msg.edit(content=None, embed=embed, view=view)
 
     async def destroy(self):
+        self.task.cancel()
         self.view.stop()
         self.view.clear_items()
-        self.task.cancel()
         await self.msg.delete()
         await self.msg2.delete()
 
@@ -272,7 +279,8 @@ class Music(commands.Cog):
             if member == bot_member:  # botの退出
                 try:
                     self.players[member.guild.id].task.cancel()
-                    self.bot.loop.create_task(self.players[member.guild.id].menu.destroy())
+                    if self.players[member.guild.id].menu is not None:
+                        self.bot.loop.create_task(self.players[member.guild.id].menu.destroy())
                     del self.players[member.guild.id]
                 except:
                     pass
@@ -288,7 +296,7 @@ class Music(commands.Cog):
             #         else:
             #             await member.guild.voice_client.disconnect()
 
-    @commands.command(name="player", aliases=["pl"], usage=cmd_data.player.usage, description=cmd_data.player.description, brief=cmd_data.player.brief)
+    @commands.command(name="player", aliases=["pl"], hidden=True, usage=cmd_data.player.usage, description=cmd_data.player.description, brief=cmd_data.player.brief)
     async def player_(self, ctx):
         # VCに接続していることを確認
         if ctx.voice_client is None:
