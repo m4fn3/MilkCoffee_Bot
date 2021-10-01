@@ -43,7 +43,7 @@ class Bot(commands.Cog):
         # 本体を作成
         embed = discord.Embed(title="MilkCoffee", color=0xffffa8, url=self.bot.static_data.invite)
         embed.description = self.bot.text.invite_description[user_lang]
-        embed.set_thumbnail(url=self.bot.user.avatar_url)
+        embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.add_field(name=self.bot.text.invite_url[user_lang], value=self.bot.static_data.invite, inline=False)
         embed.add_field(name=self.bot.text.invite_server[user_lang], value=self.bot.static_data.server, inline=False)
         embed.add_field(name=self.bot.text.invite_add[user_lang], value=f"[{self.bot.text.invite_vote[user_lang]}]({self.bot.static_data.top_gg})")
