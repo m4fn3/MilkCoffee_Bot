@@ -11,7 +11,7 @@ from .SQLManager import SQLManager
 from .data.item_data import ItemData
 from .data.static_data import StaticData
 from .data.strings import Strings
-from .utils.messenger import normal_embed
+from .utils.messenger import normal_embed, success_embed
 
 
 class MilkCoffee(commands.Bot):
@@ -95,6 +95,12 @@ class MilkCoffee(commands.Bot):
         # ステータスを更新
         await self.change_presence(status=discord.Status.online, activity=discord.Game(
             f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
+        if guild.id in self.cache_guilds:
+            self.cache_guilds.discard(guild.id)
+            channel = self.get_channel(888017049589260298)
+            await success_embed(channel, f"{guild.name}({guild.id})を退出したので自動的に承認を取り下げました.")
+            with open('guilds.pickle', 'wb') as f:
+                pickle.dump(self.cache_guilds, f)
 
     async def on_command(self, ctx: commands.Context) -> None:
         """コマンド実行時"""
@@ -119,5 +125,3 @@ class MilkCoffee(commands.Bot):
         await self.get_channel(self.static_data.backup_channel).send(
             file=discord.File(fp=io.StringIO(output), filename="dump")
         )
-
-
