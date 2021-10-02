@@ -95,6 +95,7 @@ class MilkCoffee(commands.Bot):
         # ステータスを更新
         await self.change_presence(status=discord.Status.online, activity=discord.Game(
             f"{self.PREFIX}help | {len(self.guilds)}servers | {self.static_data.server}"))
+        # 承認済みサーバーから退出した場合に自動で承認を取り下げ
         if guild.id in self.cache_guilds:
             self.cache_guilds.discard(guild.id)
             channel = self.get_channel(888017049589260298)
