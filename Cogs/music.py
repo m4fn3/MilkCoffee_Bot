@@ -389,17 +389,22 @@ class Music(commands.Cog):
         for i, d in enumerate(player.queue._queue):
             cache = text
             text += f"\n{i + 1}. [{d['title']}]({d['webpage_url']}) | {duration_to_text(d['duration'])}"
+            # text += f"\n{i + 1}.) {d['title']} | {duration_to_text(d['duration'])}"
             if len(text) >= 4000:
                 text = cache + "\n等..."
                 break
         text += f"\n\n現在{len(player.queue._queue)}曲が予約されています"
 
-        embed = discord.Embed(description=text)
+        embed = discord.Embed(description=text, color=discord.Color.blurple())
         if player.loop:
             embed.set_footer(text="現在再生中の曲の繰り返し機能が有効です(loop)")
         elif player.loop_queue:
             embed.set_footer(text="予約した曲全体の繰り返し機能が有効です(loop_queue)")
         await ctx.send(embed=embed)
+
+        # embed = discord.Embed(color=discord.Color.blurple())
+        # embed.set_footer(text=text)
+        # await ctx.send(embed=embed)
 
     @commands.command(aliases=["ps", "stop"], usage=cmd_data.pause.usage, description=cmd_data.pause.description, brief=cmd_data.pause.brief)
     async def pause(self, ctx):
@@ -439,7 +444,8 @@ class Music(commands.Cog):
             return await error_embed(ctx, "現在再生中の音楽はありません")
         duration = duration_to_text(voice_client.source.duration)
         embed = discord.Embed(
-            description=f"[{voice_client.source.title}]({voice_client.source.url})\n\n{duration}"
+            description=f"[{voice_client.source.title}]({voice_client.source.url})\n\n{duration}",
+            color=discord.Color.blurple()
         )
         embed.set_thumbnail(url=voice_client.source["thumbnails"][0]["url"])
         await ctx.send(embed=embed)
