@@ -279,17 +279,16 @@ class Music(commands.Cog):
                     del self.players[member.guild.id]
                 except:
                     pass
-            # MEMO: memberインテントがオフであるため正常にキャッシュが動作せず人数が正しいとは限らない
-            # elif bot_member in before.channel.members:  # この操作に関係がある
-            #     voice_members = before.channel.members
-            #     real_members = discord.utils.get(voice_members, bot=False)
-            #     if len(voice_members) == 1 or real_members is None:
-            #         if member.guild.id in self.players:
-            #             player = self.get_player(member)
-            #             player.destroy(member.guild)
-            #             await player.channel.send("全員が退出したので便乗しました")
-            #         else:
-            #             await member.guild.voice_client.disconnect()
+            # MEMO: memberインテントが必要
+            # 自動切断
+            elif bot_member in before.channel.members:  # BOT接続しているVC
+                voice_members = before.channel.members
+                real_members = discord.utils.get(voice_members, bot=False)
+                if len(voice_members) == 1 or real_members is None:
+                    # if member.guild.id in self.players:
+                    #     player = self.get_player(member)
+                    #     await player.channel.send("")
+                    await member.guild.voice_client.disconnect()
 
     @commands.command(name="player", aliases=["pl"], usage=cmd_data.player.usage, description=cmd_data.player.description, brief=cmd_data.player.brief)
     async def player_(self, ctx):

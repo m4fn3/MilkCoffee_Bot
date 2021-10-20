@@ -24,5 +24,6 @@ PREFIXES = ["m! ", "m！ ", "ｍ! ", "ｍ！ ", "m!　", "m！　", "ｍ!　", "
 if __name__ == '__main__':
     intents = discord.Intents.default()
     intents.typing = False
+    intents.members = True  # memberインテント
     bot = MilkCoffee(PREFIX, [DB_NAME, DB_USER, DB_PSWD], command_prefix=PREFIXES, help_command=Help(), status=discord.Status.dnd, activity=discord.Game("Starting..."), intents=intents)
     bot.run(TOKEN)
