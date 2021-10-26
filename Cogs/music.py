@@ -352,6 +352,8 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             return await error_embed(ctx, "先にボイスチャンネルに接続してください!")
         elif voice_client is None or not voice_client.is_connected():
+            if voice_client is not None:  # VoiceClientがあるがis_connectedがfalseの場合 -> 一度強制切断
+                await ctx.voice_client.disconnect(force=True)
             voice_channel = ctx.author.voice.channel
             await voice_channel.connect()
             await success_embed(ctx, f"{voice_channel.name}に接続しました")
@@ -367,8 +369,11 @@ class Music(commands.Cog):
     @commands.command(aliases=["dc", "dis", "leave", "lv"], usage=cmd_data.disconnect.usage, description=cmd_data.disconnect.description, brief=cmd_data.disconnect.brief)
     async def disconnect(self, ctx):
         voice_client = ctx.voice_client
-        if not voice_client or not voice_client.is_connected():
+        if not voice_client:
             return await error_embed(ctx, "BOTはまだボイスチャンネルに接続していません")
+        elif not voice_client.is_connected():  # VoiceClientがあるがis_connectedがfalseの場合 -> 一度強制切断
+            await ctx.voice_client.disconnect(force=True)
+            return await error_embed(ctx, "異常な状況が検出されたので強制的に切断しました")
         await ctx.voice_client.disconnect()
         await success_embed(ctx, "切断しました")
 
