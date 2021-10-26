@@ -351,7 +351,7 @@ class Music(commands.Cog):
         voice_client = ctx.voice_client
         if ctx.author.voice is None:
             return await error_embed(ctx, "先にボイスチャンネルに接続してください!")
-        elif voice_client is None or not voice_client.is_connected:
+        elif voice_client is None or not voice_client.is_connected():
             voice_channel = ctx.author.voice.channel
             await voice_channel.connect()
             await success_embed(ctx, f"{voice_channel.name}に接続しました")
