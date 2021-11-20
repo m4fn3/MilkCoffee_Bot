@@ -19,7 +19,7 @@ class SQLManager:
     async def connect(self) -> asyncpg.connection:
         """データベースに接続"""
         self.con = await asyncpg.create_pool(
-            user=self.database_user, database=self.database_name, password=self.database_password,
+            user=self.database_user, database=self.database_name, password=self.database_password, host="localhost",
             loop=self.loop
         )
 
