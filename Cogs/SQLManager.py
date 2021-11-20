@@ -18,10 +18,11 @@ class SQLManager:
     # Connection
     async def connect(self) -> asyncpg.connection:
         """データベースに接続"""
-        self.con = await asyncpg.create_pool(
-            user=self.database_user, database=self.database_name, password=self.database_password, host="localhost",
-            loop=self.loop
-        )
+        # self.con = await asyncpg.create_pool(
+        #     user=self.database_user, database=self.database_name, password=self.database_password, host="localhost",
+        #     loop=self.loop
+        # )
+        self.con = await asyncpg.create_pool(f"postgres://{self.database_user}:{self.database_password}@localhost:5432/milkcoffee", loop=self.loop)
 
     def is_connected(self) -> bool:
         """データベースに接続しているか確認"""
