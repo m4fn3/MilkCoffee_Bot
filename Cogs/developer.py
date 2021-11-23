@@ -45,6 +45,7 @@ class Developer(commands.Cog, command_attrs=dict(hidden=True)):
 
     async def cog_before_invoke(self, ctx):
         if ctx.author.id not in [513136168112750593, 519760564755365888, 561359054165901347, 585351496523186187, 822814328238506014]:
+            await ctx.send(ctx.author.mention)
             await error_embed(ctx, "あなたにはこのコマンドを利用する権限がありません(笑)")
             raise Exception("Developer-Admin-Error")
 
