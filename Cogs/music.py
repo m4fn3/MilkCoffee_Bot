@@ -194,7 +194,7 @@ class Menu:
 
             msg = await self.ctx.bot.wait_for('message', check=check)
             await msg.delete()
-            msg = await self.ctx.invoke(self.ctx.bot.get_cog("Music").play, search=msg.content)
+            msg = await self.ctx.invoke(self.ctx.bot.get_cog("Music").play, query=msg.content)
             await self.update()
             await msg.delete(delay=3)
 
@@ -260,7 +260,7 @@ class Music(commands.Cog):
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await error_embed(ctx, "必須の引数が不足しています!\n正しい使い方: `{0}{1}`\n詳しくは `{0}help {2}`".format(
-                                    self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name)
+                self.bot.PREFIX, ctx.command.usage.split("^")[0], ctx.command.qualified_name)
                               )
         elif isinstance(error, commands.CommandNotFound):
             return
@@ -305,39 +305,51 @@ class Music(commands.Cog):
         await menu.initialize()  # 初期化完了後にメニュー登録
         player.menu = menu
 
-    @commands.command(aliases=["p"], usage=cmd_data.play.usage, description=cmd_data.play.description, brief=cmd_data.play.brief)
-    async def play(self, ctx, *, search):
-        if ctx.voice_client is None:
-            if await ctx.invoke(self.join) is not None:
-                return
+    async def process(self, ctx, search, supress):
         player = self.get_player(ctx)
-        wait_msg = await normal_embed(ctx, "読込中...")
         async with ctx.typing():
             if search.startswith(("http://", "https://")) and "list=" in search:  # playlist
                 match = re.search("[a-zA-Z0-9_-]{34}", search)
-                if match is not None:
+                if match is not None:  # プレイリストのリンクは専用の形式に変換 / ミックスリストはそのままでOK
                     search = "https://www.youtube.com/playlist?list=" + match.group()
                 data = await YTDLSource.create_source(search, loop=self.bot.loop, process=False)
             else:  # video, search
                 data = await YTDLSource.create_source(search, loop=self.bot.loop)
-            # import json,time;f = open(f"{time.time()}.json", "w");json.dump(data, f);f.close()
-        await wait_msg.delete()
         if data is None:
-            return await error_embed(ctx, "一致する検索結果はありませんでした")
-        elif data["extractor"] in ["youtube", "youtube:search"]:
-            if data["extractor"] == "youtube:search":
+            return 0 if supress else await error_embed(ctx, f"一致する検索結果はありませんでした:\n {search}")
+        elif data["extractor"] in ["youtube", "youtube:search"]:  # URL指定または検索
+            if data["extractor"] == "youtube:search":  # 検索
                 if not data["entries"]:
-                    return await error_embed(ctx, "一致する検索結果はありませんでした")
+                    return 0 if supress else await error_embed(ctx, f"一致する検索結果はありませんでした:\n {search}")
                 data = data["entries"][0]
             await player.queue.put(data)
-            return await success_embed(ctx, f"{data['title']}を追加しました")
-        elif data["extractor"] == "youtube:tab":
+            return 1 if supress else await success_embed(ctx, f"{data['title']}を追加しました")
+        elif data["extractor"] == "youtube:tab":  # プレイリスト
             meta_count = 0
             for meta in data["entries"]:
                 meta["webpage_url"] = "https://www.youtube.com/watch?v=" + meta["id"]
                 await player.queue.put(meta)
                 meta_count += 1
-            return await success_embed(ctx, f"{data['title']}から{meta_count}曲を追加しました")
+            return meta_count if supress else await success_embed(ctx, f"{data['title']}から{meta_count}曲を追加しました")
+
+    @commands.command(aliases=["p"], usage=cmd_data.play.usage, description=cmd_data.play.description, brief=cmd_data.play.brief)
+    async def play(self, ctx, *, query):
+        if ctx.voice_client is None:
+            if await ctx.invoke(self.join) is not None:
+                return
+        wait_msg = await normal_embed(ctx, "読込中...")
+        query = [q for q in query.split("\n") if q != ""]
+        ret_msg = None
+        if len(query) == 1:
+            ret_msg = await self.process(ctx, query[0], False)
+        else:  # 複数曲対応
+            # TODO: 途中で切断処理が入った場合に停止する
+            count = 0
+            for search in query:
+                count += await self.process(ctx, search, True)
+            ret_msg = await success_embed(ctx, f"合計{count}曲を追加しました")
+        await wait_msg.delete()
+        return ret_msg
 
     @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description, brief=cmd_data.join.brief)
     async def join(self, ctx):
