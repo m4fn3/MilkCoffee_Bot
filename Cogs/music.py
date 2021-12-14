@@ -34,7 +34,7 @@ ytdl = youtube_dl.YoutubeDL(ytdl_options)
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
-
+    """youtube-dl操作"""
     def __init__(self, source, *, data):
         super().__init__(source)
         self.data = data
@@ -48,12 +48,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     @classmethod
     async def create_source(cls, search: str, *, loop, process=True):
+        """動画データの取得"""
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url=search, download=False, process=process))
         return data
 
     @classmethod
     async def stream(cls, data, *, loop):
+        """動画ストリーム用データ取得"""
         loop = loop or asyncio.get_event_loop()
 
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url=data["webpage_url"], download=False))
@@ -66,6 +68,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 
 class Player:
+    """再生操作全般を行うプレイヤー"""
     def __init__(self, ctx):
         self.bot = ctx.bot
         self.guild = ctx.guild
@@ -83,6 +86,7 @@ class Player:
         )
 
     async def player_loop(self):
+        """音楽再生のメインループ"""
         while True:
             self.next.clear()
             try:
@@ -90,7 +94,7 @@ class Player:
                     await self.menu.update()  # 予約曲が0でメニューがある場合
                 async with timeout(300):
                     data = await self.queue.get()
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError:  # 自動切断
                 await warning_embed(self.channel, "一定時間、操作がなかったため接続を切りました。")
                 return self.destroy(self.guild)
             try:
@@ -121,6 +125,7 @@ class Player:
 
 
 class MenuView(discord.ui.View):
+    """playerコマンドの再生メニュー用Viewクラス"""
     def __init__(self, ctx):
         super().__init__(timeout=None)
         self.ctx = ctx
@@ -171,6 +176,7 @@ class MenuView(discord.ui.View):
 
 
 class Menu:
+    """playerコマンドの再生メニュー"""
     def __init__(self, ctx):
         self.ctx = ctx
         self.msg = None
@@ -231,11 +237,14 @@ class Menu:
 
 
 def duration_to_text(seconds):
+    if seconds == 0:
+        return "LIVE"
     seconds = seconds % (24 * 3600)
     hour = seconds // 3600
     seconds %= 3600
     minutes = seconds // 60
     seconds %= 60
+    print(seconds)
     if hour > 0:
         return "%d:%02d:%02d" % (hour, minutes, seconds)
     else:
