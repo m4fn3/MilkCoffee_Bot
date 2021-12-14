@@ -22,7 +22,8 @@ ytdl_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0'  # ipv6 addresses cause issues sometimes
+    'source_address': '0.0.0.0',  # ipv6 addresses cause issues sometimes
+    'cookiefile': 'cookies.txt'
 }
 
 ffmpeg_options = {
@@ -102,7 +103,7 @@ class Player:
             except asyncio.CancelledError:
                 return
             except:
-                await error_embed(self.channel, f"音楽の処理中にエラーが発生しました\n```{traceback2.format_exc()}```")
+                await error_embed(self.channel, f"音楽の処理中にエラーが発生しました\n```py\n{traceback2.format_exc()}```")
                 continue
             source.volume = self.volume
             self.current = source

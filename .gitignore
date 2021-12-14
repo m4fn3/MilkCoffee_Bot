@@ -6,3 +6,4 @@ FBUpdateDetector/
 *.pyc
 .env
 guilds.pickle
+cookies.txt
