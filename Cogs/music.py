@@ -2,7 +2,7 @@ import re
 
 from discord.ext import commands
 import discord
-import youtube_dl
+import yt_dlp as youtube_dl
 import asyncio
 from async_timeout import timeout
 import random

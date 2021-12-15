@@ -8,4 +8,4 @@ traceback2
 six
 rsa
 pillow
-youtube-dl
+yt_dlp
