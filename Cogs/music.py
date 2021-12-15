@@ -22,8 +22,7 @@ ytdl_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0',  # ipv6 addresses cause issues sometimes
-    'cookiefile': 'cookies.txt'
+    'source_address': '0.0.0.0'  # ipv6 addresses cause issues sometimes
 }
 
 ffmpeg_options = {
@@ -36,6 +35,7 @@ ytdl = youtube_dl.YoutubeDL(ytdl_options)
 
 class YTDLSource(discord.PCMVolumeTransformer):
     """youtube-dl操作"""
+
     def __init__(self, source, *, data):
         super().__init__(source)
         self.data = data
@@ -70,6 +70,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
 class Player:
     """再生操作全般を行うプレイヤー"""
+
     def __init__(self, ctx):
         self.bot = ctx.bot
         self.guild = ctx.guild
@@ -127,6 +128,7 @@ class Player:
 
 class MenuView(discord.ui.View):
     """playerコマンドの再生メニュー用Viewクラス"""
+
     def __init__(self, ctx):
         super().__init__(timeout=None)
         self.ctx = ctx
@@ -178,6 +180,7 @@ class MenuView(discord.ui.View):
 
 class Menu:
     """playerコマンドの再生メニュー"""
+
     def __init__(self, ctx):
         self.ctx = ctx
         self.msg = None
