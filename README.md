@@ -3,7 +3,7 @@
 
 The Discord BOT for MilkChocoOnline-FPS Players to test outfits and receive new updates easily.
 
-[Official Server Here](https://milkcoffee.cf/links/server) | [Invite MilkCoffee](https://milkcoffee.cf/links/invite)
+[Official Server Here](https://discord.gg/RbzSSrw) | [Invite MilkCoffee](https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&scope=bot)
 
 
 ## Main Features
@@ -12,7 +12,7 @@ The Discord BOT for MilkChocoOnline-FPS Players to test outfits and receive new 
 
 
 ## To get started
-First of all, invite [MilkCoffee](https://milkcoffee.cf/links/invite) to your server.
+First of all, invite [MilkCoffee](https://discord.com/oauth2/authorize?client_id=742952261176655882&permissions=-8&scope=bot) to your server.
 
 Then you can see full commands list by `m!help`
 
