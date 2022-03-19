@@ -1,7 +1,6 @@
 import asyncio
-
-import discord
-from discord.ext import commands
+import nextcord as discord
+from nextcord.ext import commands
 
 
 class Help(commands.HelpCommand):

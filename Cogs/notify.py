@@ -2,9 +2,9 @@ import asyncio
 from typing import Optional
 
 import aiohttp
-import discord
+import nextcord as discord
 import traceback2
-from discord.ext import commands
+from nextcord.ext import commands
 
 from .data.command_data import CmdData
 from .milkcoffee import MilkCoffee

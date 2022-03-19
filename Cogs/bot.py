@@ -1,8 +1,8 @@
 import asyncio
 
 import aiohttp
-import discord
-from discord.ext import commands
+import nextcord as discord
+from nextcord.ext import commands
 
 from .data.command_data import CmdData
 from .milkcoffee import MilkCoffee

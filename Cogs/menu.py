@@ -4,7 +4,7 @@ import io
 import re
 from typing import Any
 
-import discord
+import nextcord as discord
 from PIL import Image
 
 from .milkcoffee import MilkCoffee

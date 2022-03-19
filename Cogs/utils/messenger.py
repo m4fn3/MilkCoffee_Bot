@@ -1,5 +1,4 @@
-import discord
-
+import nextcord as discord
 
 async def error_embed(sendable, text: str, title: str = None):
     embed = discord.Embed(

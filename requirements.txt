@@ -1,4 +1,4 @@
-nextcord[voice]
+nextcord[voice] == 2.0.0a3
 python-dotenv
 asyncio
 async_timeout

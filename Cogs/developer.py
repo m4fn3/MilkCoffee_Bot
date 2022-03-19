@@ -11,10 +11,10 @@ import time
 from contextlib import redirect_stdout
 
 
-import discord
+import nextcord as discord
 import psutil
 import traceback2
-from discord.ext import commands
+from nextcord.ext import commands
 
 from .milkcoffee import MilkCoffee
 from .utils.messenger import error_embed, success_embed, warning_embed, normal_embed

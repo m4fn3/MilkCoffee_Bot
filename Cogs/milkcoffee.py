@@ -4,8 +4,8 @@ import time
 import pickle
 
 import aiohttp
-import discord
-from discord.ext import commands, tasks
+import nextcord as discord
+from nextcord.ext import commands, tasks
 
 from .SQLManager import SQLManager
 from .data.item_data import ItemData
@@ -37,7 +37,7 @@ class MilkCoffee(commands.Bot):
 
         self.uptime = time.time()  # 起動時間の記録
         self.commands_run = 0
-        self.aiohttp_session = aiohttp.ClientSession(loop=self.loop)
+        self.aiohttp_session = None
 
         with open('guilds.pickle', 'rb') as f:
             self.cache_guilds = pickle.load(f)
@@ -45,6 +45,7 @@ class MilkCoffee(commands.Bot):
     async def on_ready(self) -> None:
         """キャッシュ準備完了"""
         print(f"Logged in to [{self.user}]")
+        self.aiohttp_session = aiohttp.ClientSession(loop=self.loop)
         if self.user.id != 742952261176655882:
             self.command_prefix.append(",")
         if not self.db.is_connected():  # データベースに接続しているか確認

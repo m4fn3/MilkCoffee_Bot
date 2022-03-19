@@ -7,9 +7,9 @@ import re
 from typing import Any
 
 import aiohttp
-import discord
+import nextcord as discord
 from PIL import Image
-from discord.ext import commands
+from nextcord.ext import commands
 
 from .data.command_data import CmdData
 from .menu import Menu

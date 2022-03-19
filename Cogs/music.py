@@ -1,7 +1,7 @@
 import re
 
-from discord.ext import commands
-import discord
+from nextcord.ext import commands
+import nextcord as discord
 import yt_dlp as youtube_dl
 import asyncio
 from async_timeout import timeout
@@ -367,12 +367,14 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["j"], usage=cmd_data.join.usage, description=cmd_data.join.description, brief=cmd_data.join.brief)
     async def join(self, ctx):
-        if ctx.guild.id not in self.bot.cache_guilds:
-            embed = discord.Embed(
-                description=f"負荷対策のため音楽機能はサーバーごとの承認制になっています。\n__**ミルクチョコプレイヤーの方**__は基本誰でも許可しますので、\n1. __上の番号__(コピペでok)\n2. __ミルクチョコをしていることがわかるもの(ゲームのスクショやツイッターなど)__\nとともに[公式サーバー](https://discord.gg/h2ZNX9mSSN)の<#887981017539944498>でお伝えください！",
-                color=discord.Color.blue()
-            )
-            return await ctx.send(f"{ctx.guild.id}\nhttps://discord.gg/h2ZNX9mSSN", embed=embed)
+        embed = discord.Embed(color=0xf7b51c)
+        embed.description = f"<:warn:773569061442289674> 音楽の再生にはMilkCoffeeを使用してください\n" \
+                            f"[/player](https://discord.com/channels/{ctx.guild.id}/{ctx.channel.id}) と入力して音楽操作パネルを表示できます\n" \
+                            f"※ 何も表示されない場合は下のボタンを押して権限を追加してください"
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label="権限を追加", url="https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot%20applications.commands"))
+        view.add_item(discord.ui.Button(label="公式サーバー", url="https://discord.gg/S3kujur2pA"))
+        return await ctx.send(embed=embed, view=view)
 
         voice_client = ctx.voice_client
         if ctx.author.voice is None:

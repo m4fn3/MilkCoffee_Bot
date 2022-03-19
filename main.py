@@ -2,7 +2,7 @@ import logging
 import os
 from os.path import join, dirname
 
-import discord
+import nextcord as discord
 from dotenv import load_dotenv
 
 from Cogs.help import Help
