@@ -11,7 +11,7 @@ from .SQLManager import SQLManager
 from .data.item_data import ItemData
 from .data.static_data import StaticData
 from .data.strings import Strings
-from .utils.messenger import normal_embed, success_embed
+from .utils.messenger import normal_embed, success_embed, error_embed
 
 
 class MilkCoffee(commands.Bot):

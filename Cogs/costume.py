@@ -76,6 +76,9 @@ class Costume(commands.Cog):
 
     async def cog_before_invoke(self, ctx: commands.Context) -> None:
         """コマンド実行の前処理"""
+        if ctx.guild.get_member(742952261176655882) is None:
+            await error_embed(ctx, "Milk Coffee is needed to be in the server to use MilkCafe features.\n機能を利用するためにはMilkCoffeeがサーバーにいる必要があります.")
+            raise Exception("MilkCoffee needed")
         if ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
             await self.bot.on_new_user(ctx)  # 新規登録
 
