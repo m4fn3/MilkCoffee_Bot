@@ -22,7 +22,16 @@ class Notify(commands.Cog):
     async def cog_before_invoke(self, ctx: commands.Context) -> None:
         """コマンド実行の前処理"""
         if ctx.guild.get_member(742952261176655882) is None:
-            await error_embed(ctx, "Milk Coffee is needed to be in the server to use MilkCafe features.\n機能を利用するためにはMilkCoffeeがサーバーにいる必要があります.")
+            embed = discord.Embed(
+                description=f"<:xx:773568207222210650> Milk Coffee is needed to be in the server to use MilkCafe features.\n機能を利用するためにはMilkCoffeeがサーバーにいる必要があります.",
+                color=discord.Color.red()
+            )
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(
+                label="MilkCoffeeを追加",
+                url=f"https://discord.com/api/oauth2/authorize?client_id=742952261176655882&permissions=8&scope=bot%20applications.commands")
+            )
+            await ctx.send(embed=embed, view=view)
             raise Exception("MilkCoffee needed")
         if ctx.author.id not in self.bot.cache_users:  # 未登録ユーザーの場合
             await self.bot.on_new_user(ctx)  # 新規登録
