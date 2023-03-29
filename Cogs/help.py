@@ -30,6 +30,9 @@ class Help(commands.HelpCommand):
         # 一枚目の全コマンドリストEmbedを作成
         embed_org = discord.Embed(title=f"{self.context.bot.user.name}", color=0x9f563a)
         embed_org.description = self.footer_message[user_lang].format(self.context.bot.PREFIX) + "\n" + self.description_message[user_lang].format(self.context.bot.static_data.server)
+        embed_org.add_field(name="Warning/注意", value="現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
+                            "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
+                            "[https://milkcoffee.cf](https://milkcoffee.cf)")
         for cog_name in cogs:
             cog = discord.utils.get(mapping, qualified_name=cog_name)
             command_list = [command.name for command in self.filter_hidden_commands(cog.get_commands())]
@@ -60,6 +63,9 @@ class Help(commands.HelpCommand):
                     embed = discord.Embed(title=self.context.bot.text.help_how_title[user_lang], color=0x9f563a)
                     embed.description = self.footer_message[user_lang].format(self.context.bot.PREFIX) + "\n\n" + self.description_message[user_lang].format(self.context.bot.static_data.server) + "\n"
                     embed.description += self.context.bot.text.help_main[user_lang]
+                    embed.add_field(name="Warning/注意", value="現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
+                                                                 "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
+                                                                 "[https://milkcoffee.cf](https://milkcoffee.cf)")
                     await message.edit(embed=embed)
                     continue
                 if page == 1:  # 既に用意された1枚目を表示
