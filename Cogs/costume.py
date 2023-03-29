@@ -87,6 +87,7 @@ class Costume(commands.Cog):
             url=f"https://milkcoffee.cf")
         )
         await ctx.send(embed=embed, view=view)
+        await asyncio.sleep(3)
         if ctx.guild.get_member(742952261176655882) is None:
             embed = discord.Embed(
                 description=f"<:xx:773568207222210650> Milk Coffee is needed to be in the server to use MilkCafe features.\n機能を利用するためにはMilkCoffeeがサーバーにいる必要があります.",
