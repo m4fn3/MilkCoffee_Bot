@@ -28,18 +28,6 @@ class Costume(commands.Cog):
         self.menu_channels = set()
         self.menu_users = set()
 
-    async def cog_before_invoke(self, ctx: commands.Context) -> None:
-        """コマンド実行の前処理"""
-        embed = discord.Embed(title="MilkCoffee", color=discord.Color.blue())
-        embed.description = "現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
-                            "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
-                            "https://milkcoffee.cf"
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(
-            label="Website(new!)",
-            url=f"https://milkcoffee.cf")
-        )
-        await ctx.send(embed=embed)
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """アイテムを名前または番号で検索"""
@@ -89,6 +77,16 @@ class Costume(commands.Cog):
 
     async def cog_before_invoke(self, ctx: commands.Context) -> None:
         """コマンド実行の前処理"""
+        embed = discord.Embed(title="MilkCoffee", color=discord.Color.blue())
+        embed.description = "現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
+                            "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
+                            "[https://milkcoffee.cf](https://milkcoffee.cf)"
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(
+            label="Website(new!)",
+            url=f"https://milkcoffee.cf")
+        )
+        await ctx.send(embed=embed, view=view)
         if ctx.guild.get_member(742952261176655882) is None:
             embed = discord.Embed(
                 description=f"<:xx:773568207222210650> Milk Coffee is needed to be in the server to use MilkCafe features.\n機能を利用するためにはMilkCoffeeがサーバーにいる必要があります.",
