@@ -77,7 +77,7 @@ class Costume(commands.Cog):
 
     async def cog_before_invoke(self, ctx: commands.Context) -> None:
         """コマンド実行の前処理"""
-        embed = discord.Embed(title="MilkCoffee", color=discord.Color.blue())
+        embed = discord.Embed(title="MilkCoffee", color=discord.Color.red())
         embed.description = "現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
                             "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
                             "[https://milkcoffee.cf](https://milkcoffee.cf)"
