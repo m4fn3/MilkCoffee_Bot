@@ -28,6 +28,19 @@ class Costume(commands.Cog):
         self.menu_channels = set()
         self.menu_users = set()
 
+    async def cog_before_invoke(self, ctx: commands.Context) -> None:
+        """コマンド実行の前処理"""
+        embed = discord.Embed(title="MilkCoffee", color=discord.Color.blue())
+        embed.description = "現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
+                            "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
+                            "https://milkcoffee.cf"
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(
+            label="Website(new!)",
+            url=f"https://milkcoffee.cf")
+        )
+        await ctx.send()
+
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """アイテムを名前または番号で検索"""
         type_list: list
