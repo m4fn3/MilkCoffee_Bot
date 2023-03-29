@@ -43,10 +43,14 @@ class Bot(commands.Cog):
         # 本体を作成
         embed = discord.Embed(title="MilkCoffee", color=0xffffa8, url=self.bot.static_data.invite)
         embed.description = self.bot.text.invite_description[user_lang]
-        embed.set_thumbnail(url=self.bot.user.avatar.url)
+        embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.add_field(name=self.bot.text.invite_url[user_lang], value=self.bot.static_data.invite, inline=False)
         embed.add_field(name=self.bot.text.invite_server[user_lang], value=self.bot.static_data.server, inline=False)
         embed.add_field(name=self.bot.text.invite_add[user_lang], value=f"[{self.bot.text.invite_vote[user_lang]}]({self.bot.static_data.top_gg})")
+
+        embed.add_field(name="Warning/注意", value="現在MilkCafeは更新されておらず非推奨です。代わりにMilkCoffee(ウェブサイト)での利用を検討してください！\n" \
+                                                 "MilkCafe is deprecated. Please use our website MilkCoffee instead!\n" \
+                                                 "[https://milkcoffee.cf](https://milkcoffee.cf)")
         embed.set_footer(text="Powered by mafu#7582 with discord.py", icon_url="https://cdn.discordapp.com/emojis/769855038964891688.png")
         await ctx.send(embed=embed)
 
@@ -90,7 +94,8 @@ class Bot(commands.Cog):
         msg = await ctx.send(":wave:" + ctx.author.mention, embed=embed)
         emoji_task = self.bot.loop.create_task(self.add_selector_emoji(msg))  # リアクション追加
         try:  # リアクション待機
-            reaction, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.region, "🇯🇵", "🇦🇺", "🇰🇷", "🇪🇸"])
+            reaction, user = await self.bot.wait_for("reaction_add", timeout=60,
+                                                     check=lambda r, u: r.message.id == msg.id and u == ctx.author and str(r.emoji) in [self.bot.data.emoji.region, "🇯🇵", "🇦🇺", "🇰🇷", "🇪🇸"])
             emoji_task.cancel()
             if str(reaction.emoji) == self.bot.data.emoji.region:  # サーバー地域
                 await self.bot.db.set_lang(ctx.author.id, LanguageCode.REGION.value)
