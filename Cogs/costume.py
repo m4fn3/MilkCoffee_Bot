@@ -39,7 +39,7 @@ class Costume(commands.Cog):
             label="Website(new!)",
             url=f"https://milkcoffee.cf")
         )
-        await ctx.send()
+        await ctx.send(embed=embed)
 
     def find_item(self, item_name: str, index=False, item_type="") -> (int, Any):
         """アイテムを名前または番号で検索"""
